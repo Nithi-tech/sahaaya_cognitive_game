@@ -12,9 +12,14 @@ services:
         value: production
       - key: SAHAAYA_JWT_SECRET
         generateValue: true
-      - key: SAHAAYA_DB_PATH
-        value: /data/sahaaya.db
-    disk:
-      name: sahaaya-data
-      mountPath: /data
-      sizeGB: 1
+    # No SAHAAYA_DB_PATH and no `disk:` block — free-tier web services can't
+    # attach a persistent disk, so we leave SAHAAYA_DB_PATH unset and let
+    # server/src/db.ts fall back to its default (server/sahaaya.db, inside the
+    # deployed app's own directory — guaranteed writable, no path guessing).
+    # That file lives on the container's local filesystem, which is ephemeral
+    # across redeploys (not across idle spin-down/wake — only an actual new
+    # deploy wipes it). The server auto-seeds demo accounts on boot, so a
+    # wiped DB just resets to the demo dataset next deploy — any real data
+    # added during a session (extra reminders/sessions/memories) is lost then.
+    # Upgrade to a paid plan and add back a `disk:` block (mountPath e.g.
+    # /data, with SAHAAYA_DB_PATH pointing there) for real persistence.

@@ -50,34 +50,49 @@ npm run lint             # oxlint
 ## Deploying
 
 The frontend (`/`) and backend (`/server`) deploy to two different places, because the
-backend uses a file-based SQLite database (`better-sqlite3`) that needs a real, persistent
-disk — something Vercel's serverless functions don't provide (their filesystem is
-ephemeral). So: **backend → Render** (persistent disk, free tier), **frontend → Vercel**.
+backend uses a file-based SQLite database (`better-sqlite3`) that Vercel's serverless
+functions can't host (their filesystem is ephemeral). So: **backend → Render**,
+**frontend → Vercel**.
 
-### 1. Backend → Render
+### 1. Backend → Render (free tier)
 
 This repo includes `render.yaml` at the root, so Render can set everything up from one click:
 
 1. Push this repo to GitHub (if it isn't already).
 2. In the [Render dashboard](https://dashboard.render.com), **New → Blueprint**, pick this repo.
-   Render reads `render.yaml` and creates a `sahaaya-api` web service with:
-   - a 1 GB persistent disk mounted at `/data`
-   - `SAHAAYA_DB_PATH=/data/sahaaya.db` (so the SQLite file survives restarts/redeploys)
-   - `SAHAAYA_JWT_SECRET` auto-generated (never falls back to the insecure dev default)
-3. Deploy. The server seeds its own demo accounts automatically on first boot against the
-   empty disk (see `server/src/index.ts` — idempotent, safe on every restart).
+   Render reads `render.yaml` and creates a `sahaaya-api` free web service with
+   `SAHAAYA_JWT_SECRET` auto-generated (never falls back to the insecure dev default).
+3. Deploy. The server seeds its own demo accounts automatically on first boot
+   (see `server/src/index.ts` — idempotent, safe on every restart).
 4. Note the resulting URL, e.g. `https://sahaaya-api.onrender.com`. Confirm it's alive:
    `curl https://sahaaya-api.onrender.com/api/health` → `{"ok":true}`.
 
-No Blueprint access, or prefer manual setup? Any Node host with a persistent disk works
-(Render's dashboard "New Web Service" flow, Railway, Fly.io, a VPS): root directory
-`server`, build command `npm install && npm run build`, start command `npm run start`,
-and set `SAHAAYA_DB_PATH` to a path on persistent storage plus a strong `SAHAAYA_JWT_SECRET`.
+**Free-tier tradeoffs, on purpose:**
+- **No persistent disk.** Render's free web services can't attach one, so the SQLite file
+  lives on the container's local filesystem — durable across idle spin-down/wake, but
+  wiped on the *next redeploy*. The server just re-seeds the demo accounts when that
+  happens; any real data added during a session (extra reminders, played activities,
+  memories) is lost at that point. Fine for a demo/portfolio deploy, not for real users.
+- **Cold starts.** Free services spin down after ~15 min idle; the first request afterward
+  can take 30-50s to wake up. Expected — not a bug.
 
-> **Check current pricing before deploying.** Persistent disks have historically required
-> a paid instance tier on Render (not the free plan) — `render.yaml` here requests `plan:
-> free`, which Render may reject or silently require an upgrade for. Check Render's current
-> pricing page and bump `plan:` in `render.yaml` (or in the dashboard) if needed.
+**Want real persistence?** Bump `plan: free` → `plan: starter` (or current equivalent —
+check Render's pricing page, it changes) in `render.yaml`, then add back:
+```yaml
+    envVars:
+      - key: SAHAAYA_DB_PATH
+        value: /data/sahaaya.db
+    disk:
+      name: sahaaya-data
+      mountPath: /data
+      sizeGB: 1
+```
+Commit and push — Render redeploys with the new plan and disk automatically.
+
+No Blueprint access, or prefer a different host? Any Node host works: root directory
+`server`, build command `npm install && npm run build`, start command `npm run start`,
+and (if you want persistence) `SAHAAYA_DB_PATH` pointing at persistent storage, plus a
+strong `SAHAAYA_JWT_SECRET`.
 
 ### 2. Frontend → Vercel
 
@@ -105,8 +120,8 @@ vercel --prod                 # deploy to production with the env var applied
 ### After deploying
 
 - Demo accounts (below) work immediately — the backend seeds itself.
-- If you rotate `SAHAAYA_JWT_SECRET` or wipe the disk, existing logged-in sessions on the
-  frontend become invalid; users just log in again.
+- If you rotate `SAHAAYA_JWT_SECRET` or redeploy on the free tier (resets the database, see
+  above), existing logged-in sessions on the frontend become invalid; users just log in again.
 - CORS is wide open (`cors()` with no origin restriction) so the Vercel frontend can reach
   the Render backend regardless of preview-deployment URLs; tighten it in
   `server/src/index.ts` if you want to lock it to your production domain.
