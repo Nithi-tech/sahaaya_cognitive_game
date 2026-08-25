@@ -36,6 +36,13 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     }
   });
   const draining = useRef(false);
+  // Mirrors syncQueue so drainQueue can read the latest value without taking
+  // a dependency on it (which would recreate the callback — and re-fire the
+  // effect that calls it — on every queue change).
+  const syncQueueRef = useRef(syncQueue);
+  useEffect(() => {
+    syncQueueRef.current = syncQueue;
+  }, [syncQueue]);
 
   const persistQueue = (items: SyncQueueItem[]) => {
     setSyncQueue(items);
@@ -58,41 +65,31 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
 
   const drainQueue = useCallback(async () => {
     if (draining.current || !isAuthenticated) return;
-    setSyncQueue((current) => {
-      const pending = current.filter((i) => i.status === 'pending');
-      if (pending.length === 0) return current;
+    const pending = syncQueueRef.current.filter((i) => i.status === 'pending');
+    if (pending.length === 0) return;
 
-      draining.current = true;
-      setIsSyncing(true);
-      setSyncComplete(false);
+    draining.current = true;
+    setIsSyncing(true);
+    setSyncComplete(false);
 
-      api
-        .post<{ results: SyncResult[] }>('/sync', {
-          items: pending.map((p) => ({ id: p.id, patientId: p.patientId, actionType: p.actionType, payload: p.payload })),
-        })
-        .then(({ results }) => {
-          const resultById = new Map(results.map((r) => [r.id, r]));
-          setSyncQueue((latest) => {
-            const remaining = latest.filter((item) => {
-              const result = resultById.get(item.id);
-              return !(result && result.status === 'synced');
-            });
-            persistQueue(remaining);
-            return remaining;
-          });
-          setSyncComplete(true);
-          setTimeout(() => setSyncComplete(false), 3000);
-        })
-        .catch(() => {
-          // Still offline or server unreachable — leave items pending, retry on next reconnect.
-        })
-        .finally(() => {
-          setIsSyncing(false);
-          draining.current = false;
-        });
-
-      return current;
-    });
+    try {
+      const { results } = await api.post<{ results: SyncResult[] }>('/sync', {
+        items: pending.map((p) => ({ id: p.id, patientId: p.patientId, actionType: p.actionType, payload: p.payload })),
+      });
+      const resultById = new Map(results.map((r) => [r.id, r]));
+      const remaining = syncQueueRef.current.filter((item) => {
+        const result = resultById.get(item.id);
+        return !(result && result.status === 'synced');
+      });
+      persistQueue(remaining);
+      setSyncComplete(true);
+      setTimeout(() => setSyncComplete(false), 3000);
+    } catch {
+      // Still offline or server unreachable — leave items pending, retry on next reconnect.
+    } finally {
+      setIsSyncing(false);
+      draining.current = false;
+    }
   }, [isAuthenticated]);
 
   useEffect(() => {

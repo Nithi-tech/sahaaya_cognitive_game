@@ -36,6 +36,12 @@ export default function ElderlyMyDay() {
 
       <div style={{ padding: '24px 24px 16px', marginTop: -16 }}>
         <div style={{ background: 'white', borderRadius: 24, padding: '24px', boxShadow: 'var(--shadow-lg)' }}>
+          {dailyActivities.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <div style={{ fontSize: 40, marginBottom: 10 }}>🗓️</div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>Nothing scheduled for today yet.</p>
+            </div>
+          )}
           <div className="timeline">
             {dailyActivities.map((activity) => {
               const actMins = toMins(activity.scheduledTime);

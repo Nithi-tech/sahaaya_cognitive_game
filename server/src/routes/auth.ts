@@ -15,8 +15,13 @@ interface UserRow {
   language: string;
 }
 
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 authRouter.post('/register', async (req, res) => {
-  const { email, password, name, role, language } = req.body ?? {};
+  const { password, name, role, language } = req.body ?? {};
+  const email = typeof req.body?.email === 'string' ? normalizeEmail(req.body.email) : req.body?.email;
   if (!email || !password || !name || !role) {
     return res.status(400).json({ error: 'email, password, name, and role are required' });
   }
@@ -28,16 +33,28 @@ authRouter.post('/register', async (req, res) => {
 
   const id = newId('user');
   const passwordHash = await bcrypt.hash(password, 10);
-  db.prepare(
-    'INSERT INTO users (id, email, password_hash, name, role, language) VALUES (?, ?, ?, ?, ?, ?)',
-  ).run(id, email, passwordHash, name, role, language ?? 'en');
+  try {
+    db.prepare(
+      'INSERT INTO users (id, email, password_hash, name, role, language) VALUES (?, ?, ?, ?, ?, ?)',
+    ).run(id, email, passwordHash, name, role, language ?? 'en');
+  } catch (err) {
+    // Two concurrent registrations for the same email can both pass the SELECT
+    // check above before either INSERTs — the UNIQUE constraint is the real
+    // guarantee; translate its violation into the same clean 409 rather than
+    // letting it fall through to a raw 500.
+    if ((err as { code?: string }).code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      return res.status(409).json({ error: 'An account with this email already exists' });
+    }
+    throw err;
+  }
 
   const user = { id, email, name, role: role as Role, language: language ?? 'en' };
   res.status(201).json({ token: signToken(user), user });
 });
 
 authRouter.post('/login', async (req, res) => {
-  const { email, password } = req.body ?? {};
+  const { password } = req.body ?? {};
+  const email = typeof req.body?.email === 'string' ? normalizeEmail(req.body.email) : req.body?.email;
   if (!email || !password) return res.status(400).json({ error: 'email and password are required' });
 
   const row = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as UserRow | undefined;

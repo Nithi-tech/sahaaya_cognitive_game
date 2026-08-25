@@ -40,6 +40,7 @@ alertsRouter.get('/:patientId', requirePatientAccess, (req, res) => {
 });
 
 alertsRouter.patch('/:patientId/:alertId/resolve', requirePatientAccess, (req, res) => {
-  const row = applyAlertResolve(String(req.params.patientId), String(req.params.alertId)) as AlertRow;
+  const row = applyAlertResolve(String(req.params.patientId), String(req.params.alertId)) as AlertRow | undefined;
+  if (!row) return res.status(404).json({ error: 'Alert not found' });
   res.json({ alert: serialize(row) });
 });

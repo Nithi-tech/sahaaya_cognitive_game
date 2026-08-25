@@ -250,23 +250,8 @@ input, textarea, select {
   background: rgba(46, 125, 139, 0.08);
 }
 
-.btn--ghost {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--text-primary);
-  backdrop-filter: blur(4px);
-}
-
-.btn--ghost:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.25);
-}
-
 .btn--danger {
   background: var(--color-danger);
-  color: white;
-}
-
-.btn--success {
-  background: var(--color-success);
   color: white;
 }
 
@@ -381,12 +366,6 @@ input, textarea, select {
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-
-.badge--success { background: var(--color-success-light); color: #2E7D32; }
-.badge--warning { background: var(--color-warning-light); color: #E65100; }
-.badge--danger { background: var(--color-danger-light); color: #C62828; }
-.badge--info { background: var(--color-info-light); color: #1565C0; }
-.badge--neutral { background: #F5F5F5; color: var(--text-secondary); }
 
 /* ============================================================
    Progress Bar
@@ -1240,10 +1219,10 @@ input, textarea, select {
 
 .welcome-card__close {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 28px;
-  height: 28px;
+  top: 6px;
+  right: 6px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: none;
   background: rgba(0, 0, 0, 0.06);
@@ -1423,10 +1402,26 @@ input, textarea, select {
    Table
    ============================================================ */
 
+/* Wrap any <table class="data-table"> in <div class="data-table-scroll"> —
+   scrolls horizontally on narrow screens instead of the whole page
+   overflowing (see PatientDetail/HCWPatients tables on mobile widths). */
+.data-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-sm);
+}
+
+/* Reflowing stat/KPI card row — replaces ad hoc `repeat(4, 1fr)` grids that
+   overflow the viewport on narrow phones instead of wrapping. */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: var(--space-4);
 }
 
 .data-table th {
@@ -1542,38 +1537,6 @@ input, textarea, select {
   color: var(--text-tertiary);
 }
 
-/* Activity card */
-.activity-card {
-  background: white;
-  border-radius: 24px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-}
-
-.activity-card__title { font-size: 20px; font-weight: 800; }
-.activity-card__subtitle { font-size: 16px; color: var(--text-secondary); margin-top: 4px; }
-
-/* Reminder chips */
-.reminder-chips { display: flex; flex-direction: column; gap: 8px; }
-
-.reminder-chip {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.15s;
-  border: 1px solid var(--border-color);
-}
-
-.reminder-chip--pending { background: white; }
-.reminder-chip--completed { background: var(--color-success-light); border-color: var(--color-success); opacity: 0.8; }
-.reminder-chip__emoji { font-size: 24px; flex-shrink: 0; }
 
 /* Form */
 .form-group { display: flex; flex-direction: column; gap: 6px; }
@@ -1597,43 +1560,7 @@ input, textarea, select {
   box-shadow: 0 0 0 3px rgba(46,125,139,0.1);
 }
 
-.form-textarea { min-height: 80px; resize: vertical; }
-
-/* Data Table */
-.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-
-.data-table th {
-  text-align: left;
-  padding: 10px 16px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border-bottom: 1px solid var(--border-color);
-  white-space: nowrap;
-}
-
-.data-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
-  vertical-align: middle;
-}
-
-.data-table tr:last-child td { border-bottom: none; }
-.data-table tr:hover td { background: var(--bg-page); cursor: pointer; }
-
-/* Badges */
-.badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 99px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
+/* Badges (base .badge rule lives with the design tokens near the top of this file) */
 .badge--success { background: var(--color-success-light); color: var(--color-success); }
 .badge--warning { background: var(--color-warning-light); color: var(--color-warning); }
 .badge--danger { background: var(--color-danger-light); color: var(--color-danger); }
@@ -1942,8 +1869,8 @@ input, textarea, select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 99px;
   border: none;
   background: rgba(46, 125, 139, 0.1);

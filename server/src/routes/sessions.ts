@@ -62,6 +62,7 @@ function serializeProfile(row: ProfileRow) {
 
 sessionsRouter.get('/:patientId', requirePatientAccess, (req, res) => {
   const days = Number(req.query.days ?? 30);
+  if (!Number.isFinite(days) || days <= 0) return res.status(400).json({ error: 'days must be a positive number' });
   const cutoff = new Date(Date.now() - days * 86400000).toISOString();
   const rows = db
     .prepare('SELECT * FROM cognitive_sessions WHERE patient_id = ? AND timestamp > ? ORDER BY timestamp DESC')

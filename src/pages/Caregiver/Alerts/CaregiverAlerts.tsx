@@ -3,7 +3,7 @@ import { CaregiverSidebar } from '../../../components/Sidebar/Sidebar';
 import { CheckCircle } from 'lucide-react';
 
 export default function CaregiverAlerts() {
-  const { alerts, resolveAlert } = useApp();
+  const { alerts, resolveAlert, currentPatient } = useApp();
 
   const unresolved = alerts.filter(a => !a.resolved);
   const resolved = alerts.filter(a => a.resolved);
@@ -78,7 +78,7 @@ export default function CaregiverAlerts() {
         <div style={{ marginBottom: 24 }}>
           <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em' }}>Alert Center</h1>
           <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
-            Activity and engagement alerts for Maya Devi · Not medical advisories
+            Activity and engagement alerts for {currentPatient?.name ?? 'your patient'} · Not medical advisories
           </p>
         </div>
 
@@ -130,7 +130,7 @@ export default function CaregiverAlerts() {
           <div className="card" style={{ borderRadius: 20, textAlign: 'center', padding: '60px 20px' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
             <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>No Active Alerts</h3>
-            <p style={{ color: 'var(--text-secondary)' }}>Maya Devi's activity patterns look good!</p>
+            <p style={{ color: 'var(--text-secondary)' }}>{currentPatient?.name ?? 'Your patient'}'s activity patterns look good!</p>
           </div>
         )}
       </main>

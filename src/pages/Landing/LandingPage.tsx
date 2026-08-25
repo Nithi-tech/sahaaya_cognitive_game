@@ -2,14 +2,8 @@ import { useState } from 'react';
 import { useAuth } from '../../store/AuthContext';
 import { useApp } from '../../store/AppContext';
 import { useTranslation } from '../../i18n/useTranslation';
+import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../../constants/demoAccounts';
 import type { Language } from '../../types';
-
-const DEMO_ACCOUNTS = [
-  { role: 'elderly' as const, email: 'maya@sahaaya.demo', label: 'landing.elderly', emoji: '👴', sub: 'Demo: Maya Devi, 72' },
-  { role: 'caregiver' as const, email: 'priya@sahaaya.demo', label: 'landing.caregiver', emoji: '❤️', sub: 'Demo: Priya Devi' },
-  { role: 'healthcare' as const, email: 'akhil@sahaaya.demo', label: 'landing.healthcare', emoji: '🏥', sub: 'Demo: Dr. Akhil Sharma' },
-];
-const DEMO_PASSWORD = 'demo1234';
 
 const HOW_IT_WORKS = [
   { step: '1', icon: '🙋', title: 'Pick who you are', body: 'Elderly, caregiver, or healthcare worker — each gets a purpose-built experience.' },

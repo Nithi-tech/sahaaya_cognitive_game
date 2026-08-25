@@ -108,9 +108,11 @@ CREATE TABLE IF NOT EXISTS alerts (
 
 CREATE TABLE IF NOT EXISTS sync_log (
   id TEXT PRIMARY KEY,
+  client_id TEXT UNIQUE,
   patient_id TEXT NOT NULL,
   action_type TEXT NOT NULL,
   payload_json TEXT NOT NULL,
+  result_json TEXT,
   status TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );

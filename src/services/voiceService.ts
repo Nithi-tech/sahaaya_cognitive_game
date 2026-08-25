@@ -52,9 +52,11 @@ export function listenOnce(lang: 'en' | 'as'): Promise<string> {
       resolve(transcript);
     };
     recognition.onerror = (event) => reject(new Error(event.error));
-    recognition.onend = () => {
-      /* resolved via onresult; if neither fired, the promise simply never settles further */
-    };
+    // Some browsers fire onend on silence/cancellation without ever firing
+    // onresult or onerror first — without this, the promise (and the mic
+    // button's "listening" state) would hang forever with no way to recover
+    // short of reloading the page.
+    recognition.onend = () => reject(new Error('no-speech'));
     recognition.start();
   });
 }

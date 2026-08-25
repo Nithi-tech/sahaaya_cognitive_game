@@ -12,20 +12,35 @@ const TYPE_CONFIG: Record<ReminderType, { emoji: string; color: string; label: s
 };
 
 export default function CaregiverReminders() {
-  const { reminders, addReminder, updateReminderStatus } = useApp();
+  const { reminders, addReminder, updateReminderStatus, currentPatient } = useApp();
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ type: 'medicine' as ReminderType, title: '', description: '', time: '09:00' });
+  const [titleError, setTitleError] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
 
-  const handleAdd = () => {
-    if (!form.title) return;
-    addReminder({
-      type: form.type,
-      title: form.title,
-      description: form.description,
-      time: form.time,
-    });
-    setForm({ type: 'medicine', title: '', description: '', time: '09:00' });
-    setShowAdd(false);
+  const handleAdd = async () => {
+    if (!form.title.trim()) {
+      setTitleError(true);
+      return;
+    }
+    setSaving(true);
+    setSaveError(false);
+    try {
+      await addReminder({
+        type: form.type,
+        title: form.title,
+        description: form.description,
+        time: form.time,
+      });
+      setForm({ type: 'medicine', title: '', description: '', time: '09:00' });
+      setTitleError(false);
+      setShowAdd(false);
+    } catch {
+      setSaveError(true);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const adherenceByType = (type: ReminderType) => {
@@ -41,7 +56,7 @@ export default function CaregiverReminders() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
           <div>
             <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em' }}>Reminders</h1>
-            <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>Manage Maya Devi's daily reminders</p>
+            <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>Manage {currentPatient?.name ?? 'your patient'}'s daily reminders</p>
           </div>
           <button className="btn btn--primary" onClick={() => setShowAdd(true)} style={{ gap: 6 }}>
             <Plus size={18} /> Add Reminder
@@ -49,7 +64,7 @@ export default function CaregiverReminders() {
         </div>
 
         {/* Adherence Summary */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+        <div className="stat-grid" style={{ marginBottom: 24 }}>
           {(Object.entries(TYPE_CONFIG) as [ReminderType, typeof TYPE_CONFIG[ReminderType]][]).map(([type, conf]) => {
             const pct = adherenceByType(type);
             return (
@@ -99,7 +114,14 @@ export default function CaregiverReminders() {
               </div>
               <div className="form-group">
                 <label className="form-label">Title</label>
-                <input className="form-input" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Morning Medicine" />
+                <input
+                  className="form-input"
+                  value={form.title}
+                  onChange={e => { setForm(f => ({ ...f, title: e.target.value })); if (titleError) setTitleError(false); }}
+                  placeholder="e.g. Morning Medicine"
+                  style={titleError ? { borderColor: 'var(--color-danger)' } : undefined}
+                />
+                {titleError && <p style={{ color: 'var(--color-danger)', fontSize: 12, marginTop: 4 }}>Please enter a title.</p>}
               </div>
               <div className="form-group">
                 <label className="form-label">Time</label>
@@ -110,16 +132,22 @@ export default function CaregiverReminders() {
                 <input className="form-input" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="e.g. Take 2 tablets with water" />
               </div>
             </div>
+            {saveError && <p style={{ color: 'var(--color-danger)', fontSize: 13, marginBottom: 10 }}>Couldn't save this reminder. Please try again.</p>}
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn btn--primary" onClick={handleAdd} style={{ flex: 1, gap: 6 }}>
-                <Check size={16} /> Save Reminder
+              <button className="btn btn--primary" onClick={handleAdd} disabled={saving} style={{ flex: 1, gap: 6 }}>
+                <Check size={16} /> {saving ? 'Saving…' : 'Save Reminder'}
               </button>
-              <button className="btn btn--outline" onClick={() => setShowAdd(false)}>Cancel</button>
+              <button className="btn btn--outline" onClick={() => setShowAdd(false)} disabled={saving}>Cancel</button>
             </div>
           </div>
         )}
 
         {/* Reminder List */}
+        {reminders.length === 0 && (
+          <div className="card" style={{ borderRadius: 20, textAlign: 'center', padding: '40px 20px', color: 'var(--text-tertiary)' }}>
+            No reminders yet — add one to get started.
+          </div>
+        )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {reminders.map((r) => {
             const conf = TYPE_CONFIG[r.type] ?? TYPE_CONFIG.medicine;
@@ -144,7 +172,7 @@ export default function CaregiverReminders() {
                   )}
                 </div>
                 <button
-                  onClick={() => updateReminderStatus(r.id, 'completed')}
+                  onClick={() => { updateReminderStatus(r.id, 'completed').catch(() => {}); }}
                   disabled={r.status === 'completed'}
                   style={{
                     background: r.status === 'completed' ? 'var(--color-success-light)' : 'var(--color-primary)',

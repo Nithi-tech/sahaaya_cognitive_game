@@ -39,53 +39,75 @@ function canAccessPatient(patientId: string, user: { id: string; role: string })
   );
 }
 
+interface SyncLogRow {
+  status: 'synced' | 'failed';
+  result_json: string | null;
+}
+
 // Replays a batch of offline-queued mutations, in order, against the same
 // logic the direct REST endpoints use. Returns a per-item result so the
 // client's sync queue can mark each entry SYNCED or FAILED individually.
+//
+// Idempotent by item.id (the client-generated queue-item id, stable across
+// retries of the same offline action): if this exact item was already
+// applied successfully in a previous batch — e.g. the client resent it
+// because a reconnect happened right as the first response was in flight —
+// we return the cached result instead of re-running the mutation and
+// creating a second record.
 syncRouter.post('/', (req, res) => {
   const items = (req.body?.items ?? []) as SyncItem[];
+  if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
   const user = req.authUser!;
-  const results: { id: string; status: 'synced' | 'failed'; error?: string }[] = [];
+  const results: { id: string; status: 'synced' | 'failed'; error?: string; data?: unknown }[] = [];
 
   for (const item of items) {
+    const previous = db.prepare('SELECT status, result_json FROM sync_log WHERE client_id = ?').get(item.id) as
+      | SyncLogRow
+      | undefined;
+    if (previous?.status === 'synced') {
+      results.push({ id: item.id, status: 'synced', data: previous.result_json ? JSON.parse(previous.result_json) : undefined });
+      continue;
+    }
+
     try {
       if (!canAccessPatient(item.patientId, user)) throw new Error('Forbidden: not assigned to this patient');
 
+      let data: unknown;
       switch (item.actionType) {
         case 'addSession':
-          applySession(item.patientId, item.payload);
+          data = applySession(item.patientId, item.payload);
           break;
         case 'addReminder':
-          applyReminderCreate(item.patientId, item.payload);
+          data = applyReminderCreate(item.patientId, item.payload);
           break;
         case 'setReminderStatus':
-          applyReminderStatus(item.patientId, item.payload.reminderId as string, item.payload.status as string);
+          data = applyReminderStatus(item.patientId, item.payload.reminderId as string, item.payload.status as string);
           break;
         case 'addMemory':
-          applyMemoryCreate(item.patientId, item.payload);
+          data = applyMemoryCreate(item.patientId, item.payload);
           break;
         case 'setDailyActivityStatus':
-          applyDailyActivityStatus(item.patientId, item.payload.activityId as string, item.payload.status as string);
+          data = applyDailyActivityStatus(item.patientId, item.payload.activityId as string, item.payload.status as string);
           break;
         case 'resolveAlert':
-          applyAlertResolve(item.patientId, item.payload.alertId as string);
+          data = applyAlertResolve(item.patientId, item.payload.alertId as string);
           break;
         case 'updatePatientPreferences':
-          applyPatientPreferencesUpdate(item.patientId, item.payload);
+          data = applyPatientPreferencesUpdate(item.patientId, item.payload);
           break;
         default:
           throw new Error(`Unknown actionType: ${item.actionType}`);
       }
 
       db.prepare(
-        'INSERT INTO sync_log (id, patient_id, action_type, payload_json, status, created_at) VALUES (?, ?, ?, ?, ?, ?)',
-      ).run(newId('sync'), item.patientId, item.actionType, JSON.stringify(item.payload), 'synced', new Date().toISOString());
+        'INSERT OR REPLACE INTO sync_log (id, client_id, patient_id, action_type, payload_json, result_json, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      ).run(newId('sync'), item.id, item.patientId, item.actionType, JSON.stringify(item.payload), JSON.stringify(data ?? null), 'synced', new Date().toISOString());
 
-      results.push({ id: item.id, status: 'synced' });
+      results.push({ id: item.id, status: 'synced', data });
     } catch (err) {
       db.prepare(
-        'INSERT INTO sync_log (id, patient_id, action_type, payload_json, status, created_at) VALUES (?, ?, ?, ?, ?, ?)',
-      ).run(newId('sync'), item.patientId, item.actionType, JSON.stringify(item.payload), 'failed', new Date().toISOString());
+        'INSERT OR REPLACE INTO sync_log (id, client_id, patient_id, action_type, payload_json, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      ).run(newId('sync'), item.id, item.patientId, item.actionType, JSON.stringify(item.payload), 'failed', new Date().toISOString());
       results.push({ id: item.id, status: 'failed', error: (err as Error).message });
     }
   }

@@ -12,7 +12,7 @@ export function SpeakableLabel({ text }: Props) {
     <button
       type="button"
       className="speakable-label__btn"
-      aria-label={`${text}`}
+      aria-label={`Hear "${text}" spoken aloud`}
       onClick={(e) => {
         e.stopPropagation();
         voiceService.speak(text);

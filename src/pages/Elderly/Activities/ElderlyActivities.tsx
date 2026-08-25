@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
 import { useApp } from '../../../store/AppContext';
@@ -7,7 +7,7 @@ import {
   computeNextDifficulty, generateRecommendation, getDomainFromGame
 } from '../../../engines/adaptiveDifficulty';
 import { playFeedbackForAccuracy } from '../../../services/soundService';
-import type { Difficulty, GameType, CognitiveDomain } from '../../../types';
+import type { Difficulty, GameType, CognitiveDomain, AdaptiveRecommendation } from '../../../types';
 import { ArrowLeft, CheckCircle, ChevronRight, Volume2 } from 'lucide-react';
 import MemoryMatchGame from './games/MemoryMatchGame';
 import ObjectRecognitionGame from './games/ObjectRecognitionGame';
@@ -42,7 +42,7 @@ type Screen = 'select' | 'playing' | 'result' | 'recommendation' | 'complete';
 export default function ElderlyActivities() {
   const navigate = useNavigate();
   const { t, lang } = useTranslation();
-  const { cognitiveProfile, addSession, memories } = useApp();
+  const { cognitiveProfile, addSession, memories, sessions } = useApp();
 
   const familyMemoryCount = useMemo(() => memories.filter((m) => m.category === 'family' && m.relationship).length, [memories]);
   const GAME_SEQUENCE = useMemo(
@@ -54,14 +54,52 @@ export default function ElderlyActivities() {
   const [currentGameIdx, setCurrentGameIdx] = useState(0);
   const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>('easy');
   const [gameResults, setGameResults] = useState<GameResult[]>([]);
+  const [seededToday, setSeededToday] = useState(false);
   const [lastResult, setLastResult] = useState<GameResult | null>(null);
   const [recommendation, setRecommendation] = useState<ReturnType<typeof generateRecommendation> | null>(null);
   const [difficultyReason, setDifficultyReason] = useState('');
   const [startTime, setStartTime] = useState(Date.now());
+  // The authoritative recommendation from the server (or offline fallback) —
+  // preferred over recomputing from `cognitiveProfile`, which can still
+  // reflect the pre-session score if the final screen is reached before that
+  // state update lands.
+  const [latestServerRecommendation, setLatestServerRecommendation] = useState<AdaptiveRecommendation | null>(null);
+
+  // Progress ("done" checkmarks) is otherwise local-only state that resets to
+  // empty every time this screen unmounts (e.g. tapping Home and coming
+  // back) even though the sessions were already saved. Seed it once from the
+  // real persisted sessions so progress survives navigating away and back.
+  useEffect(() => {
+    if (seededToday) return;
+    const today = new Date().toISOString().split('T')[0];
+    const todaysSessions = sessions.filter((s) => s.timestamp.startsWith(today));
+    if (todaysSessions.length === 0) return;
+    setGameResults((prev) => {
+      const byType = new Map(prev.map((r) => [r.gameType, r]));
+      for (const s of todaysSessions) {
+        if (!byType.has(s.gameType)) {
+          byType.set(s.gameType, { gameType: s.gameType, accuracy: s.accuracy, responseTime: s.responseTime, mistakes: s.mistakes, completed: true });
+        }
+      }
+      return Array.from(byType.values());
+    });
+    setSeededToday(true);
+  }, [sessions, seededToday]);
 
   const currentGameType = GAME_SEQUENCE[currentGameIdx];
   const currentGameInfo = GAME_INFO[currentGameType];
   const totalGames = GAME_SEQUENCE.length;
+
+  // The single source of truth for "what should the user do next" — derived
+  // from which games actually have a saved result, not from currentGameIdx
+  // (which only tracks whichever game is currently on screen and drifts out
+  // of sync the moment a game is replayed or the user backs out early).
+  const completedGameTypes = useMemo(() => new Set(gameResults.map((r) => r.gameType)), [gameResults]);
+  const allGamesDone = completedGameTypes.size >= totalGames;
+  const nextIncompleteIdx = useMemo(() => {
+    const idx = GAME_SEQUENCE.findIndex((gt) => !completedGameTypes.has(gt));
+    return idx === -1 ? totalGames - 1 : idx;
+  }, [GAME_SEQUENCE, completedGameTypes, totalGames]);
 
   const handleGameComplete = useCallback((accuracy: number, mistakes: number, responseTime?: number) => {
     const rt = responseTime ?? (Date.now() - startTime) / 1000;
@@ -73,7 +111,11 @@ export default function ElderlyActivities() {
       completed: true,
     };
     setLastResult(result);
-    setGameResults((prev) => [...prev, result]);
+    // Replace, not append — replaying an already-completed game (from the
+    // select screen, or the "Back to Activities" → tap-a-card path) must not
+    // create a second entry for the same gameType, which would corrupt the
+    // average-accuracy math and show the game twice on the summary screen.
+    setGameResults((prev) => [...prev.filter((r) => r.gameType !== currentGameType), result]);
     playFeedbackForAccuracy(accuracy);
 
     // Compute next difficulty
@@ -104,32 +146,45 @@ export default function ElderlyActivities() {
       mistakes,
       completed: true,
       domain,
-    });
+    })
+      .then((rec) => { if (rec) setLatestServerRecommendation(rec); })
+      .catch(() => {
+        /* addSession's own offline fallback already applies locally; a genuine
+           error here just means the recommendation screen falls back to the
+           local recompute below instead of the server's authoritative one. */
+      });
 
     setCurrentDifficulty(nextDiff);
     setScreen('result');
   }, [currentGameType, currentDifficulty, startTime, gameResults, addSession]);
 
   const handleNextGame = () => {
-    if (currentGameIdx < totalGames - 1) {
-      setCurrentGameIdx((prev) => prev + 1);
+    if (!allGamesDone) {
+      setCurrentGameIdx(nextIncompleteIdx);
       setStartTime(Date.now());
       setScreen('playing');
     } else {
-      // All done — show recommendation
-      const domainScores = {
-        memory: cognitiveProfile.memoryScore,
-        attention: cognitiveProfile.attentionScore,
-        recognition: cognitiveProfile.recognitionScore,
-        pattern: cognitiveProfile.patternScore,
-        routine: cognitiveProfile.routineScore,
-      };
-      const rec = generateRecommendation(
-        domainScores,
-        gameResults.map(r => getDomainFromGame(r.gameType)),
-        lastResult?.accuracy ?? 75,
-      );
-      setRecommendation(rec);
+      // All done — prefer the authoritative recommendation the server
+      // returned from the most recent addSession call; only recompute
+      // locally (from cognitiveProfile, which can still be mid-update) if
+      // that hasn't resolved yet.
+      if (latestServerRecommendation) {
+        setRecommendation(latestServerRecommendation);
+      } else {
+        const domainScores = {
+          memory: cognitiveProfile.memoryScore,
+          attention: cognitiveProfile.attentionScore,
+          recognition: cognitiveProfile.recognitionScore,
+          pattern: cognitiveProfile.patternScore,
+          routine: cognitiveProfile.routineScore,
+        };
+        const rec = generateRecommendation(
+          domainScores,
+          gameResults.map(r => getDomainFromGame(r.gameType)),
+          lastResult?.accuracy ?? 75,
+        );
+        setRecommendation(rec);
+      }
       setScreen('recommendation');
     }
   };
@@ -161,8 +216,8 @@ export default function ElderlyActivities() {
         <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           {GAME_SEQUENCE.map((gt, idx) => {
             const info = GAME_INFO[gt];
-            const isNext = idx === currentGameIdx;
-            const isDone = gameResults.some(r => r.gameType === gt);
+            const isNext = idx === nextIncompleteIdx;
+            const isDone = completedGameTypes.has(gt);
             return (
               <button
                 key={gt}
@@ -210,10 +265,14 @@ export default function ElderlyActivities() {
         <div style={{ padding: '20px' }}>
           <button
             className="btn btn--primary"
-            onClick={() => { setStartTime(Date.now()); setScreen('playing'); }}
+            onClick={() => { setCurrentGameIdx(nextIncompleteIdx); setStartTime(Date.now()); setScreen('playing'); }}
             style={{ width: '100%', height: 64, fontSize: 20, borderRadius: 18, fontWeight: 800 }}
           >
-            {currentGameIdx === 0 ? '🚀 Start Activities' : `▶️ Continue — Game ${currentGameIdx + 1}`}
+            {completedGameTypes.size === 0
+              ? '🚀 Start Activities'
+              : allGamesDone
+                ? '🔁 Replay Activities'
+                : `▶️ Continue — Game ${nextIncompleteIdx + 1}`}
           </button>
         </div>
         <ElderlyNav />
@@ -282,7 +341,7 @@ export default function ElderlyActivities() {
     const improved = lastResult.accuracy >= 80;
     const maintained = lastResult.accuracy >= 50;
     return (
-      <div className="elderly-layout" style={{ paddingBottom: 90, padding: '40px 20px' }}>
+      <div className="elderly-layout" style={{ padding: '40px 20px 90px' }}>
         <div style={{ maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ position: 'relative', display: 'inline-block' }}>
             {improved && (
@@ -356,7 +415,7 @@ export default function ElderlyActivities() {
   if (screen === 'recommendation' && recommendation) {
     const avgAccuracy = Math.round(gameResults.reduce((a, r) => a + r.accuracy, 0) / gameResults.length);
     return (
-      <div className="elderly-layout" style={{ paddingBottom: 90, padding: '40px 20px' }}>
+      <div className="elderly-layout" style={{ padding: '40px 20px 90px' }}>
         <div style={{ maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ fontSize: 64, marginBottom: 12 }}>🎉</div>
           <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 6 }}>All Activities Done!</h2>

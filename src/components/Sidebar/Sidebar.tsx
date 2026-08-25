@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Activity, Bell, BookOpen, AlertTriangle,
-  Users, TrendingUp, LogOut
+  Users, TrendingUp, LogOut, Repeat
 } from 'lucide-react';
 import { useAuth } from '../../store/AuthContext';
+import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../../constants/demoAccounts';
 
 interface SidebarItem {
   icon: React.ReactNode;
@@ -17,12 +19,24 @@ interface SidebarProps {
 }
 
 export function Sidebar({ items, role }: SidebarProps) {
-  const { user, logout } = useAuth();
+  const { user, login, logout } = useAuth();
   const navigate = useNavigate();
+  const [showRoleSwitch, setShowRoleSwitch] = useState(false);
+  const [switching, setSwitching] = useState<string | null>(null);
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleSwitchRole = async (email: string) => {
+    setSwitching(email);
+    try {
+      await login(email, DEMO_PASSWORD);
+      navigate('/');
+    } catch {
+      setSwitching(null);
+    }
   };
 
   return (
@@ -54,8 +68,32 @@ export function Sidebar({ items, role }: SidebarProps) {
           Logged in as
         </div>
         <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 12 }}>{user?.name}</div>
-        <button className="btn btn--outline btn--sm" onClick={handleLogout} style={{ width: '100%', gap: 6 }}>
-          <LogOut size={14} /> Switch Role
+
+        {showRoleSwitch && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 8 }}>
+            {DEMO_ACCOUNTS.filter((acc) => acc.email !== user?.email).map((acc) => (
+              <button
+                key={acc.role}
+                onClick={() => handleSwitchRole(acc.email)}
+                disabled={switching !== null}
+                className="btn btn--outline btn--sm"
+                style={{ width: '100%', justifyContent: 'flex-start', gap: 8 }}
+              >
+                <span>{acc.emoji}</span> {switching === acc.email ? 'Switching…' : acc.sub}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <button
+          className="btn btn--outline btn--sm"
+          onClick={() => setShowRoleSwitch((v) => !v)}
+          style={{ width: '100%', gap: 6, marginBottom: 8 }}
+        >
+          <Repeat size={14} /> Switch Role
+        </button>
+        <button className="btn btn--ghost btn--sm" onClick={handleLogout} style={{ width: '100%', gap: 6, color: 'var(--text-secondary)' }}>
+          <LogOut size={14} /> Log Out
         </button>
       </div>
     </aside>

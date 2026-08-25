@@ -58,7 +58,7 @@ export function NetworkToggle() {
           onClick={toggleOnline}
           className={`btn btn--sm ${isOnline ? 'btn--outline' : 'btn--primary'}`}
         >
-          {isOnline ? 'Simulate Offline' : 'Go Online'}
+          {isOnline ? 'Go Offline' : 'Go Online'}
         </button>
       </div>
     </div>

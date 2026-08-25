@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Difficulty } from '../../../../types';
 import { useTranslation } from '../../../../i18n/useTranslation';
 import { useQuizVoice } from '../../../../hooks/useQuizVoice';
@@ -46,10 +46,15 @@ export default function MemoryMatchGame({ difficulty, onComplete }: Props) {
   const [timeLeft, setTimeLeft] = useState(difficulty === 'easy' ? 5 : difficulty === 'medium' ? 4 : 3);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [submitted, setSubmitted] = useState(false);
+  const completeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (completeTimer.current) clearTimeout(completeTimer.current);
+  }, []);
 
   // All emojis for distractor pool
   const allEmojis = Object.keys(ITEM_LABELS);
-  const distractors = allEmojis.filter(e => !items.includes(e)).slice(0, difficulty === 'easy' ? 2 : 4);
+  const distractors = allEmojis.filter(e => !items.includes(e)).sort(() => Math.random() - 0.5).slice(0, difficulty === 'easy' ? 2 : 4);
   const options = [...items, ...distractors].sort(() => Math.random() - 0.5).slice(0, difficulty === 'easy' ? 6 : difficulty === 'medium' ? 9 : 12);
   const [optionsList] = useState(options);
 
@@ -80,7 +85,7 @@ export default function MemoryMatchGame({ difficulty, onComplete }: Props) {
     const clamped = Math.max(0, Math.min(100, accuracy));
     voice.speakFeedback(narrateFeedback(lang, clamped >= 70));
     const mistakes = items.filter(i => !selected.has(i)).length + falsePositives;
-    setTimeout(() => onComplete(clamped, mistakes), 1500);
+    completeTimer.current = setTimeout(() => onComplete(clamped, mistakes), 1500);
   };
 
   if (phase === 'memorize') {
@@ -158,11 +163,16 @@ export default function MemoryMatchGame({ difficulty, onComplete }: Props) {
             borderColor = 'var(--color-primary)';
           }
 
+          const mark = submitted
+            ? (isCorrect && isSelected) ? '✓' : (!isCorrect && isSelected) ? '✗' : (isCorrect && !isSelected) ? '!' : null
+            : null;
+
           return (
             <button
               key={emoji}
               onClick={() => toggleSelect(emoji)}
               style={{
+                position: 'relative',
                 background: bgColor,
                 border: `3px solid ${borderColor}`,
                 borderRadius: 16,
@@ -175,6 +185,14 @@ export default function MemoryMatchGame({ difficulty, onComplete }: Props) {
                 gap: 6,
               }}
             >
+              {mark && (
+                <span style={{
+                  position: 'absolute', top: 6, right: 8, fontSize: 15, fontWeight: 800,
+                  color: mark === '✓' ? 'var(--color-success)' : mark === '✗' ? 'var(--color-danger)' : 'var(--color-warning)',
+                }}>
+                  {mark}
+                </span>
+              )}
               <span style={{ fontSize: 36 }}>{emoji}</span>
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>
                 {ITEM_LABELS[emoji]}

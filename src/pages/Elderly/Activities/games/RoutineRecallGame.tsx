@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Difficulty } from '../../../../types';
 import { useTranslation } from '../../../../i18n/useTranslation';
 import { useQuizVoice } from '../../../../hooks/useQuizVoice';
@@ -50,6 +50,11 @@ export default function RoutineRecallGame({ difficulty, onComplete }: Props) {
   );
   const [submitted, setSubmitted] = useState(false);
   const [startTime] = useState(Date.now());
+  const completeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (completeTimer.current) clearTimeout(completeTimer.current);
+  }, []);
 
   const moveUp = (idx: number) => {
     if (idx === 0) return;
@@ -77,7 +82,7 @@ export default function RoutineRecallGame({ difficulty, onComplete }: Props) {
     const accuracy = Math.round((correctCount / items.length) * 100);
     const mistakes = items.length - correctCount;
     voice.speakFeedback(narrateFeedback(lang, accuracy >= 70));
-    setTimeout(() => onComplete(accuracy, mistakes, (Date.now() - startTime) / 1000), 1500);
+    completeTimer.current = setTimeout(() => onComplete(accuracy, mistakes, (Date.now() - startTime) / 1000), 1500);
   };
 
   return (
@@ -126,20 +131,26 @@ export default function RoutineRecallGame({ difficulty, onComplete }: Props) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <button
                     onClick={() => moveUp(idx)}
+                    disabled={idx === 0}
+                    aria-label={`Move ${item.label} earlier`}
                     style={{
+                      width: 40, height: 36,
                       background: idx === 0 ? '#F5F5F5' : 'var(--color-primary)',
                       color: idx === 0 ? '#CCC' : 'white',
-                      border: 'none', borderRadius: 8, padding: '6px 10px',
-                      cursor: idx === 0 ? 'default' : 'pointer', fontSize: 14, fontWeight: 700,
+                      border: 'none', borderRadius: 8,
+                      cursor: idx === 0 ? 'default' : 'pointer', fontSize: 16, fontWeight: 700,
                     }}
                   >↑</button>
                   <button
                     onClick={() => moveDown(idx)}
+                    disabled={idx === items.length - 1}
+                    aria-label={`Move ${item.label} later`}
                     style={{
+                      width: 40, height: 36,
                       background: idx === items.length - 1 ? '#F5F5F5' : 'var(--color-primary)',
                       color: idx === items.length - 1 ? '#CCC' : 'white',
-                      border: 'none', borderRadius: 8, padding: '6px 10px',
-                      cursor: idx === items.length - 1 ? 'default' : 'pointer', fontSize: 14, fontWeight: 700,
+                      border: 'none', borderRadius: 8,
+                      cursor: idx === items.length - 1 ? 'default' : 'pointer', fontSize: 16, fontWeight: 700,
                     }}
                   >↓</button>
                 </div>

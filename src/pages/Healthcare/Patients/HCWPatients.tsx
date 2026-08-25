@@ -10,27 +10,40 @@ interface Row {
   patient: PatientProfile;
   profile: CognitiveProfile | null;
   activeAlerts: number;
+  activeRecently: boolean;
 }
 
 export default function HCWPatients() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [rows, setRows] = useState<Row[] | null>(null);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { patients } = await api.get<{ patients: PatientProfile[] }>('/patients');
-      const withData = await Promise.all(
-        patients.map(async (patient) => {
-          const [profileRes, alertsRes] = await Promise.all([
-            api.get<{ profile: CognitiveProfile }>(`/sessions/${patient.id}/profile`).catch(() => null),
-            api.get<{ alerts: Alert[] }>(`/alerts/${patient.id}`).catch(() => ({ alerts: [] })),
-          ]);
-          return { patient, profile: profileRes?.profile ?? null, activeAlerts: alertsRes.alerts.filter((a) => !a.resolved).length };
-        }),
-      );
-      if (!cancelled) setRows(withData);
+      setLoadError(false);
+      try {
+        const { patients } = await api.get<{ patients: PatientProfile[] }>('/patients');
+        const withData = await Promise.all(
+          patients.map(async (patient) => {
+            const [profileRes, alertsRes, recentSessionsRes] = await Promise.all([
+              api.get<{ profile: CognitiveProfile }>(`/sessions/${patient.id}/profile`).catch(() => null),
+              api.get<{ alerts: Alert[] }>(`/alerts/${patient.id}`).catch(() => ({ alerts: [] })),
+              api.get<{ sessions: unknown[] }>(`/sessions/${patient.id}?days=7`).catch(() => ({ sessions: [] })),
+            ]);
+            return {
+              patient,
+              profile: profileRes?.profile ?? null,
+              activeAlerts: alertsRes.alerts.filter((a) => !a.resolved).length,
+              activeRecently: recentSessionsRes.sessions.length > 0,
+            };
+          }),
+        );
+        if (!cancelled) setRows(withData);
+      } catch {
+        if (!cancelled) setLoadError(true);
+      }
     })();
     return () => {
       cancelled = true;
@@ -42,6 +55,7 @@ export default function HCWPatients() {
     ? Math.round(profiles.reduce((a, p) => a + (p.profile?.overallEngagement ?? 0), 0) / profiles.length)
     : 0;
   const needsAttention = profiles.filter((p) => (p.profile?.overallEngagement ?? 0) < 70).length;
+  const activeCount = profiles.filter((p) => p.activeRecently).length;
 
   const TrendIcon = ({ score }: { score: number }) => {
     if (score >= 75) return <TrendingUp size={14} color="var(--color-success)" />;
@@ -62,10 +76,10 @@ export default function HCWPatients() {
         </div>
 
         {/* Summary KPIs */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
+        <div className="stat-grid" style={{ marginBottom: 28 }}>
           {[
             { label: 'Total Patients', value: profiles.length, color: 'var(--color-primary)', emoji: '👥' },
-            { label: 'Active Patients', value: profiles.length, color: 'var(--color-success)', emoji: '✅' },
+            { label: 'Active This Week', value: activeCount, color: 'var(--color-success)', emoji: '✅' },
             { label: 'Needs Attention', value: needsAttention, color: 'var(--color-warning)', emoji: '⚠️' },
             { label: 'Avg. Engagement', value: `${avgEngagement}%`, color: 'var(--color-info)', emoji: '📊' },
           ].map(k => (
@@ -90,9 +104,19 @@ export default function HCWPatients() {
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 700 }}>Assigned Patients</h3>
           </div>
-          {rows === null ? (
+          {rows === null && !loadError ? (
             <div style={{ padding: 24, color: 'var(--text-tertiary)' }}>Loading patients…</div>
+          ) : loadError ? (
+            <div style={{ padding: 24, textAlign: 'center' }}>
+              <p style={{ color: 'var(--color-danger)', marginBottom: 12 }}>Couldn't load your patients. Please check your connection.</p>
+              <button className="btn btn--outline btn--sm" onClick={() => window.location.reload()}>Try Again</button>
+            </div>
+          ) : profiles.length === 0 ? (
+            <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-tertiary)' }}>
+              No patients are assigned to you yet.
+            </div>
           ) : (
+          <div className="data-table-scroll">
           <table className="data-table">
             <thead>
               <tr>
@@ -110,8 +134,22 @@ export default function HCWPatients() {
             <tbody>
               {profiles.map(({ patient, profile, activeAlerts }) => {
                 const engagement = profile?.overallEngagement ?? 0;
+                const goToPatient = () => navigate(`/patient/${patient.id}`);
                 return (
-                  <tr key={patient.id} onClick={() => navigate(`/patient/${patient.id}`)}>
+                  <tr
+                    key={patient.id}
+                    onClick={goToPatient}
+                    tabIndex={0}
+                    role="link"
+                    aria-label={`View details for ${patient.name}`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        goToPatient();
+                      }
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{
@@ -160,6 +198,7 @@ export default function HCWPatients() {
               })}
             </tbody>
           </table>
+          </div>
           )}
         </div>
       </main>

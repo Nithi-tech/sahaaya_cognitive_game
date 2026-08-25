@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Difficulty } from '../../../../types';
 import { useTranslation } from '../../../../i18n/useTranslation';
 import { QuestionNarrator } from '../../../../components/Voice/QuestionNarrator';
@@ -41,6 +41,11 @@ export default function AttentionGame({ difficulty, onComplete }: Props) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [submitted, setSubmitted] = useState(false);
   const [startTime] = useState(Date.now());
+  const completeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (completeTimer.current) clearTimeout(completeTimer.current);
+  }, []);
 
   const targetIndices = new Set(grid.map((e, i) => e === target ? i : -1).filter(i => i >= 0));
 
@@ -61,10 +66,13 @@ export default function AttentionGame({ difficulty, onComplete }: Props) {
     const accuracy = Math.max(0, Math.round((hits / targetIndices.size) * 100 - falsePositives * 15));
     const mistakes = misses + falsePositives;
     const rt = (Date.now() - startTime) / 1000;
-    setTimeout(() => onComplete(accuracy, mistakes, rt), 1500);
+    // Cleared on unmount — otherwise tapping "Back" during this window still
+    // fires onComplete afterward and yanks the user into a results screen
+    // they didn't ask for (ElderlyActivities.tsx forces screen='result').
+    completeTimer.current = setTimeout(() => onComplete(accuracy, mistakes, rt), 1500);
   };
 
-  const cols = difficulty === 'easy' ? 3 : 3;
+  const cols = 3;
 
   return (
     <div style={{ textAlign: 'center' }}>
@@ -104,11 +112,16 @@ export default function AttentionGame({ difficulty, onComplete }: Props) {
             bg = 'rgba(46,125,139,0.1)'; border = 'var(--color-primary)';
           }
 
+          const mark = submitted
+            ? (isTarget && isSelected) ? '✓' : (!isTarget && isSelected) ? '✗' : (isTarget && !isSelected) ? '!' : null
+            : null;
+
           return (
             <button
               key={i}
               onClick={() => toggle(i)}
               style={{
+                position: 'relative',
                 background: bg, border: `3px solid ${border}`,
                 borderRadius: 16, padding: '16px 8px',
                 fontSize: 40, cursor: 'pointer', transition: 'all 0.15s',
@@ -116,6 +129,14 @@ export default function AttentionGame({ difficulty, onComplete }: Props) {
               }}
             >
               {emoji}
+              {mark && (
+                <span style={{
+                  position: 'absolute', top: 4, right: 6, fontSize: 15, fontWeight: 800,
+                  color: mark === '✓' ? 'var(--color-success)' : mark === '✗' ? 'var(--color-danger)' : 'var(--color-warning)',
+                }}>
+                  {mark}
+                </span>
+              )}
             </button>
           );
         })}

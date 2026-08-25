@@ -26,13 +26,26 @@ app.use('/api/alerts', alertsRouter);
 app.use('/api/sync', syncRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+app.use((err: Error & { status?: number; statusCode?: number }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err);
+  // express.json() throws a SyntaxError with .status = 400 on malformed request
+  // bodies — surface that as the client error it is, not a generic 500. Any
+  // other (genuinely unexpected) error still gets a safe, non-leaking message.
+  const status = err.status ?? err.statusCode;
+  if (status && status >= 400 && status < 500) {
+    return res.status(status).json({ error: err.message || 'Bad request' });
+  }
   res.status(500).json({ error: 'Internal server error' });
 });
 
 const PORT = process.env.PORT ?? 4000;
 if (process.env.NODE_ENV !== 'test') {
+  if (!process.env.SAHAAYA_JWT_SECRET) {
+    console.warn(
+      '\n⚠️  SAHAAYA_JWT_SECRET is not set — using an insecure, publicly-known default.\n' +
+      '    Anyone can forge a valid login token. Set SAHAAYA_JWT_SECRET before deploying for real use.\n',
+    );
+  }
   // Idempotent — a fresh deploy (empty DB) seeds the demo accounts automatically;
   // an existing DB is left untouched. Keeps a first deploy to Render/Fly/etc. zero-touch.
   await import('./seed.js');

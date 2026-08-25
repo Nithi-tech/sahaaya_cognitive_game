@@ -38,7 +38,10 @@ dailyActivitiesRouter.get('/:patientId', requirePatientAccess, (req, res) => {
 
 dailyActivitiesRouter.patch('/:patientId/:activityId', requirePatientAccess, (req, res) => {
   try {
-    const row = applyDailyActivityStatus(String(req.params.patientId), String(req.params.activityId), req.body?.status) as ActivityRow;
+    const row = applyDailyActivityStatus(String(req.params.patientId), String(req.params.activityId), req.body?.status) as
+      | ActivityRow
+      | undefined;
+    if (!row) return res.status(404).json({ error: 'Daily activity not found' });
     res.json({ activity: serialize(row) });
   } catch (err) {
     res.status(400).json({ error: (err as Error).message });

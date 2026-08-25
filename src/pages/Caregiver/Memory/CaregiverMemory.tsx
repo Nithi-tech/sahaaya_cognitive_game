@@ -13,7 +13,7 @@ const CATEGORY_CONFIG: Record<MemoryCategory, { emoji: string; label: string; co
 };
 
 export default function CaregiverMemory() {
-  const { memories, addMemory } = useApp();
+  const { memories, addMemory, currentPatient } = useApp();
   const [showAdd, setShowAdd] = useState(false);
   const [activeCategory, setActiveCategory] = useState<MemoryCategory | 'all'>('all');
   const [form, setForm] = useState({
@@ -25,20 +25,36 @@ export default function CaregiverMemory() {
     notes: '',
   });
 
+  const [titleError, setTitleError] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+
   const filtered = activeCategory === 'all' ? memories : memories.filter(m => m.category === activeCategory);
 
-  const handleAdd = () => {
-    if (!form.title) return;
-    addMemory({
-      category: form.category,
-      title: form.title,
-      description: form.description,
-      relationship: form.relationship,
-      voiceText: form.voiceText || `${form.title} — ${form.description}`,
-      notes: form.notes,
-    });
-    setForm({ category: 'family', title: '', description: '', relationship: '', voiceText: '', notes: '' });
-    setShowAdd(false);
+  const handleAdd = async () => {
+    if (!form.title.trim()) {
+      setTitleError(true);
+      return;
+    }
+    setSaving(true);
+    setSaveError(false);
+    try {
+      await addMemory({
+        category: form.category,
+        title: form.title,
+        description: form.description,
+        relationship: form.relationship,
+        voiceText: form.voiceText || `${form.title} — ${form.description}`,
+        notes: form.notes,
+      });
+      setForm({ category: 'family', title: '', description: '', relationship: '', voiceText: '', notes: '' });
+      setTitleError(false);
+      setShowAdd(false);
+    } catch {
+      setSaveError(true);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -49,7 +65,7 @@ export default function CaregiverMemory() {
           <div>
             <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em' }}>Memory Manager</h1>
             <p style={{ color: 'var(--text-secondary)', marginTop: 4 }}>
-              Add memories to help Maya Devi remember the people and things she loves
+              Add memories to help {currentPatient?.name ?? 'your patient'} remember the people and things they love
             </p>
           </div>
           <button className="btn btn--primary" onClick={() => setShowAdd(true)} style={{ gap: 6 }}>
@@ -111,7 +127,14 @@ export default function CaregiverMemory() {
               </div>
               <div className="form-group">
                 <label className="form-label">Name / Title *</label>
-                <input className="form-input" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Anjali" />
+                <input
+                  className="form-input"
+                  value={form.title}
+                  onChange={e => { setForm(f => ({ ...f, title: e.target.value })); if (titleError) setTitleError(false); }}
+                  placeholder="e.g. Anjali"
+                  style={titleError ? { borderColor: 'var(--color-danger)' } : undefined}
+                />
+                {titleError && <p style={{ color: 'var(--color-danger)', fontSize: 12, marginTop: 4 }}>Please enter a name or title.</p>}
               </div>
               <div className="form-group">
                 <label className="form-label">Relationship</label>
@@ -130,16 +153,22 @@ export default function CaregiverMemory() {
                 <input className="form-input" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="e.g. She calls every evening at 7 PM" />
               </div>
             </div>
+            {saveError && <p style={{ color: 'var(--color-danger)', fontSize: 13, marginBottom: 10 }}>Couldn't save this memory. Please try again.</p>}
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn btn--primary" onClick={handleAdd} style={{ flex: 1, gap: 6 }}>
-                <Check size={16} /> Save Memory
+              <button className="btn btn--primary" onClick={handleAdd} disabled={saving} style={{ flex: 1, gap: 6 }}>
+                <Check size={16} /> {saving ? 'Saving…' : 'Save Memory'}
               </button>
-              <button className="btn btn--outline" onClick={() => setShowAdd(false)}>Cancel</button>
+              <button className="btn btn--outline" onClick={() => setShowAdd(false)} disabled={saving}>Cancel</button>
             </div>
           </div>
         )}
 
         {/* Memory Grid */}
+        {filtered.length === 0 && (
+          <div className="card" style={{ borderRadius: 20, textAlign: 'center', padding: '40px 20px', color: 'var(--text-tertiary)' }}>
+            {memories.length === 0 ? "No memories yet — add one to get started." : "No memories in this category yet."}
+          </div>
+        )}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
           {filtered.map((m) => {
             const conf = CATEGORY_CONFIG[m.category];

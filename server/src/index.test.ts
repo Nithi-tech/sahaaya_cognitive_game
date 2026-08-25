@@ -47,6 +47,27 @@ describe('auth', () => {
     const res = await request(app).get('/api/patients');
     expect(res.status).toBe(401);
   });
+
+  it('logs in with a different email casing than was registered', async () => {
+    const res = await request(app).post('/api/auth/login').send({ email: 'MAYA@Sahaaya.Demo', password: 'demo1234' });
+    expect(res.status).toBe(200);
+    expect(res.body.user.email).toBe('maya@sahaaya.demo');
+  });
+
+  it('rejects a duplicate registration with a 409, not a 500, even with different casing', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({ email: 'Maya@Sahaaya.Demo', password: 'pw123456', name: 'Duplicate', role: 'elderly' });
+    expect(res.status).toBe(409);
+  });
+
+  it('returns a clean 400 for a malformed JSON body instead of a raw 500', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .set('Content-Type', 'application/json')
+      .send('{not valid json');
+    expect(res.status).toBe(400);
+  });
 });
 
 describe('RBAC / patient isolation', () => {
@@ -64,6 +85,31 @@ describe('RBAC / patient isolation', () => {
   it('lets the elderly user see only their own patient record', async () => {
     const res = await request(app).get('/api/patients').set('Authorization', `Bearer ${elderlyToken}`);
     expect(res.body.patients.map((p: { id: string }) => p.id)).toEqual(['patient_1']);
+  });
+
+  it("does not leak another patient's alert data when resolving under a URL patientId the caller does own", async () => {
+    // otherCaregiverToken legitimately owns patient_2, so requirePatientAccess
+    // passes — but the alertId belongs to patient_1. Before the fix, the
+    // mutation's SELECT wasn't re-scoped by patient_id, so this returned
+    // patient_1's alert. It must now 404 instead of leaking cross-patient data.
+    const patient1Alerts = await request(app).get('/api/alerts/patient_1').set('Authorization', `Bearer ${caregiverToken}`);
+    const alertId = patient1Alerts.body.alerts[0].id;
+
+    const res = await request(app)
+      .patch(`/api/alerts/patient_2/${alertId}/resolve`)
+      .set('Authorization', `Bearer ${otherCaregiverToken}`);
+    expect(res.status).toBe(404);
+  });
+
+  it("does not leak another patient's daily-activity data the same way", async () => {
+    const patient1Activities = await request(app).get('/api/daily-activities/patient_1').set('Authorization', `Bearer ${caregiverToken}`);
+    const activityId = patient1Activities.body.activities[0].id;
+
+    const res = await request(app)
+      .patch(`/api/daily-activities/patient_2/${activityId}`)
+      .set('Authorization', `Bearer ${otherCaregiverToken}`)
+      .send({ status: 'completed' });
+    expect(res.status).toBe(404);
   });
 });
 
@@ -88,6 +134,29 @@ describe('cognitive sessions + adaptive profile', () => {
       .set('Authorization', `Bearer ${otherCaregiverToken}`)
       .send({ gameType: 'memory_match', difficulty: 'medium', accuracy: 95, domain: 'memory' });
     expect(res.status).toBe(403);
+  });
+
+  it('rejects an unknown domain instead of silently corrupting the profile', async () => {
+    const res = await request(app)
+      .post('/api/sessions/patient_1')
+      .set('Authorization', `Bearer ${caregiverToken}`)
+      .send({ gameType: 'memory_match', difficulty: 'medium', accuracy: 95, domain: 'not-a-real-domain' });
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects an unknown gameType', async () => {
+    const res = await request(app)
+      .post('/api/sessions/patient_1')
+      .set('Authorization', `Bearer ${caregiverToken}`)
+      .send({ gameType: 'not-a-real-game', difficulty: 'medium', accuracy: 95, domain: 'memory' });
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects a non-numeric ?days= query instead of throwing a raw 500', async () => {
+    const res = await request(app)
+      .get('/api/sessions/patient_1?days=not-a-number')
+      .set('Authorization', `Bearer ${caregiverToken}`);
+    expect(res.status).toBe(400);
   });
 });
 
@@ -136,10 +205,30 @@ describe('offline sync replay', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.results).toEqual([
-      { id: 'q1', status: 'synced' },
-      { id: 'q2', status: 'synced' },
+      { id: 'q1', status: 'synced', data: expect.anything() },
+      { id: 'q2', status: 'synced', data: expect.anything() },
       { id: 'q3', status: 'failed', error: expect.any(String) },
     ]);
+  });
+
+  it('is idempotent — replaying the same client item id does not apply the mutation twice', async () => {
+    const before = await request(app).get('/api/memories/patient_1').set('Authorization', `Bearer ${caregiverToken}`);
+    const countBefore = before.body.memories.length;
+
+    const item = { id: 'idempotent-1', patientId: 'patient_1', actionType: 'addMemory', payload: { category: 'family', title: 'Only Once' } };
+    const first = await request(app).post('/api/sync').set('Authorization', `Bearer ${caregiverToken}`).send({ items: [item] });
+    const second = await request(app).post('/api/sync').set('Authorization', `Bearer ${caregiverToken}`).send({ items: [item] });
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    expect(first.body.results[0].status).toBe('synced');
+    expect(second.body.results[0].status).toBe('synced');
+    // Same server-assigned memory id both times — the second call returned the
+    // cached result instead of inserting a second row.
+    expect(second.body.results[0].data.id).toBe(first.body.results[0].data.id);
+
+    const after = await request(app).get('/api/memories/patient_1').set('Authorization', `Bearer ${caregiverToken}`);
+    expect(after.body.memories.length).toBe(countBefore + 1);
   });
 });
 
@@ -164,7 +253,7 @@ describe('patient preferences (voice settings persistence)', () => {
         ],
       });
     expect(res.status).toBe(200);
-    expect(res.body.results).toEqual([{ id: 'p1', status: 'synced' }]);
+    expect(res.body.results).toEqual([{ id: 'p1', status: 'synced', data: expect.anything() }]);
 
     const check = await request(app).get('/api/patients/patient_1').set('Authorization', `Bearer ${caregiverToken}`);
     expect(check.body.patient.preferences.voiceSpeed).toBe('fast');

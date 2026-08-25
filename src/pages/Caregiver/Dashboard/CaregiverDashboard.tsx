@@ -8,7 +8,7 @@ import { Pill, Droplets, Route, Brain, Bell, ArrowRight } from 'lucide-react';
 
 export default function CaregiverDashboard() {
   const { user } = useAuth();
-  const { currentPatient, reminders, alerts, cognitiveProfile, sessions, dailyActivities } = useApp();
+  const { currentPatient, reminders, alerts, cognitiveProfile, sessions, dailyActivities, loading } = useApp();
   const navigate = useNavigate();
 
   const todaySessions = sessions.filter(
@@ -53,21 +53,28 @@ export default function CaregiverDashboard() {
               {currentPatient?.name[0] ?? '?'}
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: 15 }}>{currentPatient?.name ?? 'Loading…'}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Age {currentPatient?.age} · {currentPatient?.region} · Last active: Today</div>
+              <div style={{ fontWeight: 700, fontSize: 15 }}>
+                {currentPatient?.name ?? (loading ? 'Loading…' : 'No patient assigned yet')}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
+                {currentPatient ? <>Age {currentPatient.age} · {currentPatient.region} · Last active: Today</> : 'Ask an admin to assign a patient to your account.'}
+              </div>
             </div>
-            <span style={{ background: 'var(--color-success-light)', color: 'var(--color-success)', padding: '3px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700 }}>Active</span>
+            {currentPatient && (
+              <span style={{ background: 'var(--color-success-light)', color: 'var(--color-success)', padding: '3px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700 }}>Active</span>
+            )}
           </div>
         </div>
 
         {/* Alert Banner */}
         {unresolvedAlerts.length > 0 && (
-          <div
+          <button
             onClick={() => navigate('/alerts')}
             style={{
               background: '#FFF3E0', border: '1px solid #FFB74D',
               borderRadius: 16, padding: '14px 18px', marginBottom: 20,
               display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
+              width: '100%', textAlign: 'left', font: 'inherit',
             }}
           >
             <Bell size={20} color="var(--color-warning)" />
@@ -80,7 +87,7 @@ export default function CaregiverDashboard() {
               </span>
             </div>
             <ArrowRight size={16} color="var(--color-warning)" />
-          </div>
+          </button>
         )}
 
         {/* KPI Cards */}
@@ -89,7 +96,7 @@ export default function CaregiverDashboard() {
             {
               icon: <Brain size={22} />, label: "Today's Activity",
               value: todaySessions.length > 0 ? `${todaySessions.length} sessions` : 'Not started',
-              sub: todaySessions.length > 0 ? '✓ Completed' : 'Scheduled 10:00 AM',
+              sub: todaySessions.length > 0 ? '✓ Completed' : 'No activity yet today',
               color: todaySessions.length > 0 ? 'var(--color-success)' : 'var(--color-primary)',
               bg: todaySessions.length > 0 ? 'var(--color-success-light)' : 'rgba(46,125,139,0.06)',
             },

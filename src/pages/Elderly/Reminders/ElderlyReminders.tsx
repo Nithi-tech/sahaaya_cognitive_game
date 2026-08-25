@@ -48,12 +48,20 @@ export default function ElderlyReminders() {
             ✓ {reminders.filter(r => r.status === 'completed').length} done
           </span>
           <span style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 99, padding: '4px 12px', fontSize: 13, fontWeight: 600 }}>
-            {reminders.filter(r => r.status === 'scheduled').length} upcoming
+            {reminders.filter(r => r.status === 'scheduled' || r.status === 'delayed').length} upcoming
           </span>
         </div>
       </div>
 
       <div style={{ padding: '20px', marginTop: -16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {reminders.length === 0 && (
+          <div className="card" style={{ borderRadius: 20, textAlign: 'center', padding: '40px 20px' }}>
+            <div style={{ fontSize: 40, marginBottom: 10 }}>🔔</div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>
+              You don't have any reminders for today.
+            </p>
+          </div>
+        )}
         {(Object.keys(REMINDER_CONFIG) as (keyof typeof REMINDER_CONFIG)[]).map((type) => {
           const conf = REMINDER_CONFIG[type];
           const list = byType(type);
@@ -94,6 +102,7 @@ function ReminderCard({ reminder, config, justDone, onDone, onLater }: {
 }) {
   const isCompleted = reminder.status === 'completed';
   const isSkipped = reminder.status === 'skipped';
+  const isDelayed = reminder.status === 'delayed';
 
   return (
     <div style={{
@@ -119,6 +128,12 @@ function ReminderCard({ reminder, config, justDone, onDone, onLater }: {
       </div>
 
       {!isCompleted && !isSkipped && (
+        <>
+        {isDelayed && (
+          <div style={{ fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 600, marginBottom: 8 }}>
+            ⏰ Delayed — you can still mark this done
+          </div>
+        )}
         <div style={{ display: 'flex', gap: 10 }}>
           <button
             onClick={onDone}
@@ -141,6 +156,7 @@ function ReminderCard({ reminder, config, justDone, onDone, onLater }: {
             Later
           </button>
         </div>
+        </>
       )}
 
       {isSkipped && (

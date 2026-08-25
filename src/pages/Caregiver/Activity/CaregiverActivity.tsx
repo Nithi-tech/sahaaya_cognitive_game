@@ -130,6 +130,12 @@ export default function CaregiverActivity() {
         {/* Recent Sessions Table */}
         <div className="card" style={{ borderRadius: 20 }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>Recent Activity Sessions</h3>
+          {recentSessions.length === 0 ? (
+            <p style={{ color: 'var(--text-tertiary)', fontSize: 14, padding: '12px 0' }}>
+              No activity sessions yet — they'll show up here once an activity is completed.
+            </p>
+          ) : (
+          <div className="data-table-scroll">
           <table className="data-table">
             <thead>
               <tr>
@@ -164,6 +170,8 @@ export default function CaregiverActivity() {
               ))}
             </tbody>
           </table>
+          </div>
+          )}
         </div>
       </main>
     </div>

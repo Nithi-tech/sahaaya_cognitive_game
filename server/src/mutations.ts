@@ -16,6 +16,10 @@ interface ProfileRow {
   updated_at: string;
 }
 
+const VALID_GAME_TYPES = ['memory_match', 'object_recognition', 'attention', 'pattern', 'routine_recall', 'family_faces'];
+const VALID_DIFFICULTIES = ['easy', 'medium', 'challenging'];
+const VALID_DOMAINS: CognitiveDomain[] = ['memory', 'attention', 'recognition', 'pattern', 'routine'];
+
 export function applySession(patientId: string, body: Record<string, unknown>) {
   const { gameType, difficulty, score, accuracy, responseTime, mistakes, completed, domain } = body as {
     gameType: string;
@@ -30,6 +34,10 @@ export function applySession(patientId: string, body: Record<string, unknown>) {
   if (!gameType || !difficulty || accuracy === undefined || !domain) {
     throw new Error('gameType, difficulty, accuracy, and domain are required');
   }
+  if (!VALID_GAME_TYPES.includes(gameType)) throw new Error(`Invalid gameType: ${gameType}`);
+  if (!VALID_DIFFICULTIES.includes(difficulty)) throw new Error(`Invalid difficulty: ${difficulty}`);
+  if (!VALID_DOMAINS.includes(domain)) throw new Error(`Invalid domain: ${domain}`);
+  if (typeof accuracy !== 'number' || accuracy < 0 || accuracy > 100) throw new Error('accuracy must be a number between 0 and 100');
 
   const id = newId('session');
   const timestamp = new Date().toISOString();
@@ -165,12 +173,16 @@ export function applyMemoryCreate(patientId: string, body: Record<string, unknow
 export function applyDailyActivityStatus(patientId: string, activityId: string, status: string) {
   if (!['pending', 'completed', 'skipped'].includes(status)) throw new Error(`Invalid activity status: ${status}`);
   db.prepare('UPDATE daily_activities SET status = ? WHERE id = ? AND patient_id = ?').run(status, activityId, patientId);
-  return db.prepare('SELECT * FROM daily_activities WHERE id = ?').get(activityId);
+  // Re-scoped by patient_id — without it, a caller passing an activityId that
+  // belongs to a DIFFERENT patient gets a no-op UPDATE but this SELECT would
+  // still happily return (and leak) that other patient's row.
+  return db.prepare('SELECT * FROM daily_activities WHERE id = ? AND patient_id = ?').get(activityId, patientId);
 }
 
 export function applyAlertResolve(patientId: string, alertId: string) {
   db.prepare('UPDATE alerts SET resolved = 1 WHERE id = ? AND patient_id = ?').run(alertId, patientId);
-  return db.prepare('SELECT * FROM alerts WHERE id = ?').get(alertId);
+  // Re-scoped by patient_id — see applyDailyActivityStatus above for why.
+  return db.prepare('SELECT * FROM alerts WHERE id = ? AND patient_id = ?').get(alertId, patientId);
 }
 
 export function applyPatientPreferencesUpdate(patientId: string, preferences: Record<string, unknown>) {
