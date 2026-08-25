@@ -4,7 +4,11 @@ services:
     runtime: node
     plan: free
     rootDir: server
-    buildCommand: npm install && npm run build
+    # --include=dev is required: NODE_ENV=production (set below) makes plain
+    # `npm install` skip devDependencies — which is where typescript and every
+    # @types/* package live. Without this the build fails with TS7016/TS7006
+    # errors (tsc runs from a stray global install but can't find types).
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm run start
     healthCheckPath: /api/health
     envVars:
