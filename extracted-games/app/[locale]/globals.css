@@ -1,0 +1,187 @@
+@import 'tailwindcss';
+
+@config '../../tailwind.config.ts';
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+/* Custom utilities */
+@utility text-gradient {
+  @apply bg-linear-to-r from-[hsl(var(--primary))] via-[hsl(var(--foreground))] to-[hsl(var(--accent))] bg-clip-text text-transparent;
+}
+@utility btn-destructive {
+  @apply bg-[hsl(var(--destructive))] text-[hsl(var(--foreground))];
+}
+@utility btn-success {
+  @apply bg-[hsl(var(--success))] text-[hsl(var(--foreground))];
+}
+
+@layer utilities {
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+}
+
+@layer base {
+  :root {
+    /* 核心颜色 */
+    --background: 0 0% 100%; /* 白色 */
+    --foreground: 0 0% 0%;    /* 黑色 */
+
+    /* 边框和输入框 */
+    --border: 0 0% 90%;      /* 浅灰色边框 */
+    --input: 0 0% 90%;       /* 浅灰色输入框 */
+
+    /* 主要颜色 - 改为黑色 */
+    --primary: 0 0% 0%;      /* 黑色 */
+    --primary-foreground: 0 0% 100%; /* 白色 */
+
+    /* 辅助色和柔和色 */
+    --secondary: 0 0% 96%;   /* 更深的浅灰色 */
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 98%;       /* 浅灰色 */
+    --muted-foreground: 0 0% 35%; /* 深灰色以提高对比度 */
+    --accent: 0 0% 95%;      /* 更浅的灰色悬停背景 */
+    --accent-foreground: 0 0% 0%;
+
+    /* 其他 */
+    --radius: 0.5rem;
+    --ring: 0 0% 0%;         /* 黑色 */
+
+    /* 侧边栏样式 */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 0 0% 0%;  /* 改为黑色 */
+
+    /* 状态颜色 */
+    --destructive: 0 84.2% 60.2%; /* 红色 */
+    --success: 142.1 76.2% 36.3%; /* 绿色 */
+  }
+
+  .dark {
+    /* 核心颜色 */
+    --background: 0 0% 10%;  /* 深灰 */
+    --foreground: 0 0% 100%; /* 白色 */
+
+    /* 边框和输入框 */
+    --border: 0 0% 20%;      /* 深灰边框 */
+    --input: 240 3.7% 15.9%; /* 暗灰输入框 */
+
+    /* 主要颜色 - 改为黑色 */
+    --primary: 0 0% 80%;     /* 暗黑色 */
+    --primary-foreground: 0 0% 10%;
+
+    /* 辅助色和柔和色 */
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 0 0% 20%;      /* 改为暗灰色悬停背景 */
+    --accent-foreground: 0 0% 100%;
+
+    /* 其他 */
+    --radius: 0.5rem;
+    --ring: 240 4.9% 83.9%;
+
+    /* 侧边栏样式 */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 0 0% 20%; /* 改为黑色 */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 0 0% 70%;  /* 改为灰色 */
+
+    /* 状态颜色 */
+    --destructive: 0 72% 51%; /* 暗红 */
+    --success: 142.1 70% 45%; /* 暗绿 */
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer base {
+  /* 仅在需要的元素上应用边框和轮廓 */
+  input, button, select {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Add combined match effect animation */
+@keyframes card-match-effect {
+  /* Shake phase (first ~400ms) - subtle H & V movement */
+  0% { opacity: 1; transform: scale(1) translate3d(0, 0, 0); }
+  5%, 35% { transform: scale(1) translate3d(-1px, -1px, 0); }
+  10%, 30% { transform: scale(1) translate3d(1px, 1px, 0); }
+  15%, 25% { transform: scale(1) translate3d(-1px, 1px, 0); }
+  20% { transform: scale(1) translate3d(1px, -1px, 0); }
+  /* Ensure transform resets before scaling/fading */
+  40% { opacity: 1; transform: scale(1) translate3d(0, 0, 0); }
+  /* Fade and Scale phase (last ~400ms) */
+  100% { opacity: 0; transform: scale(0.75) translate3d(0, 0, 0); }
+}
+
+.animate-card-match-effect {
+  animation: card-match-effect 0.8s ease-in-out both;
+  /* Disable clicks during/after animation */
+  pointer-events: none; 
+}
+
+.post-ul-list ul{
+  list-style-type: disc;
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.post-ul-list ol{
+  list-style-type: decimal;
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+}
+
+@keyframes floatY {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+  100% { transform: translateY(0); }
+}
+.floating-image {
+  animation: floatY 5s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Prevent Google Auto Ads from breaking specific layouts or covering elements */
+.no-ads-inside ins.adsbygoogle,
+.no-ads-inside .google-auto-placed {
+  display: none !important;
+}

@@ -1,0 +1,1784 @@
+{
+  "games": {
+    "title": "Games",
+    "breadcrumbHome": "Home",
+    "play": "Play game",
+    "eyebrow": "Free online game library",
+    "heading": "Free Brain Training Games Online",
+    "description": "Choose from free online brain games for focus, memory, reaction time, visual attention, and mental flexibility. Every game works in your browser with no download required.",
+    "categoryNav": {
+      "ariaLabel": "Browse brain games by skill",
+      "label": "Browse by skill",
+      "all": "View all categories"
+    },
+    "library": {
+      "title": "All Brain Training Games",
+      "count": "{count} free online games"
+    },
+    "chooseGame": {
+      "eyebrow": "Start with your goal",
+      "title": "How to Choose a Brain Training Game",
+      "intro": "Pick one skill you want to practice today. Start with a game that feels easy to understand, then increase the challenge as your accuracy and consistency improve.",
+      "groups": {
+        "focus": {
+          "title": "For focus and visual attention",
+          "description": "Practice staying on task, scanning efficiently, and noticing useful visual details without rushing."
+        },
+        "memory": {
+          "title": "For working memory",
+          "description": "Practice holding, updating, and recalling information while the task continues."
+        },
+        "speed": {
+          "title": "For reaction and processing speed",
+          "description": "Practice making accurate visual decisions under gentle time pressure."
+        }
+      }
+    },
+    "resources": {
+      "title": "Not sure where to begin?",
+      "description": "Use a practical guide, browse every training category, or start a short focus session with the Pomodoro timer.",
+      "workingMemory": "Read the working memory guide",
+      "categories": "Browse all game categories",
+      "pomodoro": "Open the Pomodoro timer"
+    },
+    "filters": {
+      "all": "All Games",
+      "more": "More Categories..."
+    },
+    "quickLinks": {
+      "title": "Popular Ways to Explore the Library",
+      "subtitle": "Use these shortcuts to jump straight to the game, category, or guide that best matches what you want to practice.",
+      "items": {
+        "adhdGames": {
+          "title": "ADHD Games for Adults",
+          "description": "See our ADHD-friendly training collection for attention control, working memory, and focus."
+        },
+        "workingMemory": {
+          "title": "Working Memory Games",
+          "description": "Browse working memory exercises and games designed for recall, updating, and mental control."
+        },
+        "reactionTime": {
+          "title": "Reaction Time Test",
+          "description": "Measure and train visual response speed with our free online reaction time test."
+        },
+        "pomodoroTimer": {
+          "title": "Pomodoro Timer",
+          "description": "Use a simple Pomodoro timer for study sessions, focus blocks, and time management practice."
+        },
+        "schulteTable": {
+          "title": "Schulte Table Online",
+          "description": "Practice visual scanning, peripheral vision, and reading speed with our Schulte Table online."
+        },
+        "adultAdhdAssessment": {
+          "title": "Adult ADHD Self-Assessment",
+          "description": "Take our adult ADHD assessment to understand your attention patterns and get recommended next steps."
+        },
+        "workingMemoryGuide": {
+          "title": "Working Memory Guide",
+          "description": "Read our in-depth guide to working memory, training benefits, and recommended games."
+        }
+      }
+    },
+    "template": {
+      "howToPlay": "How to Play",
+      "leaderboard": "Leaderboard",
+      "cognitiveBenefits": "Cognitive Benefits",
+      "scienceBehindGame": "The Science Behind the Game",
+      "readDetailedArticle": "Read Detailed Article",
+      "authorityReferences": "Scientific References",
+      "faq": "FAQ",
+      "relatedGames": "Related Games",
+      "trainingCategories": "Training Categories",
+      "share": "Share"
+    },
+    "aboutBrainTraining": {
+      "title": "About Brain Training",
+      "paragraph1": "Cognitive training, often called brain training, involves regular mental exercises designed to improve specific cognitive functions like memory, attention, processing speed, and problem-solving abilities.",
+      "paragraph2": "Our games are designed based on principles from cognitive psychology and neuroscience. Each game targets specific cognitive skills that are important for everyday functioning, academic success, and professional performance.",
+      "paragraph3": "For best results, we recommend regular practice across different cognitive domains. Training for just 15-20 minutes a day, 3-4 times per week can lead to noticeable improvements in your cognitive abilities over time."
+    },
+    "trainingPlans": {
+      "title": "Recommended Training Plans",
+      "focus": {
+        "title": "Focus Enhancement",
+        "description": "Improve your ability to concentrate and resist distractions.",
+        "item1": "Schulte Table (10 min)",
+        "item2": "Fish Trace (5 min)",
+        "item3": "Larger Number (5 min)"
+      },
+      "memory": {
+        "title": "Memory Boost",
+        "description": "Strengthen your working memory and recall abilities.",
+        "item1": "Dual N-Back (10 min)",
+        "item2": "Block Memory Challenge (5 min)",
+        "item3": "Frog Memory Leap (5 min)"
+      },
+      "flexibility": {
+        "title": "Cognitive Flexibility",
+        "description": "Enhance your ability to adapt to changing tasks and rules.",
+        "item1": "Mahjong Dual N-Back (10 min)",
+        "item2": "Larger Number (5 min)",
+        "item3": "Schulte Table (5 min)"
+      }
+    },
+    "metaTitle": "Free Brain Training Games Online | Focus & Memory",
+    "metaDescription": "Play free brain training games online for focus, memory, reaction time, visual attention, and mental flexibility. No download or sign-up required.",
+    "metaKeywords": "free brain training games online, focus games, memory games, reaction time games, visual attention games, working memory games, concentration games, cognitive games",
+    "ogTitle": "Free Brain Training Games Online",
+    "ogDescription": "Explore free browser games for focus, memory, reaction time, visual attention, and mental flexibility.",
+    "schulteTable": {
+      "title": "Schulte Table",
+      "subtitle": "Free Online Visual Attention and Speed Reading Training",
+      "description": "Practice with our free Schulte Table online to train visual attention, peripheral vision, reading speed, and concentration. Find numbers in sequence and improve scanning speed in minutes.",
+      "howToPlay": "Find and click numbers in ascending order (1-25) as quickly as possible. Try to use your peripheral vision instead of scanning each number!",
+      "speedStandards": {
+        "title": "Speed Standards",
+        "intro": "Here are the reference standards for a 5x5 (1-25) Schulte Table test:",
+        "children": {
+          "title": "Children (6 years old):",
+          "brilliant": "Brilliant: 60 seconds or less",
+          "optimal": "Optimal: Up to 70 seconds",
+          "mediocre": "Mediocre: Up to 80 seconds"
+        },
+        "adults": {
+          "title": "Adults:",
+          "beginner": "Beginner Level: 40-60 seconds",
+          "average": "Average Proficiency: 25-40 seconds",
+          "advanced": "Advanced Level: 15-25 seconds",
+          "elite": "Elite Performance: Under 15 seconds"
+        }
+      },
+      "watchDemo": "Watch Demo",
+      "demo": "Demo",
+      "metaTitle": "Free Schulte Table Online: Visual Attention & Reading Speed",
+      "metaDescription": "Use this free Schulte Table online to train visual attention, peripheral vision, and reading speed. A simple Schulte grid exercise for focus practice, speed reading, and ADHD-friendly attention training.",
+      "metaKeywords": "schulte table online, free schulte table, schulte grid, visual attention training, peripheral vision exercise, reading speed practice, focus exercise, adhd attention training",
+      "ogTitle": "Free Schulte Table Online: Visual Attention & Reading Speed",
+      "ogDescription": "Use this free Schulte Table online to train visual attention, peripheral vision, and reading speed with a simple Schulte grid exercise.",
+      "science": {
+        "title": "Visual Attention and Processing Speed Enhancement",
+        "description": "The Schulte Table is a well-established neuropsychological tool used to assess and train visual attention, processing speed, and executive function. Research shows that regular practice strengthens neural networks responsible for visual scanning, selective attention, and information processing speed - skills crucial for reading, driving, and academic performance.",
+        "blogArticleTitle": "Schulte Table Benefits: 7 Science-Backed Gains for Visual Attention and Reading Speed",
+        "authorityLinks": {
+          "neuropsychology": "Schulte Tables in neuropsychological assessment and rehabilitation",
+          "attention": "Visual attention and selective attention research overview",
+          "speedReading": "Scientific evidence for peripheral vision training and reading improvement"
+        }
+      },
+      "benefits": {
+        "visualProcessing": {
+          "title": "Visual Processing",
+          "description": "Improve your ability to quickly process visual information and expand your field of vision."
+        },
+        "focusTraining": {
+          "title": "Focus Training",
+          "description": "Enhance concentration and attention span through systematic visual search exercises."
+        },
+        "readingSpeed": {
+          "title": "Reading Speed",
+          "description": "Develop faster reading skills by training your eyes to capture more information at once."
+        }
+      },
+      "faq": {
+        "howItWorks": {
+          "question": "How does the Schulte Table work?",
+          "answer": "The Schulte Table trains your brain to process visual information more efficiently by forcing you to maintain focus while using peripheral vision to locate numbers quickly."
+        },
+        "bestPractice": {
+          "question": "What is the best way to practice?",
+          "answer": "Try to keep your eyes fixed on the center of the table and use your peripheral vision to spot numbers. Practice daily for 10-15 minutes for best results."
+        },
+        "readingHelp": {
+          "question": "How does this help with reading speed?",
+          "answer": "By training your peripheral vision, you can perceive more text at once while reading. This reduces the number of eye movements needed, allowing you to process information faster and read more efficiently."
+        },
+        "research": {
+          "question": "Is this exercise backed by research?",
+          "answer": "Yes, the Schulte Table has been used in cognitive psychology for decades. Research shows it effectively improves visual attention, processing speed, and can help with conditions like ADHD by strengthening attention networks."
+        },
+        "peripheralVision": {
+          "question": "What is peripheral vision and why is it important?",
+          "answer": "Peripheral vision is your ability to perceive information at the edges of your visual field without looking directly at it. It's crucial in daily life for activities like driving (noticing surrounding vehicles), reading (capturing more text at once), and sports (being aware of teammates' positions). Strong peripheral vision improves your spatial awareness, reaction time, and ability to distribute attention effectively."
+        }
+      },
+      "gameUI": {
+        "best": "Best",
+        "time": "Time",
+        "bestTime": "Best Time",
+        "rankedTime": "Ranked Time",
+        "bestRankedTime": "Best Ranked Time",
+        "mistakes": "Mistakes",
+        "findNumber": "Find number",
+        "findNumbersInSequence": "Find numbers in sequence...",
+        "likeThis": "Like this! 👆",
+        "startGame": "Start Game",
+        "starting": "Starting...",
+        "playAgain": "Play Again",
+        "share": "Share",
+        "restart": "Restart",
+        "gameComplete": "Game Complete!",
+        "gameStopped": "Game Paused",
+        "timeElapsed": "Time Elapsed",
+        "resumeGame": "Resume Game",
+        "stop": "Pause",
+        "leaderboardDescription": "The leaderboard ranks your adjusted time: completion time plus a small penalty for each mistake."
+      }
+    },
+    "dualNBack": {
+      "title": "Dual N-Back",
+      "subtitle": "Play free dual n-back online to train working memory, attention control, and dual-task recall",
+      "description": "Use this free dual n-back online game to practice visual and audio recall in one browser tab. Start with a 30-second tutorial, adjust the N-back level, and build a steady working memory habit.",
+      "howToPlayIntro": "Start this free dual n-back practice with our 30-second interactive tutorial:",
+      "howToPlay1": "Watch the grid and listen to the letter",
+      "howToPlay2": "Press the position button when the position matches",
+      "howToPlay3": "Press the sound button when the letter matches.",
+      "howToPlay4": "As you improve, the N-back level will increase, making the task more challenging.",
+      "benefits": {
+        "workingMemory": {
+          "title": "Working Memory",
+          "description": "Practice holding and updating both positions and letters in mind, which is the core demand of dual n-back training."
+        },
+        "fluidIntelligence": {
+          "title": "Fluid Intelligence",
+          "description": "Challenge the updating, rule maintenance, and flexible reasoning skills that researchers often study alongside working memory tasks."
+        },
+        "attentionControl": {
+          "title": "Attention Control",
+          "description": "Stay engaged while monitoring visual and audio streams at once, a useful fit for deliberate daily focus practice."
+        }
+      },
+      "landing": {
+        "overview": {
+          "eyebrow": "Free Dual N-Back Online",
+          "title": "What this free dual n-back online game helps you practice",
+          "body1": "Dual n-back is a working memory game where you compare the current grid position and spoken letter with what appeared N steps earlier. This browser version lets you start quickly, keep the rules visible, and practice without downloads.",
+          "body2": "If you are new, begin at 1-back, learn the rhythm with the interactive tutorial, and focus on accuracy before chasing higher levels. If you already know the rules, use the adjustable settings to build a repeatable daily training block."
+        },
+        "links": {
+          "tutorialTitle": "Learn the rules fast",
+          "tutorialBody": "Use the step-by-step interactive tutorial if dual n-back still feels confusing.",
+          "scienceTitle": "Read the research context",
+          "scienceBody": "See what the literature says about working memory, near transfer, and the limits of broader claims.",
+          "guideTitle": "Go broader than one game",
+          "guideBody": "Use the working memory guide to pair dual n-back with complementary attention and recall practice."
+        },
+        "quickFacts": {
+          "title": "Beginner benchmarks for dual n-back practice",
+          "intro": "These are practical starting points for turning dual n-back into a consistent training habit.",
+          "items": {
+            "beginner": {
+              "title": "Start at 1-back",
+              "body": "Most new players do better starting at 1-back. Move to 2-back once the rules feel automatic."
+            },
+            "levelUp": {
+              "title": "Move up at 80-85%",
+              "body": "A simple rule of thumb is to raise the level after a few rounds around 80-85% accuracy."
+            },
+            "session": {
+              "title": "Keep sessions short",
+              "body": "Fifteen to twenty minutes is usually enough for focused practice without mental burnout."
+            },
+            "frequency": {
+              "title": "Train 4-5 days weekly",
+              "body": "Consistency matters more than marathon sessions. A steady weekly rhythm is easier to maintain."
+            }
+          }
+        },
+        "plan": {
+          "title": "A simple 4-week dual n-back training plan",
+          "intro": "Use this lightweight plan if you want structure without over-optimizing every session.",
+          "weeks": {
+            "week1": {
+              "title": "Week 1",
+              "body": "Learn the rules, stay at 1-back, and aim for clean responses rather than speed."
+            },
+            "week2": {
+              "title": "Week 2",
+              "body": "Keep short sessions, reduce distractions, and only test 2-back if 1-back feels stable."
+            },
+            "week3": {
+              "title": "Week 3",
+              "body": "Alternate between your comfortable level and one harder level so the task stays demanding but manageable."
+            },
+            "week4": {
+              "title": "Week 4",
+              "body": "Keep the level that gives you deliberate effort, solid accuracy, and a routine you can sustain next month."
+            }
+          }
+        }
+      },
+      "science": {
+        "title": "Working Memory and Fluid Intelligence Enhancement",
+        "description": "Dual n-back is one of the most studied working memory tasks. Research most consistently supports improvements on working memory and task-specific performance, while broader transfer to fluid intelligence remains mixed. This page gives you a practical way to train, learn the rules, and review the underlying science.",
+        "blogArticleTitle": "The Science Behind N-Back Training: How This Game Actually Boosts Your Working Memory",
+        "authorityLinks": {
+          "jaeggi": "Landmark study showing dual n-back training can improve fluid intelligence",
+          "wikipedia": "Comprehensive overview of working memory research and theories",
+          "cognitiveTraining": "Detailed analysis of dual n-back training effectiveness and methodology"
+        }
+      },
+      "faq": {
+        "science": {
+          "question": "What is dual n-back?",
+          "answer": "Dual n-back is a working memory task where you compare the current visual position and current audio letter with what appeared N steps earlier in the sequence. In 2-back, you check against the stimuli from exactly two trials ago."
+        },
+        "practice": {
+          "question": "How often should I practice dual n-back?",
+          "answer": "A practical starting point is 15-20 minutes per session, 4-5 days per week. Consistency matters more than forcing very long sessions that leave you mentally flat."
+        },
+        "progress": {
+          "question": "What is a good dual n-back starting level?",
+          "answer": "Most beginners should start at 1-back. If you already understand the rules and can track both streams comfortably, you can try 2-back. A common rule of thumb is to move up after you can hold roughly 80-85% accuracy for a few rounds."
+        },
+        "challenging": {
+          "question": "Why does dual n-back feel so hard at first?",
+          "answer": "The task asks you to update memory, inhibit wrong responses, and track visual and audio information at the same time. That combination creates overload early on, which is why slower, accuracy-first practice works better than rushing."
+        },
+        "improvements": {
+          "question": "Does dual n-back actually work?",
+          "answer": "Research most reliably shows that dual n-back improves performance on working memory tasks and closely related skills. Broader transfer to IQ or far-transfer outcomes is more mixed, so it is best treated as deliberate practice for memory updating and attention control."
+        }
+      },
+      "loading": {
+        "title": "Dual n-back is loading in your browser",
+        "description": "This free working memory game runs client-side so your audio, timing, and visual recall stay responsive.",
+        "tip": "If you are new, start with the 30-second tutorial and begin at 1-back before trying harder rounds."
+      },
+      "leaderboards": {
+        "title": "Dual-mode clear board",
+        "intro": "This board records recent dual-mode clears at {level}-back or higher with at least {rounds} trials. You can choose the round pace; clears are recorded once you finish at {accuracy}% accuracy or higher.",
+        "cardTitle": "Recent dual-mode clears",
+        "cardSubtitle": "Newest qualifying clears appear first.",
+        "totalClears": "Total clears",
+        "averagePassTime": "Average pass time",
+        "loadPrompt": "The clear board will load when this section comes into view.",
+        "loading": "Loading recent clears...",
+        "empty": "No qualifying dual-mode clears recorded yet. Be the first to pass it.",
+        "submittedTitle": "Your clear was recorded as",
+        "submittedBody": "{level}-back in {duration} with {accuracy}% accuracy.",
+        "levelLabel": "{level}-back",
+        "you": "You!",
+        "columns": {
+          "order": "Latest",
+          "player": "Player",
+          "level": "Level",
+          "duration": "Pass time",
+          "accuracy": "Accuracy",
+          "clearedAt": "Cleared at"
+        }
+      },
+      "gameUI": {
+        "dual": "Dual",
+        "position": "Position",
+        "audio": "Audio",
+        "sound": "Sound",
+        "back": "{level}-back",
+        "challenge": "Dual N-Back Challenge",
+        "trackInfo": "Track {types} from {level} steps back.",
+        "starting": "Starting...",
+        "startChallenge": "Start Challenge",
+        "trial": "Trial {current} of {total}",
+        "positionMatch": "A: Position Match",
+        "soundMatch": "L: Sound Match",
+        "trainingResults": "Training Results",
+        "accuracy": "{correct}/{total}",
+        "accuracyPercent": "{percent}% Accuracy",
+        "missed": "Missed",
+        "falseAlarms": "False Alarms",
+        "overallPerformance": "Overall Performance",
+        "level": "Level:",
+        "trials": "Trials: {count}",
+        "playAgain": "Play Again",
+        "shareResults": "Share Results",
+        "settings": "Settings",
+        "gameSettings": "Game Settings",
+        "nBackLevel": "N-Back Level",
+        "voiceType": "Voice Type",
+        "male": "Male",
+        "female": "Female",
+        "trainingMode": "Training Mode",
+        "trialsPerRound": "Trials Per Round",
+        "trialSpeed": "Trial Speed",
+        "seconds": "{seconds}s",
+        "saveChanges": "Save Changes",
+        "tutorial": {
+          "learnToPlay": "Learn How to Play (30s Interactive Tutorial)",
+          "interactiveTutorial": "Interactive Tutorial",
+          "openTutorial": "Open Tutorial",
+          "title": "N-Back Interactive Tutorial",
+          "whatIsNBack": "What is N-Back?",
+          "nBackExplanation": "N-Back is working memory training. N=1 means compare with 1 step back, N=2 means compare with 2 steps back, and so on.",
+          "tutorialNote": "This tutorial shows 1-Back (N=1) gameplay. Master this to challenge higher levels.",
+          "stepProgress": "Step {current} / {total}",
+          "prevStep": "Previous",
+          "nextStep": "Next",
+          "completeTutorial": "Complete Tutorial",
+          "playingAudio": "Playing...",
+          "replayAudio": "Replay",
+          "step1": "Step 1: Remember this position and sound A",
+          "step2": "Step 2: Continue remembering position and sound B, then click next",
+          "step3": "Step 3: Position matches the previous step! Click [Position Match] button!",
+          "step4": "Step 4: Sound matches the previous step! Click [Sound Match] button!",
+          "step5": "Step 5: Both position and sound match the previous step! Click both buttons!",
+          "positionMatch": "Position Match",
+          "audioMatch": "Sound Match",
+          "needBothButtons": "Need to click the other match button 👆",
+          "correct": "🎉 Correct! Continue...",
+          "incorrect": "❌ Try again!",
+          "perfectForBeginners": "Perfect for beginners"
+        },
+        "testMyLevel": "Not sure what level suits you? Test my level first →",
+        "startTraining": "Start Training Now",
+        "improveMemorySubtitle": "Improve working memory, start simple",
+        "continueTraining": "Continue training other cognitive abilities",
+        "schulteTable": "Schulte Table",
+        "stroopTest": "Stroop Test",
+        "allGames": "All Games"
+      },
+      "gameMessages": {
+        "keepOneMode": "You must keep at least one mode enabled"
+      },
+      "metaTitle": "Free Dual N-Back Online: Working Memory Training Game",
+      "metaDescription": "Play dual n-back online for free. Start with a 30-second interactive tutorial, train visual and audio recall, and build working memory with a beginner-friendly browser game.",
+      "metaKeywords": "dual n-back online, free dual n-back game, dual n-back training, working memory training game, n-back tutorial, dual n-back practice",
+      "ogTitle": "Free Dual N-Back Online: Working Memory Training Game",
+      "ogDescription": "Play dual n-back online for free. Start with a 30-second interactive tutorial, train visual and audio recall, and build working memory with a beginner-friendly browser game."
+    },
+    "mahjongDualNBack": {
+      "title": "Mahjong Dual N-Back",
+      "subtitle": "Advanced working memory training with traditional mahjong tiles",
+      "description": "A variant of Dual N-Back using mahjong tiles and sounds to train working memory and cognitive skills.",
+      "howToPlayIntro": "In this challenging memory task inspired by traditional Mahjong, you'll need to remember both the tile patterns and audio stimuli from N steps back in the sequence:",
+      "howToPlay1": "Watch as mahjong tiles appear in sequence on the teal felt table",
+      "howToPlay2": "Press \"Tile Match\" when the current tile matches the tile from N steps back",
+      "howToPlay3": "Press \"Sound Match\" when the current sound matches the sound from N steps back",
+      "howToPlay4": "Use keyboard shortcuts: 'A' for Tile Match, 'L' for Sound Match",
+      "howToPlay5": "Start with 1-back (remembering the previous tile) and progress to higher levels as your memory improves",
+      "howToPlay6": "Adjust settings to customize your training experience with different N-back levels and stimulus types",
+      "benefits": {
+        "workingMemory": {
+          "title": "Working Memory",
+          "description": "Strengthen your ability to hold and manipulate multiple pieces of information in mind while tracking mahjong tile positions and sounds."
+        },
+        "fluidIntelligence": {
+          "title": "Fluid Intelligence",
+          "description": "Improve your problem-solving abilities and cognitive flexibility through the challenging dual-task nature of the mahjong n-back exercise."
+        },
+        "attentionControl": {
+          "title": "Attention Control",
+          "description": "Enhance your focus and ability to filter out distractions while monitoring both visual and auditory mahjong stimuli simultaneously."
+        }
+      },
+      "faq": {
+        "science": {
+          "question": "What is the science behind Mahjong Dual N-Back?",
+          "answer": "Dual N-Back has been studied extensively in cognitive neuroscience. Research published in PNAS (2008) suggested that training with this task can improve fluid intelligence. Our mahjong-themed version combines position and audio matching with traditional mahjong aesthetics to create an engaging cognitive workout."
+        },
+        "difference": {
+          "question": "How is this different from the regular Dual N-Back?",
+          "answer": "While maintaining the core dual n-back mechanics of tracking position and audio stimuli, our version incorporates authentic mahjong tiles and a traditional green felt background. This cultural theming makes the exercise more visually engaging while preserving the cognitive challenge that makes dual n-back effective."
+        },
+        "practice": {
+          "question": "How often should I practice with the mahjong tiles?",
+          "answer": "For optimal results, aim for 20-30 minutes of mahjong dual n-back training, 3-4 times per week. Consistency is more important than duration. Regular practice helps your brain build stronger neural pathways for working memory tasks involving both visual position and auditory processing."
+        },
+        "improvements": {
+          "question": "Will I see improvements in my daily life from mahjong memory training?",
+          "answer": "Many users report improvements in concentration, multitasking ability, and information retention after regular practice with dual n-back exercises. The position and audio tracking skills developed here can transfer to academic, professional, and everyday activities requiring attention to multiple streams of information."
+        },
+        "knowledge": {
+          "question": "Do I need to know how to play mahjong to use this training game?",
+          "answer": "No prior knowledge of mahjong is required. While we use the beautiful visual elements of traditional mahjong tiles, the cognitive task focuses on remembering positions and sounds rather than mahjong gameplay. The exercise is designed to be accessible to everyone regardless of their familiarity with mahjong."
+        }
+      },
+      "gameUI": {
+        "Dual": "Dual",
+        "settings": "Settings",
+        "gameSettings": "Game Settings",
+        "nBackLevel": "N-Back Level",
+        "back": "{level}-Back",
+        "voiceType": "Voice Type",
+        "male": "English Male",
+        "female": "English Female",
+        "chineseFemale": "Chinese Female",
+        "trainingMode": "Training Mode",
+        "tile": "Tile",
+        "sound": "Sound",
+        "tileMatch": "Tile Match",
+        "soundMatch": "Sound Match",
+        "keyA": "A",
+        "keyL": "L",
+        "trialsPerRound": "Trials Per Round",
+        "trials": "{count} trials",
+        "trialSpeed": "Trial Speed",
+        "seconds": "{seconds}s",
+        "saveChanges": "Save Changes",
+        "keepOneMode": "You must keep at least one mode enabled",
+        "challenge": "Mahjong Dual N-Back Challenge",
+        "trackInfo": "Track {types} from {level} steps back.",
+        "loading": "Loading...",
+        "loadingStatus": "Loading... ({loadedAudio}/{totalAudio} audio, {loadedImages}/{totalImages} images)",
+        "startTraining": "Start Training",
+        "restart": "Restart",
+        "trial": "Trial {current} of {total}",
+        "trainingResults": "Training Results",
+        "accuracy": "{correct}/{total}",
+        "accuracyPercent": "{percent}% Accuracy",
+        "missed": "Missed",
+        "falseAlarms": "False Alarms",
+        "overallPerformance": "Overall Performance",
+        "level": "Level",
+        "playAgain": "Play Again",
+        "share": "Share"
+      },
+      "metaTitle": "Mahjong Dual N-Back: Advanced Visual Memory Board Game",
+      "metaDescription": "Experience the classic Dual N-back cognitive task with traditional Mahjong tiles. Train your spatial working memory and visual pattern recognition with this aesthetic and challenging brain game.",
+      "metaKeywords": "mahjong dual n-back, tile matching memory game, visual spatial working memory, traditional mahjong brain training, advanced memory span test, cognitive flexibility games",
+      "ogTitle": "Mahjong Dual N-Back: Advanced Visual Memory Board Game",
+      "ogDescription": "Experience the classic Dual N-back cognitive task with traditional Mahjong tiles. Train your spatial working memory and visual pattern recognition with this aesthetic and challenging brain game."
+    },
+    "fishTrace": {
+      "title": "Glowing Fish Trace",
+      "subtitle": "Train your visual tracking and sustained attention",
+      "description": "Improve visual tracking abilities by following glowing fish in a dynamic underwater environment.",
+      "start": "Remember the glowing fish!",
+      "glowEnding": "The glow is fading...",
+      "tracking": "Track them carefully!",
+      "selection": "Select the fish that glowed!",
+      "success": "All glowing fish selected successfully!",
+      "scorePrefix": "Score:",
+      "level": "Level",
+      "bestScore": "Best",
+      "perfect": "Perfect!",
+      "partial": "Partially Correct",
+      "gameOver": "Game Over!",
+      "round": "Level {level}",
+      "startBtn": "START",
+      "confirmSelection": "Confirm Selection",
+      "tryAgain": "Try Again",
+      "settings": "Settings",
+      "difficultyLabel": "Difficulty",
+      "difficultyEasy": "Easy",
+      "difficultyMedium": "Medium",
+      "difficultyHard": "Hard",
+      "startLevel": "Start Level",
+      "cancel": "Cancel",
+      "save": "Save",
+      "metadata": {
+        "title": "Glowing Fish Trace: Visual Tracking & MOT Attention Game",
+        "description": "Improve your visual tracking and sustained attention with this free Multiple Object Tracking (MOT) game. A powerful online cognitive exercise designed to support ADHD focus, sports vision, reading fluency, and dynamic visual acuity.",
+        "keywords": "multiple object tracking game, MOT cognitive task, visual tracking exercises, sustained attention test, dynamic visual acuity, adhd focus games, sports vision training online, reading fluency exercises, dyslexia vision support, driver attention training, esports reflex training, free attention span test, hyperfocus training games, peripheral vision improvement, overcome distraction exercises, mental agility test, cognitive enhancement tools, eye tracking games, focus improvement app, daily concentration workout, visual processing speed game, cognitive stamina training",
+        "ogTitle": "Glowing Fish Trace: Visual Tracking & MOT Attention Game",
+        "ogDescription": "Improve your visual tracking and sustained attention with this free Multiple Object Tracking (MOT) game. A powerful online cognitive exercise designed to support ADHD focus, sports vision, reading fluency, and dynamic visual acuity."
+      },
+      "howToPlay": {
+        "intro": "Follow the glowing fish in this underwater tracking challenge:",
+        "step1": "Watch carefully as certain fish glow with colored circles",
+        "step2": "Keep tracking those fish even after the circles disappear",
+        "step3": "When prompted, click on the fish that had the glowing circles",
+        "step4": "As you improve, more fish will appear and move faster"
+      },
+      "benefits": {
+        "visualTracking": {
+          "title": "Visual Tracking",
+          "description": "Improve your ability to follow moving objects and maintain visual focus in dynamic environments."
+        },
+        "sustainedAttention": {
+          "title": "Sustained Attention",
+          "description": "Enhance your capacity to maintain concentration on specific targets over extended periods."
+        },
+        "selectiveAttention": {
+          "title": "Selective Attention",
+          "description": "Develop your ability to focus on relevant stimuli while ignoring distractions."
+        }
+      },
+      "faq": {
+        "visualTracking": {
+          "question": "How does visual tracking training benefit everyday life?",
+          "answer": "Strong visual tracking skills are essential for reading, driving, sports, and navigating busy environments. This training can help improve performance in all these areas."
+        },
+        "children": {
+          "question": "Is this suitable for children?",
+          "answer": "Yes! This game is excellent for children and adults alike. Visual tracking training is particularly beneficial for developing readers and those with attention difficulties."
+        },
+        "trainingDuration": {
+          "question": "How long should each training session be?",
+          "answer": "Aim for 10-15 minute sessions. Quality of attention is more important than duration - it's better to do shorter sessions with full concentration than longer ones with diminished focus."
+        },
+        "readingDifficulties": {
+          "question": "Can this help with reading difficulties?",
+          "answer": "Yes, many reading difficulties are connected to visual tracking problems. Regular practice with this game may help improve reading fluency and comprehension by strengthening the visual tracking system."
+        }
+      }
+    },
+    "frogMemoryLeap": {
+      "title": "Frog Memory Leap",
+      "subtitle": "Train your sequential memory and pattern recognition",
+      "description": "Challenge your sequential memory by remembering the order of frog jumps across lily pads.",
+      "gameUI": {
+        "loading": "Loading game...",
+        "start": "Start Game",
+        "level": "Level {level}",
+        "watch": "Watch the sequence",
+        "repeat": "Repeat the sequence",
+        "correct": "Correct!",
+        "wrong": "Wrong!",
+        "gameOver": "Game Over",
+        "score": "Score: {score}",
+        "highScore": "High Score: {score}",
+        "tryAgain": "Try Again",
+        "nextLevel": "Next Level",
+        "success": "Perfect! Score: {score}\nLevel {level} completed! 🎉",
+        "settings": "Settings",
+        "difficultyLabel": "Difficulty",
+        "difficultyEasy": "Easy",
+        "difficultyMedium": "Medium",
+        "difficultyHard": "Hard",
+        "startLevel": "Start Level",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+      "metadata": {
+        "title": "Frog Memory Leap: Spatial & Working Memory Brain Game",
+        "description": "Challenge your spatial memory and focus with this free Corsi block-style brain game. Play daily to improve your working memory, attention span, and cognitive plasticity. Perfect for adults seeking mental fitness and kids building focus.",
+        "keywords": "corsi block tapping test online, simon memory game alternative, working memory training, spatial memory test, sequential memory game, adhd brain training, cognitive decline prevention, brain exercises for seniors, memory improvement games for adults, focus games for kids, free brain games online, daily mental gym, short term memory exercises, cognitive plasticity training, visual sequence recall, lumosity alternative free, neuroplasticity games, brain fog exercises, spatial sequencing challenge, memory recall test, mental fitness workout",
+        "ogTitle": "Frog Memory Leap: Spatial & Working Memory Brain Game",
+        "ogDescription": "Challenge your spatial memory and focus with this free Corsi block-style brain game. Play daily to improve your working memory, attention span, and cognitive plasticity. Perfect for adults seeking mental fitness and kids building focus."
+      },
+      "howToPlay": {
+        "intro": "Watch and remember the sequence of frog jumps, then repeat it:",
+        "step1": "Observe carefully as the frog jumps from lily pad to lily pad",
+        "step2": "After the demonstration, recreate the exact sequence by clicking on the lily pads in the correct order",
+        "step3": "Each level adds more jumps to the sequence",
+        "step4": "Try to reach the highest level possible!"
+      },
+      "benefits": {
+        "workingMemory": {
+          "title": "Working Memory",
+          "description": "Strengthen your ability to hold and recall sequences of information in the correct order."
+        },
+        "visualSpatialMemory": {
+          "title": "Visual-Spatial Memory",
+          "description": "Enhance your capacity to remember locations and spatial relationships between objects."
+        },
+        "patternRecognition": {
+          "title": "Pattern Recognition",
+          "description": "Develop your ability to identify and remember patterns, an essential skill for learning and problem-solving."
+        }
+      },
+      "faq": {
+        "sequentialMemory": {
+          "question": "How does sequential memory help in daily life?",
+          "answer": "Sequential memory is crucial for following directions, learning new skills, remembering phone numbers, and executing multi-step tasks. It's fundamental to many aspects of learning and daily functioning."
+        },
+        "ageGroups": {
+          "question": "Is this game suitable for all ages?",
+          "answer": "Yes! This game is designed to be engaging for children and challenging for adults. The progressive difficulty ensures that players of all ages and abilities can benefit."
+        },
+        "practiceTips": {
+          "question": "How often should I practice?",
+          "answer": "For best results, practice for 10-15 minutes daily. Consistent, regular practice is more effective than occasional longer sessions."
+        },
+        "learningDifficulties": {
+          "question": "Can this help with learning difficulties?",
+          "answer": "Yes, many learning difficulties involve challenges with sequential processing and working memory. Regular practice with this game may help strengthen these cognitive skills."
+        }
+      }
+    },
+    "largerNumber": {
+      "title": "Larger Number Challenge",
+      "subtitle": "Train your processing speed and numerical comparison skills",
+      "description": "Quickly identify the larger of two numbers to train processing speed and attention.",
+      "howToPlayIntro": "Quickly identify which number is larger in this fast-paced challenge:",
+      "howToPlay1": "Two numbers will appear on the screen",
+      "howToPlay2": "Tap or click on the larger number as quickly as possible",
+      "howToPlay3": "Try to be both fast and accurate",
+      "howToPlay4": "See how many correct answers you can get in 30 seconds",
+      "benefits": {
+        "processingSpeed": {
+          "title": "Processing Speed",
+          "description": "Enhance how quickly your brain can process and respond to numerical information."
+        },
+        "selectiveAttention": {
+          "title": "Selective Attention",
+          "description": "Improve your ability to focus on relevant information and make quick decisions."
+        },
+        "numericalCognition": {
+          "title": "Numerical Cognition",
+          "description": "Strengthen the brain pathways involved in understanding and comparing quantities."
+        }
+      },
+      "faq": {
+        "mathSkills": {
+          "question": "How does this help with math skills?",
+          "answer": "This game trains the fundamental cognitive processes that underlie mathematical thinking: quick number recognition, magnitude comparison, and decision-making. These skills form the foundation for more complex math abilities."
+        },
+        "children": {
+          "question": "Is this good for children learning math?",
+          "answer": "Yes! This game helps develop number sense, which is crucial for early math development. It's especially helpful for children who are learning to compare quantities and understand numerical relationships."
+        },
+        "processingSpeed": {
+          "question": "How does processing speed affect learning?",
+          "answer": "Processing speed affects how quickly you can take in, understand, and respond to information. Faster processing allows you to handle more complex tasks efficiently and reduces cognitive load during learning activities."
+        },
+        "adults": {
+          "question": "Can adults benefit from this training?",
+          "answer": "Absolutely. Processing speed can decline with age, and regular training can help maintain or improve this cognitive function. This game provides a quick, engaging way to exercise these neural pathways."
+        }
+      },
+      "metaTitle": "Larger Number Challenge: Processing Speed & Math Brain Game",
+      "metaDescription": "Train your processing speed and numerical cognition with this fast-paced math game. Quickly identify the larger number to improve decision-making speed and mental math abilities.",
+      "metaKeywords": "number comparison test, numerical cognition exercises, processing speed test online, fast math games for adults, adhd speed training, quick decision making practice, mental math speed test",
+      "ogTitle": "Larger Number Challenge: Processing Speed & Math Brain Game",
+      "ogDescription": "Train your processing speed and numerical cognition with this fast-paced math game. Quickly identify the larger number to improve decision-making speed and mental math abilities.",
+      "gameUI": {
+        "challenge": "Complete {attempts} attempts with {accuracy}% accuracy to succeed",
+        "starting": "Starting...",
+        "startChallenge": "Start Challenge",
+        "whichIsLarger": "Which number is larger?",
+        "correct": "Correct",
+        "total": "Total",
+        "accuracy": "Accuracy",
+        "congratulations": "Congratulations! You've completed the challenge successfully.",
+        "keepGoing": "Keep practicing! You're getting better with each attempt.",
+        "timeUp": "Time's Up!",
+        "totalAttempts": "Total Attempts",
+        "correctAnswers": "Correct Answers",
+        "target": "Target: {attempts} attempts with {accuracy}% accuracy",
+        "playAgain": "Play Again",
+        "share": "Share Results",
+        "settings": "Settings",
+        "level": "Level",
+        "adjustDifficulty": "Adjust Difficulty",
+        "adjustDifficultyDescription": "Would you like to decrease the difficulty to make the challenge easier?",
+        "decreaseDifficulty": "Decrease Difficulty",
+        "keepCurrentDifficulty": "Keep Current Difficulty",
+        "nextLevel": "Next Level Target:",
+        "nextLevelTarget": "Complete {attempts} attempts with {accuracy}% accuracy",
+        "continueChallenge": "Continue Challenge"
+      }
+    },
+    "blockMemoryChallenge": {
+      "title": "Block Memory Challenge",
+      "description": "Test your visual memory by recalling increasingly complex block sequences.",
+      "subtitle": "Train your visual memory and pattern recognition",
+      "metaTitle": "Block Memory Challenge: Visual Sequence & Working Memory Game",
+      "metaDescription": "Test your visual memory capacity by recalling increasingly complex block sequences. This brain-training challenge helps improve short-term memory, pattern recognition, and cognitive plasticity.",
+      "metaKeywords": "visual memory sequence test online, spatial recall training games, working memory improvement, pattern recognition test, brain plasticity exercises, short-term memory practice",
+      "ogTitle": "Block Memory Challenge: Visual Sequence & Working Memory Game",
+      "ogDescription": "Test your visual memory capacity by recalling increasingly complex block sequences. This brain-training challenge helps improve short-term memory, pattern recognition, and cognitive plasticity.",
+      "howToPlay": {
+        "intro": "Memorize and recreate flashing block sequences in this challenging memory game:",
+        "step1": "Blocks will light up one by one in a specific sequence",
+        "step2": "Carefully observe and remember the order of highlighted blocks",
+        "step3": "After the sequence is shown, click the blocks in the same order",
+        "step4": "As levels increase, sequences become longer and more difficult to remember",
+        "watchDemo": "Watch Demo",
+        "demo": "Demo"
+      },
+      "benefits": {
+        "workingMemory": {
+          "title": "Working Memory",
+          "description": "Enhance your ability to temporarily hold and manipulate visual information in your mind."
+        },
+        "visualProcessing": {
+          "title": "Visual Processing",
+          "description": "Improve how quickly and accurately your brain processes and interprets visual patterns."
+        },
+        "patternRecognition": {
+          "title": "Pattern Recognition",
+          "description": "Strengthen your ability to identify and remember visual patterns, a key skill for learning and problem-solving."
+        }
+      },
+      "science": {
+        "title": "Visual Working Memory and Pattern Recall",
+        "description": "Block sequence recall tasks are widely used to train visual working memory, sequence retention, and pattern encoding. Regular practice challenges the brain to hold more items in mind, update them quickly, and resist interference from distractions.",
+        "blogArticleTitle": "How to Improve Working Memory",
+        "authorityLinks": {
+          "workingMemory": "A science-backed guide to how working memory supports learning and focus",
+          "shortTermMemory": "Practical strategies for improving short-term memory through training",
+          "visualMemory": "Background on visuospatial working memory and pattern recall research"
+        }
+      },
+      "faq": {
+        "dailyLife": {
+          "question": "How does visual pattern memory help in daily life?",
+          "answer": "Visual pattern memory is essential for navigation, recognizing faces, learning new information through diagrams or charts, and many professional skills from reading X-rays to architectural design."
+        },
+        "learning": {
+          "question": "Can this improve my ability to learn new things?",
+          "answer": "Yes! Strong visual memory helps you retain information presented in visual formats, which is how much of our learning occurs. This skill transfers to academic learning, professional development, and acquiring new hobbies."
+        },
+        "practice": {
+          "question": "How often should I practice?",
+          "answer": "For best results, practice for 10-15 minutes daily. Consistent, regular practice is more effective than occasional longer sessions."
+        },
+        "children": {
+          "question": "Is this game suitable for children?",
+          "answer": "Absolutely! This game is excellent for developing minds. Visual memory is crucial for reading, mathematics, and many other academic skills. The progressive difficulty ensures it remains challenging as skills improve."
+        }
+      },
+      "gameUI": {
+        "level": "Level",
+        "score": "Score",
+        "bestScore": "Best",
+        "bestRankedLevel": "Best Ranked Level",
+        "bestPracticeScore": "Best Practice Score",
+        "time": "Time",
+        "startGame": "Start Game",
+        "starting": "Starting...",
+        "playAgain": "Play Again",
+        "share": "Share",
+        "gameOver": "Game Over!",
+        "finalScore": "Final Score",
+        "levelsCompleted": "Levels Completed",
+        "watchSequence": "Watch sequence...",
+        "repeatSequence": "Repeat sequence",
+        "wellDone": "Well done!",
+        "personalBest": "Personal Best",
+        "yourTurn": "Your turn...",
+        "startLevelLabel": "Start with a {count}-step sequence",
+        "rankedMode": "Ranked",
+        "practiceMode": "Practice",
+        "rankedDescription": "Fixed start level. Leaderboard tracks the highest completed level.",
+        "practiceDescription": "Choose any starting sequence length. Practice runs stay local and do not affect the leaderboard.",
+        "leaderboardDescription": "The leaderboard compares total score. You can choose your starting level, and higher levels are worth more points.",
+        "rankedResult": "Ranked Result",
+        "highestLevelReached": "Highest Level Reached",
+        "noLevelCompleted": "No level completed yet",
+        "practiceScoresStayLocal": "Practice scores stay on this device and are not submitted to the leaderboard.",
+        "totalPoints": "Total Points"
+      }
+    },
+    "reactionTime": {
+      "title": "Reaction Time Test",
+      "subtitle": "Check your reaction speed in milliseconds with a fast visual reaction time test",
+      "description": "Use this free online reaction time test to check how quickly you respond to a visual signal and compare your result against common averages.",
+      "metadata": {
+        "title": "Reaction Time Test Online: Check Your Reflexes in Milliseconds",
+        "description": "Check your reaction time online with a simple visual reaction time test. Measure reaction speed in milliseconds, compare against average human results, and track your consistency.",
+        "keywords": "reaction time test, check reaction time, reaction speed test, human benchmark reaction time, response time test, reaction timer game, visual reaction time test",
+        "ogTitle": "Reaction Time Test Online: Check Your Reflexes in Milliseconds",
+        "ogDescription": "Check your reaction time online with a simple visual reaction time test. Measure reaction speed in milliseconds and compare your result against average human performance."
+      },
+      "howToPlay": {
+        "description": "This simple reaction time test measures how quickly you react when the screen changes color.",
+        "step1": "Wait for the screen to turn green",
+        "step2": "Click or tap as quickly as possible when the color changes",
+        "step3": "See your reaction time in milliseconds",
+        "step4": "Repeat several times for more accurate results"
+      },
+      "benefits": {
+        "measure": {
+          "title": "Measure Reaction Time",
+          "description": "This test measures the time from when the color changes to when you click, in milliseconds."
+        },
+        "baseline": {
+          "title": "Understand Your Baseline",
+          "description": "Learn your baseline reaction time and compare against your previous results."
+        },
+        "consistency": {
+          "title": "Track Consistency",
+          "description": "Record multiple test results to see the consistency and variation in your reaction times."
+        }
+      },
+      "faq": {
+        "what": {
+          "question": "What is reaction time?",
+          "answer": "Reaction time is the interval between perceiving a stimulus (like seeing the screen turn green) and making a physical response (like clicking). It includes the time your brain takes to process visual information, decide to act, and send signals to your muscles. Average human reaction time to visual stimuli is typically between 200-250 milliseconds, though this varies by individual and circumstances."
+        },
+        "limitations": {
+          "question": "What are the limitations of this test?",
+          "answer": "This test only measures simple reaction time, not choice reaction time or complex decision-making. Results are affected by hardware (monitor refresh rate, mouse/touchscreen latency), environmental factors, and personal state (like fatigue level), so it shouldn't be considered a precise scientific measurement."
+        },
+        "factors": {
+          "question": "What factors affect reaction time?",
+          "answer": "Many factors influence reaction time, including age (typically peaks in your 20s and gradually lengthens afterward), sleep quality, attention level, diet, medications, fatigue, and alertness during testing. Your hardware also affects measurements, with gaming monitors and professional equipment potentially providing faster results than typical devices."
+        },
+        "significance": {
+          "question": "What's the significance of reaction time testing?",
+          "answer": "Reaction time testing provides a way to understand your basic neural response speed. It can serve as a personal baseline but shouldn't be viewed as a training tool. If you notice your reaction time becoming significantly slower, it may be an indicator of fatigue, distraction, or other health factors. For professional competitors or certain occupations, understanding reaction time may have reference value."
+        }
+      },
+      "science": {
+        "title": "What This Reaction Time Test Measures",
+        "description": "A visual reaction time test gives you a simple baseline for how quickly you notice a signal and respond. It is useful for checking consistency, comparing runs over time, and understanding how sleep, focus, fatigue, and device latency affect your score.",
+        "blogArticleTitle": "How to Boost Reaction Time for Gaming: The Ultimate Gamer's Guide (2025)"
+      },
+      "gameUI": {
+        "gameTitle": "Test Your Reaction Time",
+        "instructions": "When the blue screen turns green, click as quickly as you can! Complete 5 rounds to get your average score.",
+        "hardwareNote": "Note: Your results depend on your device's hardware, display lag, and input processing time.",
+        "startButton": "START",
+        "wait": "WAIT...",
+        "clickNow": "CLICK NOW",
+        "tooEarly": "TOO EARLY!",
+        "yourReactionTime": "Your Reaction Time",
+        "bestTime": "Best Time",
+        "averageTime": "Average Time",
+        "round": "Round",
+        "gameComplete": "Game Complete!",
+        "playAgain": "Play Again",
+        "share": "Share Result",
+        "newBestTime": "New Best Time",
+        "shareTitle": "My Reaction Time Result",
+        "shareText": "My reaction time",
+        "milliseconds": "milliseconds",
+        "screenReaderWaiting": "Waiting for blue screen to turn green. Do not click yet.",
+        "screenReaderReady": "Screen is now green. Click immediately!",
+        "screenReaderResult": "Your reaction time is",
+        "hardwareFactorsNote": "Results vary by device. Gaming monitors, mice, and computers can impact measurements by up to 30-50ms.",
+        "reactionCategory": {
+          "veryFast": "Very Fast - Gaming Level",
+          "fast": "Fast - Above Average",
+          "average": "Average Response",
+          "needsPractice": "Keep Practicing"
+        },
+        "reflexAnalysis": {
+          "title": "Reaction Time Analysis",
+          "description": "How does your performance compare?",
+          "godlike": "Godlike! - Esports Pro Level",
+          "excellent": "Excellent! - Way Above Average",
+          "good": "Good - Above Average",
+          "average": "Average Response Time",
+          "slow": "Slow - Keep Practicing"
+        }
+      },
+      "ratings": {
+        "master": "Master",
+        "excellent": "Excellent",
+        "great": "Great",
+        "good": "Good",
+        "average": "Average",
+        "keepPracticing": "Keep Practicing"
+      }
+    },
+    "countingBoxes": {
+      "title": "Counting Boxes",
+      "subtitle": "Master Spatial Memory Through 3D Cube Counting",
+      "description": "Watch 3D cubes appear and disappear, then count them accurately. Train your spatial memory and visual processing skills.",
+      "metaTitle": "Counting Boxes: 3D Spatial Memory & Mensa IQ Prep Game",
+      "metaDescription": "Challenge your spatial reasoning and visual working memory by counting 3D cubes. A perfect cognitive training tool for geometry skills, architectural visualization, and Mensa spatial test preparation.",
+      "metaKeywords": "3d cube counting test, spatial reasoning game online, mensa test prep exercises, visual spatial working memory, mental rotation practice, geometry brain games, architectural visualization test",
+      "ogTitle": "Counting Boxes: 3D Spatial Memory & Mensa IQ Prep Game",
+      "ogDescription": "Challenge your spatial reasoning and visual working memory by counting 3D cubes. A perfect cognitive training tool for geometry skills, architectural visualization, and Mensa spatial test preparation.",
+      "howToPlayIntro": "In this spatial memory challenge, you'll observe 3D cubes appearing on a grid and then count how many you saw:",
+      "howToPlay1": "Watch carefully as 3D boxes appear on the grid for a brief time",
+      "howToPlay2": "Remember the number of boxes you observed",
+      "howToPlay3": "Enter the count when prompted after the boxes disappear",
+      "howToPlay4": "Progress through increasingly challenging levels with more boxes and complex patterns",
+      "benefits": {
+        "workingMemory": {
+          "title": "Working Memory",
+          "description": "Strengthen your ability to hold and manipulate spatial information in mind while tracking multiple objects across different grid positions."
+        },
+        "visualTracking": {
+          "title": "Visual Tracking",
+          "description": "Improve your ability to track multiple objects simultaneously and maintain focus on spatial arrangements during brief presentations."
+        },
+        "spatialMemory": {
+          "title": "Spatial Memory",
+          "description": "Enhance your capacity to remember and process spatial relationships, crucial for navigation, mathematics, and technical problem-solving."
+        }
+      },
+      "faq": {
+        "howToPlay": {
+          "question": "How do I play the counting boxes game?",
+          "answer": "Watch as 3D cubes briefly appear on a grid, remember how many you saw, and enter the correct count. The game progressively increases difficulty with more cubes and complex patterns."
+        },
+        "difficulty": {
+          "question": "How does the difficulty change?",
+          "answer": "Early levels feature 3-4 cubes in simple patterns, while advanced levels include up to 23 cubes in complex arrangements. Some levels add animations like fly-in effects to increase the challenge."
+        },
+        "benefits": {
+          "question": "What cognitive benefits does this provide?",
+          "answer": "This game trains working memory, spatial processing, selective attention, and visual tracking - skills that transfer to mathematics, navigation, professional tasks, and everyday spatial reasoning."
+        },
+        "practice": {
+          "question": "How often should I practice?",
+          "answer": "For optimal results, practice 10-15 minutes daily. The progressive difficulty system ensures appropriate challenge levels as your spatial memory skills improve."
+        }
+      },
+      "gameUI": {
+        "level": "Level",
+        "observing": "Observing...",
+        "howMany": "How many boxes did you see?",
+        "enter": "Enter",
+        "correct": "Correct!",
+        "incorrect": "Incorrect",
+        "actualCount": "Actual count: {count}",
+        "yourAnswer": "Your answer: {answer}",
+        "startGame": "Start Game",
+        "gameOver": "Game Complete!",
+        "finalStats": "Final Statistics",
+        "accuracy": "Accuracy: {correct}/{total}",
+        "totalTime": "Total Time: {time}",
+        "playAgain": "Play Again",
+        "share": "Share Result",
+        "preparing": "Preparing...",
+        "getReady": "Get Ready...",
+        "timeLeft": "Time Left: {seconds}s",
+        "nextLevel": "Next Level: {seconds}s",
+        "accuracyLabel": "Accuracy:",
+        "totalTimeLabel": "Total Time:",
+        "seconds": "seconds",
+        "encouragement": {
+          "perfect": "Perfect! You are a box memory master!",
+          "great": "Great! Practice a few more times and you'll be even better!",
+          "good": "Nice! Keep working hard, your memory will get better and better!",
+          "keepTrying": "Don't be discouraged, practice more and you will definitely improve!"
+        }
+      }
+    },
+    "stroopEffectTest": {
+      "title": "Stroop Effect Test",
+      "subtitle": "Take a free online color-word test to measure selective attention, inhibition control, and Stroop interference.",
+      "description": "Take a free Stroop effect test online by naming the ink color instead of the word. Train selective attention, inhibition control, and conflict resolution while tracking your reaction time.",
+      "metadata": {
+        "title": "Stroop Effect Test Online: Free Color Word Test",
+        "description": "Take a free Stroop effect test online and try the classic color word test. Measure selective attention, inhibition control, reaction time, and total test time in one quick session.",
+        "keywords": "stroop effect test, stroop test online, free stroop test, color word test, stroop color and word test, stroop effect test online, psychology stroop test",
+        "ogTitle": "Stroop Effect Test Online: Free Color Word Test",
+        "ogDescription": "Take a free Stroop effect test online and try the classic color word test. Measure selective attention, inhibition control, reaction time, and total test time in one quick session."
+      },
+      "howToPlay": {
+        "description": "In this free online Stroop test, you'll complete a classic color-word task by identifying the ink color instead of reading the word.",
+        "step1": "Look at the colored word displayed on screen",
+        "step2": "Identify the COLOR of the text, not the meaning of the word",
+        "step3": "Click the correct color button or press the number key (1-6)",
+        "step4": "Complete 20 trials to see your Stroop effect measurement"
+      },
+      "benefits": {
+        "cognitiveFlexibility": {
+          "title": "Cognitive Flexibility",
+          "description": "Enhance your ability to switch between different mental concepts and adapt to changing rules or demands."
+        },
+        "selectiveAttention": {
+          "title": "Selective Attention",
+          "description": "Improve your ability to focus on relevant information while filtering out conflicting or distracting elements."
+        },
+        "conflictResolution": {
+          "title": "Conflict Resolution",
+          "description": "Train your brain to resolve conflicts between competing information sources and make accurate decisions under interference."
+        }
+      },
+      "faq": {
+        "whatIsStroop": {
+          "question": "What is the Stroop effect?",
+          "answer": "The Stroop effect is the delay that happens when a word's meaning conflicts with its ink color, such as the word 'RED' printed in blue. In a classic color word test, you must name the ink color instead of reading the word, which reveals how automatic reading interferes with attention and response control."
+        },
+        "whyDifficult": {
+          "question": "Why is this test difficult?",
+          "answer": "Reading is so automatic that your brain wants to process the word before the color. When the word says 'GREEN' but the ink is red, you have to inhibit that automatic reading response and focus only on the color, which is why a Stroop test online still feels surprisingly demanding."
+        },
+        "howToImprove": {
+          "question": "How can I improve my performance?",
+          "answer": "Practice regularly and aim to respond to the ink color immediately, before you mentally read the word. Short repeated sessions help you strengthen selective attention, reduce hesitation on incongruent trials, and improve your average reaction time."
+        },
+        "realWorldApps": {
+          "question": "How does this apply to real life?",
+          "answer": "The skills measured in a Stroop effect test matter anywhere you need to ignore interference and stay on task, such as driving through distractions, studying in a noisy environment, or switching between competing demands at work."
+        }
+      },
+      "science": {
+        "title": "Why the Stroop Effect Test Works as a Color Word Test",
+        "description": "A Stroop effect test is a classic color word test: you must report the ink color while ignoring the word itself. That conflict makes an online Stroop test useful for practicing selective attention, inhibition control, and cognitive flexibility. As you repeat the task, you can compare average reaction time, total test time, and the gap between congruent and incongruent trials.",
+        "blogArticleTitle": "Stroop Effect Test Explained: The Stroop Experiment, Color Word Test, and Cognitive Control",
+        "authorityLinks": {
+          "neuropsychology": "Stroop test in clinical neuropsychological assessment and cognitive training",
+          "executiveFunction": "Executive function and cognitive control research in neuroscience",
+          "cognitiveTraining": "Evidence for cognitive training transfer and real-world applications"
+        }
+      },
+      "gameUI": {
+        "title": "Stroop Effect Test",
+        "instructions": "Identify the ink COLOR of the word, not what the word says. Click the matching color button or use number keys 1-6.",
+        "startGame": "Start Test",
+        "getReady": "Get Ready",
+        "identifyColor": "What color is this word?",
+        "round": "Round",
+        "correct": "Correct!",
+        "incorrect": "Incorrect",
+        "reactionTime": "Reaction Time",
+        "gameComplete": "Test Complete!",
+        "yourResults": "Your Results",
+        "accuracy": "Accuracy",
+        "avgReactionTime": "Avg Reaction Time",
+        "totalTime": "Total Time",
+        "stroopEffect": "Stroop Effect",
+        "stroopEffectDescription": "How much slower you were when the word and color conflicted",
+        "leaderboardDescription": "The leaderboard ranks your adjusted average time: your average correct reaction time plus a 0.250 s penalty for each incorrect answer.",
+        "leaderboardTime": "Leaderboard Time",
+        "leaderboardTimeDescription": "Includes a {penalty} penalty for each incorrect answer.",
+        "congruent": "Congruent",
+        "incongruent": "Incongruent",
+        "playAgain": "Take Test Again",
+        "share": "Share Results",
+        "newBestTime": "New Best Time",
+        "bestTime": "Best Time",
+        "shareTitle": "My Stroop Effect Test Results",
+        "shareText": "I completed the Stroop Effect Test with {accuracy}% accuracy, {avgReactionTime} average reaction time, and a {stroopEffect} Stroop effect.",
+        "keyboardShortcut": "Use keyboard shortcuts: 1-6 for colors",
+        "colors": {
+          "red": "RED",
+          "blue": "BLUE",
+          "green": "GREEN",
+          "yellow": "YELLOW",
+          "purple": "PURPLE",
+          "pink": "PINK"
+        }
+      }
+    },
+    "focusReactionTest": {
+      "title": "Focus Reaction Test",
+      "subtitle": "Train Your Selective Attention and Processing Speed",
+      "description": "Based on the classic Eriksen Flanker Task, this test measures your ability to focus on relevant information while ignoring distractions. Challenge your selective attention and executive control skills.",
+      "metadata": {
+        "title": "Focus Reaction Test | Selective Attention Training",
+        "description": "Test your selective attention and processing speed with our Eriksen Flanker Task-based game. Improve focus by identifying target directions while ignoring distracting flankers.",
+        "keywords": "flanker task, selective attention test, focus training, eriksen flanker, attention training, executive control, processing speed, reaction time, cognitive flexibility, attention span, distraction management, brain training",
+        "ogTitle": "Focus Reaction Test - Train Your Selective Attention",
+        "ogDescription": "Challenge your selective attention with the classic flanker task. Identify target directions while ignoring distracting stimuli."
+      },
+      "howToPlay": {
+        "description": "In this attention training test, you'll identify the direction of the center arrow while ignoring the surrounding distractors.",
+        "step1": "Look at the arrow pattern displayed on screen",
+        "step2": "Focus ONLY on the CENTER arrow's direction",
+        "step3": "Ignore the surrounding arrows (flankers) - they may point in different directions",
+        "step4": "Respond quickly and accurately using arrow keys or clicking the direction buttons"
+      },
+      "benefits": {
+        "selectiveAttention": {
+          "title": "Selective Attention",
+          "description": "Strengthen your ability to focus on relevant information while filtering out distracting stimuli in your environment."
+        },
+        "processingSpeed": {
+          "title": "Processing Speed",
+          "description": "Improve how quickly and accurately your brain can process visual information and make decisions under time pressure."
+        },
+        "executiveControl": {
+          "title": "Executive Control",
+          "description": "Enhance your brain's ability to override automatic responses and maintain goal-directed behavior despite interference."
+        }
+      },
+      "science": {
+        "title": "Selective Attention and Executive Control Training",
+        "description": "The Focus Reaction Test is based on the Eriksen Flanker Task, a well-established paradigm in cognitive psychology for measuring selective attention and executive control. Research shows this task activates the anterior cingulate cortex and prefrontal regions responsible for conflict monitoring and cognitive control. Regular practice strengthens these neural networks, improving focus, attention span, and resistance to distractions in daily life.",
+        "blogArticleTitle": "The Science Behind the Flanker Task: Training Selective Attention and Focus",
+        "authorityLinks": {
+          "eriksenTask": "Classic research on flanker effects and selective attention mechanisms",
+          "selectiveAttention": "Comprehensive overview of selective attention research and applications",
+          "executiveControl": "Neuroscience research on executive control and cognitive flexibility"
+        }
+      },
+      "faq": {
+        "whatIsFlankerTask": {
+          "question": "What is the Flanker Task?",
+          "answer": "The Flanker Task is a cognitive psychology experiment that measures selective attention. Participants identify a target stimulus (center arrow) while ignoring irrelevant flanking stimuli. When flankers conflict with the target, it creates interference that tests your ability to focus."
+        },
+        "whyDifficult": {
+          "question": "Why is this test challenging?",
+          "answer": "The challenge comes from cognitive interference. When surrounding arrows point in the opposite direction of the center arrow, your brain must override the automatic tendency to process all visual information and focus solely on the target."
+        },
+        "howToImprove": {
+          "question": "How can I improve my performance?",
+          "answer": "Focus on the center position and try to narrow your attention. With practice, you can learn to ignore the flankers more effectively. Regular training strengthens your selective attention and reduces interference effects."
+        },
+        "realWorldApplications": {
+          "question": "How does this apply to real life?",
+          "answer": "Selective attention skills transfer to many situations: focusing on a conversation in a noisy room, staying on task with distractions around, driving safely while ignoring irrelevant stimuli, and maintaining concentration during work or study."
+        }
+      },
+      "gameUI": {
+        "title": "Focus Reaction Test",
+        "instructions": "Focus on the CENTER arrow direction. Use arrow keys (← →) or A/D keys to respond quickly and accurately.",
+        "startGame": "Start Test",
+        "getReady": "Get Ready",
+        "focusOnCenter": "Focus on the center arrow",
+        "trial": "Trial",
+        "left": "Left",
+        "right": "Right",
+        "keyboardHelp": "Use keyboard: A/← for left, D/→ for right",
+        "gameComplete": "Test Complete!",
+        "accuracy": "Accuracy",
+        "avgReactionTime": "Avg Reaction Time",
+        "flankerEffect": "Flanker Effect",
+        "totalTrials": "Total Trials",
+        "flankerEffectDescription": "Flanker effect measures the interference from surrounding arrows. Lower values indicate better selective attention.",
+        "bestScore": "Best Score",
+        "newBestScore": "New Best Score!",
+        "playAgain": "Play Again",
+        "share": "Share Results",
+        "shareTitle": "My Focus Reaction Test Results",
+        "shareText": "I scored {accuracy}% accuracy with {avgRT}ms average reaction time and {flankerEffect}ms flanker effect on the Focus Reaction Test!"
+      }
+    },
+    "babyAnimalMatching": {
+      "title": "Baby Animal Matching Game",
+      "subtitle": "Adorable Memory Training for All Ages",
+      "description": "Match pairs of cute baby animals in this classic memory card game. Improves visual memory and concentration for all ages.",
+      "howToPlayIntro": "Find all the matching pairs of baby animals in this memory card game!",
+      "howToPlayStep1": "Select your difficulty level to start",
+      "howToPlayStep2": "Click on a card to flip it over and reveal a baby animal",
+      "howToPlayStep3": "Click on a second card to find its matching pair",
+      "howToPlayStep4": "If the animals match, the cards stay face up",
+      "howToPlayStep5": "If they don't match, they flip back over after a moment",
+      "howToPlayStep6": "Remember card positions to find matches faster",
+      "howToPlayStep7": "Match all pairs in the fewest moves to win!",
+      "benefit1_title": "Working Memory",
+      "benefit1_desc": "Challenges your ability to hold and manipulate visual information in your mind.",
+      "benefit2_title": "Visual Recognition",
+      "benefit2_desc": "Improves speed and accuracy in recognizing and differentiating visual patterns.",
+      "benefit3_title": "Concentration",
+      "benefit3_desc": "Strengthens your focus and attention span by requiring you to remember card locations.",
+      "faq1_question": "Is this baby animal matching game suitable for young children?",
+      "faq1_answer": "Yes! The simple rules, cute animal visuals, and adjustable difficulty levels make it perfect for children as young as 3-4 years old with parental guidance.",
+      "faq2_question": "How does difficulty affect the baby animal matching game?",
+      "faq2_answer": "The game offers multiple difficulty levels: Easy (3x2 grid with 3 pairs), Medium (4x2 grid with 4 pairs), Hard (4x3 grid with 6 pairs), and Expert (4x4 grid with 8 pairs). Higher difficulties require remembering more card positions.",
+      "faq3_question": "What cognitive benefits does this memory matching game provide?",
+      "faq3_answer": "This game enhances working memory, visual recognition, pattern matching skills, and concentration. Regular play can improve focus and attention to detail in both children and adults.",
+      "gameUI": {
+        "title": "Baby Animal Matching",
+        "moves": "Moves",
+        "resetGame": "Reset Game",
+        "loadingImages": "Loading images...",
+        "resultsTitle": "Well Done!",
+        "finalMoves": "Moves",
+        "time": "Time",
+        "bestTime": "Best Time",
+        "difficultyLevel": "Difficulty",
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard",
+        "expert": "Expert",
+        "playAgain": "Play Again",
+        "shareResults": "Share Results",
+        "difficulty": "Difficulty",
+        "shareTitle": "Check out my Baby Animal Matching score!",
+        "shareText": "I matched all the baby animals in {moves} moves and {time} seconds on {difficulty} difficulty!"
+      },
+      "metaTitle": "Baby Animal Matching Game: Memory Training for Kids & Seniors",
+      "metaDescription": "Play this classic flipped card memory game featuring adorable baby animals. A perfect concentration and visual memory exercise to boost brain health for toddlers, kids, and seniors.",
+      "metaKeywords": "toddler memory matching games, concentration board game online, brain training for seniors, visual memory match, dementia prevention games, child cognitive development, picture matching flip game",
+      "ogTitle": "Baby Animal Matching Game: Memory Training for Kids & Seniors",
+      "ogDescription": "Play this classic flipped card memory game featuring adorable baby animals. A perfect concentration and visual memory exercise to boost brain health for toddlers, kids, and seniors.",
+      "twitterTitle": "Baby Animal Matching Game | Train Your Memory",
+      "twitterDescription": "Test your memory skills by matching cute baby animal pairs in this free online game."
+    },
+    "memoryMatchingGame": {
+      "title": "Memory Matching Game Online",
+      "subtitle": "Play a free online memory game for adults with clean themes, timed rounds, and quick replayable practice",
+      "description": "Play this free memory matching game online with shapes, letters, or numbers. Match pairs, train visual recall, and enjoy a clean concentration game built for adults and older teens.",
+      "metadata": {
+        "title": "Memory Matching Game Online for Adults: Free Matching Pairs Practice",
+        "description": "Play a free memory matching game online for adults with shapes, letters, or numbers. Match pairs, improve visual memory, and enjoy quick concentration practice in your browser.",
+        "keywords": "memory matching game online, matching games online, free online matching games, concentration game online, pair matching game, visual memory game, memory card game online, memory game for adults, free matching games for adults, memory games for adults online, adult memory game online",
+        "ogTitle": "Memory Matching Game Online for Adults: Free Matching Pairs Practice",
+        "ogDescription": "Play a free online memory game for adults with shapes, letters, or numbers. Match pairs and sharpen visual recall with quick browser-based rounds."
+      },
+      "leaderboardNote": "The public leaderboard tracks the default setup only: Shapes on the 4×4 board.",
+      "preview": {
+        "eyebrow": "Memory Match",
+        "title": "Flip and match",
+        "statusIdle": "Preview",
+        "statusFlipping": "Flipping",
+        "statusMatched": "Pair found"
+      },
+      "howToPlay": {
+        "description": "This memory matching game is built for quick repeatable rounds, whether you want a light brain warm-up or a focused recall challenge. It works especially well for adults who want a short visual memory drill between work sessions, study blocks, or heavier games.",
+        "step1": "Pick a theme: shapes, letters, or numbers",
+        "step2": "Choose a board size from 4×4, 5×4, or 6×4",
+        "step3": "Flip two cards at a time and remember where each symbol appears",
+        "step4": "Clear the board in as few moves and as little time as possible"
+      },
+      "benefits": {
+        "memory": {
+          "title": "Visual Memory",
+          "description": "Practice holding card locations in mind and recalling them under light time pressure."
+        },
+        "visual": {
+          "title": "Pattern Recognition",
+          "description": "Repeated rounds help you notice symbol differences quickly and match them with more confidence."
+        },
+        "focus": {
+          "title": "Short Focus Blocks",
+          "description": "A single round is brief enough to repeat, making it useful as a warm-up before study, work, or other games."
+        }
+      },
+      "science": {
+        "title": "Why Matching Games Help Visual Recall",
+        "description": "Matching games combine short-term storage, visual scanning, and repeated recall. That mix makes them a simple way to practice working memory and attention without a long setup or complicated rules.",
+        "guideTitle": "Working Memory Guide: What It Is, Why It Matters, and How to Improve It"
+      },
+      "faq": {
+        "what": {
+          "question": "What kind of memory does this game train?",
+          "answer": "This game mainly practices visual working memory and short-term recall. You briefly hold card positions in mind, compare new information against what you saw before, and update your memory as the board clears."
+        },
+        "difficulty": {
+          "question": "How do the board sizes change the challenge?",
+          "answer": "Larger boards increase the number of pairs you need to track at once. A 4×4 board is a faster warm-up, while 5×4 and 6×4 push you to remember more locations and stay organized for longer."
+        },
+        "skills": {
+          "question": "Is this only for kids, or useful for adults too?",
+          "answer": "Adults can absolutely use it. This page is especially designed to feel clean and replayable for adults who want a short memory warm-up, a visual attention drill, or a quick reset between heavier tasks."
+        },
+        "practice": {
+          "question": "How should I practice to improve?",
+          "answer": "Start with one theme and repeat it for a few rounds so you can compare your moves and time. Once that feels easier, move up a board size or switch themes to keep the recall challenge fresh."
+        }
+      },
+      "gameUI": {
+        "instructions": "Flip two cards at a time and clear the board as efficiently as you can.",
+        "progress": "Progress",
+        "controls": {
+          "theme": "Theme",
+          "difficulty": "Board",
+          "reset": "Reset",
+          "settings": "Settings",
+          "start": "Start Game"
+        },
+        "settings": {
+          "title": "Game Settings",
+          "description": "Choose the symbol set and board size before you start a new round."
+        },
+        "themes": {
+          "shapes": "Shapes",
+          "letters": "Letters",
+          "numbers": "Numbers"
+        },
+        "difficulties": {
+          "easy": "4×4",
+          "medium": "5×4",
+          "hard": "6×4"
+        },
+        "stats": {
+          "moves": "Moves",
+          "time": "Time",
+          "best": "Best",
+          "pairs": "Pairs"
+        },
+        "startTitle": "Ready to Start?",
+        "startDescription": "Pick your theme and board size in Settings, then start when you're ready. The timer begins only after you press Start.",
+        "revealCard": "Reveal card {symbol}",
+        "completeTitle": "Board Complete!",
+        "completeDescription": "You matched all {pairs} pairs and cleared the board in {moves} moves.",
+        "newBest": "New best time",
+        "playAgain": "Play Again",
+        "leaderboardEligible": "This result counts for the public leaderboard.",
+        "leaderboardDefaultOnly": "Only Shapes on the 4×4 board count toward the public leaderboard.",
+        "shareResults": "Share Result",
+        "shareTitle": "My Memory Matching Result",
+        "shareText": "I cleared the {difficulty} {theme} memory matching board in {moves} moves and {time}."
+      }
+    },
+    "freeShortTermMemoryTest": {
+      "title": "Free Short Term Memory Test",
+      "subtitle": "Assess your short-term memory capacity with household item recall",
+      "description": "Test your short-term memory by memorizing and recalling common household items. Get personalized scoring based on your age and gender.",
+      "metadata": {
+        "title": "Free Short-Term Memory Test: Verbal Recall & Brain Assessment",
+        "description": "Assess your short-term verbal memory with this household item recall test. Get an age and gender-adjusted cognitive health score to identify memory weaknesses and strengths.",
+        "keywords": "short term memory loss quiz, word recall test online, verbal memory assessment free, memory capacity test, alzheimers early sign test, cognitive assessment tools, check my memory online",
+        "ogTitle": "Free Short-Term Memory Test: Verbal Recall & Brain Assessment",
+        "ogDescription": "Assess your short-term verbal memory with this household item recall test. Get an age and gender-adjusted cognitive health score to identify memory weaknesses and strengths."
+      },
+      "howToPlay": {
+        "description": "Test your short-term memory by memorizing common household items and recalling them in any order.",
+        "step1": "12 common items are displayed on screen",
+        "step2": "Study and memorize the items at your own pace",
+        "step3": "Click 'I'm Ready' when you want to continue",
+        "step4": "Enter the items you remember in the 12 input boxes (any order)",
+        "step5": "Get your score and personalized comparison results"
+      },
+      "benefits": {
+        "assessment": {
+          "title": "Memory Assessment",
+          "description": "Get an objective measure of your short-term verbal memory capacity using scientifically-based methodology."
+        },
+        "tracking": {
+          "title": "Progress Tracking",
+          "description": "Monitor changes in your memory performance over time and identify patterns in your cognitive abilities."
+        },
+        "comparison": {
+          "title": "Population Comparison",
+          "description": "Compare your performance against age and gender-matched peers to understand your relative memory strength."
+        }
+      },
+      "faq": {
+        "what": {
+          "question": "What does this memory test measure?",
+          "answer": "This test measures your short-term verbal memory capacity - specifically your ability to encode, store, and recall word phrases within a brief time period. It's similar to standardized memory assessments used in cognitive research."
+        },
+        "howLong": {
+          "question": "How long does the test take?",
+          "answer": "The entire test takes about 2-3 minutes. You can study the items at your own pace, then recall them in the input boxes (most people finish within 2-3 minutes)."
+        },
+        "scoring": {
+          "question": "How is the score calculated?",
+          "answer": "Your score is based on the percentage of word phrases correctly recalled. Optional demographic information allows for age and gender-adjusted percentile rankings compared to research populations."
+        },
+        "accuracy": {
+          "question": "How accurate is this test?",
+          "answer": "While this test uses established memory assessment principles, it's designed for educational purposes. For clinical or formal assessments, consult with qualified professionals who use standardized testing protocols."
+        },
+        "improve": {
+          "question": "Can this test help improve my memory?",
+          "answer": "This is primarily an assessment tool, not a training program. However, understanding your baseline can help you track changes over time and identify if memory training or lifestyle changes are beneficial."
+        }
+      },
+      "instruction": {
+        "description": "Test your short-term memory by memorizing and recalling word phrases.",
+        "step1": "12 word phrases will be shown for 20 seconds",
+        "step2": "Memorize as many as you can",
+        "step3": "Type all phrases you remember",
+        "step4": "Get your personalized score"
+      },
+      "startTest": "Start Memory Test",
+      "ready": "I'm Ready - Continue",
+      "memorizeTheseWords": "Memorize These Word Phrases",
+      "studyAtYourPace": "Take your time to study these words carefully",
+      "recall": {
+        "title": "Recall Phase",
+        "gridInstruction": "Fill in the word phrases you remember in any of the boxes below. You don't need to remember the exact order.",
+        "inputLabel": "Enter the phrases you remember:",
+        "placeholder": "Type the word phrases here, separated by commas or new lines..."
+      },
+      "submitRecall": "Submit My Answers",
+      "setup": {
+        "title": "Get Personalized Results",
+        "description": "Provide your age group and gender to receive personalized scoring compared to your demographic group.",
+        "ageGroup": "Age Group",
+        "ageUnder18": "Under 18",
+        "age18to25": "18-25 years",
+        "age26to45": "26-45 years",
+        "age46to65": "46-65 years",
+        "age65plus": "65+ years",
+        "gender": "Gender",
+        "male": "Male",
+        "female": "Female",
+        "other": "Other",
+        "skip": "Skip & Show Basic Results",
+        "submit": "Get Personalized Score"
+      },
+      "results": {
+        "title": "Your Memory Test Results",
+        "performance": "Performance Summary",
+        "wordsRecalled": "Words Recalled",
+        "accuracy": "Accuracy Score",
+        "timeSpent": "Time Taken",
+        "percentile": "Percentile Rank",
+        "correctWords": "Words You Got Right",
+        "missedWords": "Words You Missed",
+        "noMatches": "No matching words found",
+        "excellent": "Excellent performance! You have outstanding memory skills.",
+        "good": "Good performance! Your memory skills are above average.",
+        "keepPracticing": "Keep practicing! Regular training can improve your memory.",
+        "encouragement": "Great effort! Memory is like a muscle - the more you exercise it, the stronger it becomes.",
+        "trainingTip": "Try to practice memory exercises 10-15 minutes daily for best results. Consistency is key to improvement!"
+      },
+      "tryAgain": "Take Test Again",
+      "wordBank": [
+        "camera",
+        "book",
+        "phone",
+        "laptop",
+        "bottle",
+        "chair",
+        "lamp",
+        "wallet",
+        "mirror",
+        "clock",
+        "knife",
+        "spoon",
+        "plate",
+        "cup",
+        "pillow",
+        "towel",
+        "shoes",
+        "keys",
+        "glasses",
+        "watch"
+      ]
+    },
+    "pomodoroTimer": {
+      "title": "Pomodoro Timer Online",
+      "subtitle": "Use a free study timer for focus sessions, short breaks, and clearer time management",
+      "description": "Use this free Pomodoro timer online as a study timer, focus timer, or tomato timer for 25-minute work sessions and structured breaks.",
+      "metaTitle": "Pomodoro Timer Online: Free Study Timer for Focus and Time Management",
+      "metaDescription": "Use our free Pomodoro timer online as a study timer, focus timer, or tomato timer. Plan 25-minute work sessions, take structured breaks, and manage time more clearly.",
+      "metaKeywords": "pomodoro timer online, study timer app, focus timer, time management pomodoro, tomato timer online, stopwatch for studying, pomodoro study timer, productivity timer",
+      "ogTitle": "Pomodoro Timer Online: Free Study Timer for Focus and Time Management",
+      "ogDescription": "Use our free Pomodoro timer online as a study timer, focus timer, or tomato timer. Plan 25-minute work sessions and structured breaks for better focus.",
+      "howToPlay": {
+        "step1": "Click 'Start' to begin a 25-minute focus session",
+        "step2": "Work on your task without interruptions until the timer ends",
+        "step3": "Take a 5-minute short break when the timer completes",
+        "step4": "After 4 focus sessions, take a longer 15-minute break",
+        "defaultSettings": {
+          "title": "Default Settings",
+          "focus": "Focus: 25 minutes",
+          "shortBreak": "Short Break: 5 minutes",
+          "longBreak": "Long Break: 15 minutes",
+          "cycle": "Long break after 4 sessions"
+        }
+      },
+      "benefits": {
+        "focusImprovement": {
+          "title": "Improve Focus",
+          "description": "Train your brain to concentrate deeply for set periods. Regular practice enhances your ability to enter and maintain flow states."
+        },
+        "timeManagement": {
+          "title": "Better Time Management",
+          "description": "Break work into manageable intervals. Gain awareness of how long tasks actually take and improve time estimation skills."
+        },
+        "burnoutPrevention": {
+          "title": "Prevent Burnout",
+          "description": "Scheduled breaks prevent mental fatigue. Regular rest periods help maintain energy levels throughout the day."
+        },
+        "productivityBoost": {
+          "title": "Increase Productivity",
+          "description": "Create urgency with time constraints. The timer effect motivates you to make progress before the session ends."
+        }
+      },
+      "science": {
+        "title": "Why a Pomodoro Timer Helps With Focus and Time Management",
+        "description": "The Pomodoro Technique works by turning large tasks into shorter focus blocks with planned breaks. Timed sessions can make it easier to start work, reduce mental fatigue, and improve time awareness for studying, deep work, and ADHD-friendly routines.",
+        "blogArticleTitle": "How to Improve Focus and Concentration: Practical Tips for Better Productivity",
+        "authorityLinks": {
+          "technique": "Learn about the original Pomodoro Technique methodology and its development",
+          "timeManagement": "Research on effective time management strategies and productivity",
+          "attention": "Scientific studies on attention span, focus duration, and cognitive performance"
+        }
+      },
+      "faq": {
+        "whatIsPomodoro": {
+          "question": "What is a Pomodoro timer?",
+          "answer": "A Pomodoro timer is a countdown tool used in the Pomodoro Technique, a time management method that breaks work into intervals (traditionally 25 minutes) separated by short breaks. Each interval is called a 'pomodoro', named after the tomato-shaped timer Francesco Cirillo used when he developed the technique."
+        },
+        "whyBreaks": {
+          "question": "Why are breaks important?",
+          "answer": "Regular breaks prevent mental fatigue and maintain high levels of focus throughout the day. Research shows that sustained attention declines after extended periods, so breaks help reset your cognitive resources and maintain productivity."
+        },
+        "customize": {
+          "question": "Can I customize the timer duration?",
+          "answer": "Yes! Click the Settings button to adjust focus duration (1-60 minutes), short break (1-30 minutes), long break (1-60 minutes), and how many sessions before a long break. Customize based on your task type and attention capacity."
+        },
+        "bestFor": {
+          "question": "Can I use this as a study timer or focus timer?",
+          "answer": "Yes. A Pomodoro timer works well as a study timer or focus timer for writing, coding, revision, reading, and other tasks that benefit from shorter blocks of sustained attention. It is less suitable for work that depends on uninterrupted creative flow or constant interruptions."
+        },
+        "howManyPerDay": {
+          "question": "How many pomodoros should I do per day?",
+          "answer": "Most people complete 8-12 pomodoros in a workday (4-6 hours of focused work). Start with a lower number and gradually increase. Quality matters more than quantity - it's better to complete fewer highly focused sessions than many distracted ones."
+        }
+      },
+      "gameUI": {
+        "focus": "Focus",
+        "shortBreak": "Short Break",
+        "longBreak": "Long Break",
+        "start": "Start",
+        "pause": "Pause",
+        "reset": "Reset",
+        "skip": "Skip",
+        "completedSessions": "Completed",
+        "totalFocusTime": "Total Focus",
+        "minutes": "min",
+        "focusComplete": "Focus session complete! Time for a break.",
+        "focusCompleteBody": "Good job! Take a short break, then get back to it.",
+        "breakComplete": "Break is over! Ready for another focus session?",
+        "breakCompleteBody": "Time to focus again. Let's do this!",
+        "settingsSaved": "Settings saved successfully",
+        "todayLabel": "Today",
+        "sessions": "sessions",
+        "clear": "Clear",
+        "statsCleared": "Today's stats cleared"
+      },
+      "settings": {
+        "title": "Settings",
+        "focusDuration": "Focus Duration (minutes)",
+        "shortBreakDuration": "Short Break (minutes)",
+        "longBreakDuration": "Long Break (minutes)",
+        "sessionsUntilLongBreak": "Sessions Until Long Break",
+        "autoStartBreaks": "Auto-start breaks?",
+        "playSound": "Play sound on completion?",
+        "save": "Save",
+        "cancel": "Cancel",
+        "resetToDefault": "Reset to Default",
+        "enableNotifications": "Enable Notifications",
+        "notificationsEnabled": "Notifications Enabled",
+        "notificationPermissionTitle": "Notification Permission",
+        "notificationPermissionRequest": "Please enable notifications so we can alert you when the timer ends.",
+        "notificationPermissionDenied": "Notifications are blocked. Please enable them in your system or browser settings.",
+        "permissionDialogTitle": "Enable Notifications?",
+        "permissionDialogBody": "Get notified when your timer ends, even if you are in another tab.",
+        "allow": "Allow",
+        "maybeLater": "Maybe Later"
+      }
+    },
+    "focusSudoku": {
+      "title": "Focus Sudoku",
+      "subtitle": "A distraction-free Sudoku designed to train working memory and logic.",
+      "description": "A distraction-free Sudoku designed to train working memory and logic.",
+      "mistakes": "Mistakes",
+      "hint": "Hint",
+      "newGame": "New Game",
+      "completeGuide": "Complete Guide",
+      "guide": {
+        "goal": "Goal",
+        "goalContent": "Fill every empty square with a number from 1 to 9.",
+        "rules": "3 Rules",
+        "rule1": "Each <strong>Row</strong> (horizontal) must have 1-9 unique.",
+        "rule2": "Each <strong>Column</strong> (vertical) must have 1-9 unique.",
+        "rule3": "Each <strong>3x3 Box</strong> (bold borders) must have 1-9 unique.",
+        "tip": "Tip",
+        "tipContent": "Click a number on the board to see where else it appears. Look for rows or boxes that are almost full!"
+      },
+      "win": {
+        "title": "Clean Focus!",
+        "message": "You solved the {difficulty} puzzle with pure logic.",
+        "playAgain": "Play Again"
+      },
+      "howToPlay": {
+        "objectiveTitle": "The Objective",
+        "objectiveContent": "Fill the 9x9 grid so that each column, each row, and each of the nine 3x3 grids contains all of the digits from 1 to 9.",
+        "rulesTitle": "The Rules",
+        "rule1": "No number can be repeated in any <strong>Row</strong>.",
+        "rule2": "No number can be repeated in any <strong>Column</strong>.",
+        "rule3": "No number can be repeated in any <strong>3x3 Box</strong>.",
+        "tipsTitle": "Beginner Tips",
+        "tip1": "<strong>Start Easy:</strong> Look for blocks, rows, or columns that have the most numbers filled in.",
+        "tip2": "<strong>Scan:</strong> Click a number (like 1) to highlight all 1s on the board. See where a 1 is missing in a box.",
+        "tip3": "<strong>Use Note Mode:</strong> Press 'N' or click the \"Note Mode\" button to toggle note-taking. When active, numbers you type will appear as small pencil marks in the corner of the cell. Use this to mark possible candidates when you're not sure yet. Notes don't count as mistakes!"
+      },
+      "benefits": {
+        "wmTitle": "Working Memory",
+        "wmDesc": "Holding numbers and possibilities in your mind trains short-term memory capacity.",
+        "logicTitle": "Logical Deduction",
+        "logicDesc": "Systematic elimination of possibilities strengthens logical reasoning."
+      },
+      "keypad": {
+        "notesOn": "Notes ON",
+        "notesOff": "Notes OFF",
+        "erase": "Erase"
+      },
+      "toast": {
+        "selectCell": "Please select a cell first",
+        "incorrect": "Incorrect number!"
+      },
+      "difficulty": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard"
+      }
+    },
+    "doubleDecision": {
+      "title": "Double Decision Game",
+      "subtitle": "Free adaptive visual processing speed and useful field of view training",
+      "description": "Play a free Double Decision game that combines central vehicle recognition with peripheral road-sign location in one brief glance.",
+      "metadata": {
+        "title": "Double Decision Game | Free Visual Processing Speed Training",
+        "description": "Play a free Double Decision game inspired by useful field of view training. Identify a central vehicle and locate a peripheral sign as the display gets faster.",
+        "keywords": "double decision game, double decision online, visual processing speed training, useful field of view training, UFOV training, peripheral vision game, divided attention training, cognitive training game, brain game for adults"
+      },
+      "leaderboard": {
+        "title": "Double Decision Leaderboard",
+        "description": "Complete at least 20 rounds with 70% accuracy to enter automatically. Your decision rating balances accuracy, display speed, and field difficulty; only your personal best is kept."
+      },
+      "howToPlay": {
+        "description": "Double Decision is an adaptive visual processing speed game. In every trial, a vehicle at the centre and a Route 66 sign in one of eight peripheral locations appear at the same time.",
+        "step1": "Keep your gaze on the central red dot. Identify the vehicle without moving your eyes toward the road sign.",
+        "step2": "After the brief visual mask, choose the central vehicle first, then select the road sector where the Route 66 sign appeared.",
+        "step3": "The display becomes shorter after correct trials. Higher field levels move the target farther from the centre and add distractor signs."
+      },
+      "benefits": {
+        "visual": { "title": "Take In More at a Glance", "description": "Train your useful field of view (UFOV) by holding your gaze on one point while noticing what happens farther away. The goal is to rely less on scanning and become better at catching peripheral details around the thing you are focused on." },
+        "speed": { "title": "Spot Important Information Faster", "description": "Practice finding the two details that matter before the scene disappears. As your visual processing speed improves in the game, you can stay accurate with shorter displays instead of rushing and guessing." },
+        "attention": { "title": "Handle Two Visual Signals at Once", "description": "Build steadier divided attention by tracking a central vehicle and a peripheral sign in the same glance. This is useful practice for situations where you need to stay focused on a main target without losing awareness of what is happening around it." }
+      },
+      "science": {
+        "title": "Why practice can make you faster",
+        "overview": "The main benefit of Double Decision is learning to collect more useful visual information in less time. Instead of practising speed alone, you work on speed, accuracy and peripheral awareness together.",
+        "methodHeading": "The challenge stays just above your comfort zone.",
+        "methodResult": "Correct answers shorten the next display and gradually move the sign farther out. A mistake gives you more time again. This adaptive rhythm keeps the task demanding enough to create progress without leaving you stuck at a level that is too easy or too frustrating.",
+        "evidenceHeading": "Your improvement is easy to see.",
+        "evidenceResult": "Large projects such as ACTIVE found that speed-of-processing practice produced lasting gains on the visual skills being trained. In this game, the same kind of progress appears as a shorter display time, a wider field level and a higher rate of getting both answers right.",
+        "gameLimit": "With regular play, your aim is to recognise the centre faster, notice peripheral details with less searching and stay accurate when the scene becomes busier. Those are practical visual habits for any activity that asks you to focus on one thing while keeping track of the surrounding scene.",
+        "sourceTitle": "New Scientist: A closer look at speed-training research",
+        "sourceDescription": "A recent New Scientist report exploring why adaptive speed training continues to attract research interest and what sustained practice may change."
+      },
+      "faq": {
+        "what": { "question": "What is the Double Decision game?", "answer": "Double Decision is an adaptive visual processing speed and divided attention game. A vehicle appears in the centre while a Route 66 sign appears in one of eight peripheral locations. After the scene disappears, you identify the vehicle and then locate the sign. The display becomes faster and more crowded as your answers improve." },
+        "free": { "question": "Where can I play a free Double Decision game online?", "answer": "You can play this free Double Decision game directly in your browser on Free Focus Games. There is no download or account required. Choose the number of rounds, starting display time and field level in Settings, then begin the visual processing speed challenge on desktop, tablet or mobile." },
+        "how": { "question": "How do you play the Double Decision visual processing speed game?", "answer": "Keep your eyes near the central red dot. When the scene flashes, recognise the central vehicle while using peripheral vision to notice the Route 66 sign. After the mask, choose the vehicle first and then the sign’s location. Both answers must be correct for the round to count." },
+        "ufov": { "question": "Is Double Decision the same as useful field of view (UFOV) training?", "answer": "Double Decision is closely related to useful field of view training. UFOV describes how much visual information you can use in one glance without moving your eyes. Double Decision practises this by keeping attention on a central vehicle while a target appears farther into the periphery, sometimes among distractor signs." },
+        "benefits": { "question": "Can Double Decision improve visual processing speed and peripheral vision?", "answer": "Repeated play can make you faster and more accurate at this specific combination of central recognition and peripheral location. In the game, improvement appears as a shorter display time, a higher field level and stable accuracy. The task also provides focused practice in divided attention and peripheral visual awareness." },
+        "comparison": { "question": "What is the difference between Double Decision and Dual N-Back?", "answer": "Double Decision focuses on visual processing speed, divided attention and useful field of view. Dual N-Back focuses on working memory by asking whether current visual and audio items match items from several steps earlier. Both involve two streams of information, but they train different task skills and use completely different rules." },
+        "frequency": { "question": "How often should you practise Double Decision training?", "answer": "For a simple routine, start with 10 to 20 rounds per session and play while your concentration remains steady. Short, regular sessions are easier to compare over time than occasional long sessions. Focus on keeping both answers accurate and allow the adaptive timer and field level to increase the challenge gradually." }
+      },
+      "structuredData": {
+        "educationalUse": "Visual processing speed and divided attention practice",
+        "featureList": [
+          "Free Double Decision game online",
+          "Adaptive visual processing speed training",
+          "Eight-position peripheral vision task",
+          "Central vehicle and road-sign divided attention challenge",
+          "Adjustable starting speed, field level and session length"
+        ]
+      },
+      "gameUI": {
+        "title": "Two decisions in one glance",
+        "intro": "Identify the vehicle in the centre and remember where the Route 66 sign appeared.",
+        "centralTargetTitle": "Central decision",
+        "centralTarget": "Identify which vehicle from the current pair appeared at fixation.",
+        "peripheralTargetTitle": "Peripheral decision",
+        "peripheralTarget": "Without looking away, notice where the Route 66 sign appears.",
+        "fixationTip": "Keep your eyes on the red dot.",
+        "start": "Start training",
+        "playAgain": "Train again",
+        "round": "Round {current} of {total}",
+        "speed": "Display {milliseconds} ms",
+        "fieldLevel": "Field level {level}",
+        "score": "Accuracy {score}%",
+        "settings": "Settings",
+        "settingsTitle": "Training settings",
+        "settingsRounds": "Rounds",
+        "settingsSpeed": "Starting display",
+        "settingsSpeedHelp": "How long the vehicle and signs first stay visible. A lower value is harder.",
+        "settingsField": "Starting field",
+        "settingsFieldHelp": "How far the sign starts from the centre. Higher levels are farther away and add more distractors.",
+        "settingsHint": "These set the starting point; difficulty then adapts to your performance.",
+        "levelValue": "Level {level}",
+        "bestScore": "Best accuracy: {score}%",
+        "bestRating": "Best decision rating: {score}",
+        "ratingUnit": "decision rating",
+        "resultAccuracy": "Accuracy",
+        "resultField": "Highest field",
+        "resultFastest": "Fastest display",
+        "leaderboardRecorded": "This result meets the leaderboard requirements and will be recorded automatically if it is your new personal best.",
+        "leaderboardNeedsRounds": "Complete 20 or 30 rounds to make a leaderboard-eligible result.",
+        "leaderboardNeedsAccuracy": "Reach at least 70% accuracy to make a leaderboard-eligible result.",
+        "chooseVehicle": "Which vehicle was in the centre?",
+        "chooseVehicleHint": "Choose the central target before locating the road sign.",
+        "chooseLocation": "Where was the Route 66 sign?",
+        "chooseLocationHint": "Select one of the eight road sectors.",
+        "locationLabel": "Road sector {number}",
+        "correct": "Both decisions correct!",
+        "vehicleMissed": "Central vehicle missed",
+        "signMissed": "Road-sign location missed",
+        "answerReveal": "The centre showed a {vehicle}; the Route 66 sign was in sector {location}.",
+        "vehicleDecision": "Vehicle",
+        "locationDecision": "Location",
+        "resultsTitle": "Training complete",
+        "resultsBody": "You made both decisions correctly in {correct} of {total} trials.",
+        "finalThreshold": "Final display: {milliseconds} ms · field level {level}",
+        "vehicles": { "sedan": "Sedan", "taxi": "Taxi", "bus": "Bus", "truck": "Truck" }
+      }
+    },
+    "sbtiTest": {
+      "title": "SBTI Personality Test",
+      "description": "Play the viral SBTI personality test online and get a shareable result poster in minutes. A fast meme-style quiz for people searching sbti test, sbti mbti, and personality test trends.",
+      "featuredDescription": "Take the viral SBTI test and get your result in minutes. A fast personality quiz built for quick sharing with friends."
+    }
+  }
+}
