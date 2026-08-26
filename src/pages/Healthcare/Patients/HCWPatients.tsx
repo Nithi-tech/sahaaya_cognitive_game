@@ -4,7 +4,7 @@ import { HCWSidebar } from '../../../components/Sidebar/Sidebar';
 import { useAuth } from '../../../store/AuthContext';
 import { api } from '../../../api/client';
 import type { PatientProfile, CognitiveProfile, Alert } from '../../../types';
-import { ArrowRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { ArrowRight, TrendingUp, TrendingDown, Minus, Users, CheckCircle2, AlertTriangle, BarChart3 } from 'lucide-react';
 
 interface Row {
   patient: PatientProfile;
@@ -75,16 +75,23 @@ export default function HCWPatients() {
           </p>
         </div>
 
-        {/* Summary KPIs */}
+        {/* Summary KPIs — icon-in-circle treatment matching the caregiver
+            dashboard's KPI cards, not raw emoji (this is the one interface
+            meant to read as clinical-adjacent/professional). */}
         <div className="stat-grid" style={{ marginBottom: 28 }}>
           {[
-            { label: 'Total Patients', value: profiles.length, color: 'var(--color-primary)', emoji: '👥' },
-            { label: 'Active This Week', value: activeCount, color: 'var(--color-success)', emoji: '✅' },
-            { label: 'Needs Attention', value: needsAttention, color: 'var(--color-warning)', emoji: '⚠️' },
-            { label: 'Avg. Engagement', value: `${avgEngagement}%`, color: 'var(--color-info)', emoji: '📊' },
+            { label: 'Total Patients', value: profiles.length, color: 'var(--color-primary)', bg: 'rgba(46,125,139,0.08)', icon: <Users size={20} /> },
+            { label: 'Active This Week', value: activeCount, color: 'var(--color-success)', bg: 'var(--color-success-light)', icon: <CheckCircle2 size={20} /> },
+            { label: 'Needs Attention', value: needsAttention, color: 'var(--color-warning)', bg: 'var(--color-warning-light)', icon: <AlertTriangle size={20} /> },
+            { label: 'Avg. Engagement', value: `${avgEngagement}%`, color: 'var(--color-info)', bg: 'var(--color-info-light)', icon: <BarChart3 size={20} /> },
           ].map(k => (
             <div key={k.label} className="card" style={{ borderRadius: 18, textAlign: 'center' }}>
-              <div style={{ fontSize: 28, marginBottom: 6 }}>{k.emoji}</div>
+              <div style={{
+                width: 40, height: 40, borderRadius: 12, background: k.bg, color: k.color,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px',
+              }}>
+                {k.icon}
+              </div>
               <div style={{ fontSize: 28, fontWeight: 800, color: k.color }}>{k.value}</div>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-tertiary)', marginTop: 4 }}>{k.label}</div>
             </div>

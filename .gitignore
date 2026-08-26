@@ -16,6 +16,11 @@ server/*.db
 server/*.db-wal
 server/*.db-shm
 
+# Third-party reference material only (AGPL-3.0, read-only reference during
+# development — see docs/LICENSE_DECISION.md) — never distributed with the
+# product, so it must never be committed.
+extracted-games/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

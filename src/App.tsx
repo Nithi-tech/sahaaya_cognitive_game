@@ -8,11 +8,13 @@ import LandingPage from './pages/Landing/LandingPage';
 // Elderly pages
 import ElderlyHome from './pages/Elderly/Home/ElderlyHome';
 import ElderlyActivities from './pages/Elderly/Activities/ElderlyActivities';
+import ElderlyGames from './pages/Elderly/Games/ElderlyGames';
 import ElderlyMyDay from './pages/Elderly/MyDay/ElderlyMyDay';
 import ElderlyReminders from './pages/Elderly/Reminders/ElderlyReminders';
 import ElderlyVoice from './pages/Elderly/Voice/ElderlyVoice';
 import ElderlyMemory from './pages/Elderly/Memory/ElderlyMemory';
 import ElderlyVoiceSettings from './pages/Elderly/VoiceSettings/ElderlyVoiceSettings';
+import BreathingExercise from './pages/Elderly/Relax/BreathingExercise';
 
 // Caregiver pages
 import CaregiverDashboard from './pages/Caregiver/Dashboard/CaregiverDashboard';
@@ -46,12 +48,14 @@ function AppRoutes() {
     return (
       <Routes>
         <Route path="/" element={<ElderlyHome />} />
+        <Route path="/games" element={<ElderlyGames />} />
         <Route path="/activities" element={<ElderlyActivities />} />
         <Route path="/myday" element={<ElderlyMyDay />} />
         <Route path="/reminders" element={<ElderlyReminders />} />
         <Route path="/voice" element={<ElderlyVoice />} />
         <Route path="/memory" element={<ElderlyMemory />} />
         <Route path="/voice-settings" element={<ElderlyVoiceSettings />} />
+        <Route path="/relax" element={<BreathingExercise />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     );

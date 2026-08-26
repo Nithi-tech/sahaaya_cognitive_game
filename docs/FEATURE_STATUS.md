@@ -5,11 +5,44 @@ was run against) and deliberately not built this pass, with the reasoning for ea
 "Quality over quantity" was the brief's own stated priority — this file is the record of
 applying it: fixing and hardening what exists took priority over adding new surface area.
 
+> **Update (Cognitive Activity Engine pass):** the "Not implemented" entry below for a
+> structured `GameDefinition` registry and new cognitive games is now **superseded** — both
+> were built in a follow-up pass. See `GAME_ENGINE.md` for the architecture and
+> `LICENSE_DECISION.md` for why 5 of the 7 new games were independently reimplemented
+> rather than adapted from the reference repository the request named. This file's
+> original "not implemented" reasoning is left below unedited for the historical record;
+> treat the note above as the current truth for those two items specifically.
+
 ## Implemented and working (verified live, not just read)
 
-- 6 cognitive games (Memory Match, Object Recognition, Attention, Pattern, Routine Recall,
-  Family & Faces), each with voice narration, adaptive difficulty, and — as of this pass —
-  correct progress persistence and replay handling.
+- **15 cognitive games** on a shared `GameDefinition` registry (`src/games/registry.ts`):
+  the original 6 (Memory Match, Object Recognition, Attention, Pattern Recognition, Daily
+  Routine Recall, Family & Faces) plus 7 from the first Cognitive Activity Engine pass —
+  Color Focus, Quick Response, Number Focus, Block Memory, and Dual Memory (independent
+  reimplementations of the Stroop test, reaction-time task, Schulte table,
+  spatial-sequence/Simon task, and N-back respectively), Go/No-Go ("Gentle Focus"), and
+  Find the Change — plus 2 more added when reconciling the `extracted-games/` request:
+  Peripheral Awareness (a divided-attention paradigm) and Memory Span (verbal word-list
+  recall). All 15 render inside one unified `GameShell`, all persist through the same
+  `addSession` pipeline into activity history / adaptive engine / cognitive profile /
+  caregiver dashboard / analytics / alerts, and all were verified working live — including
+  one played entirely offline and confirmed synced to the backend with no duplication
+  afterward. See `GAME_ENGINE.md`.
+- **Breathing Exercise**: a standalone guided-breathing wellness screen (`/relax`, linked
+  from the elderly Home screen) with three presets. Deliberately **not** part of the game
+  registry or the scored pipeline above — see `GAME_ENGINE.md` for why.
+- **Games hub** (`/games`, new bottom-nav tab beside Home): every registry game grouped by
+  category with quick-filter chips and an attractive card grid — a second, equally-real
+  entry point onto the same tested play/result pipeline "Today's Activity" uses (shared via
+  `useGameSession`/`GameResultScreen`, not duplicated). "Explore Activities" now routes here
+  instead of maintaining a second full-registry list. See `GAME_ENGINE.md`.
+- **"Today's Activity" / "Explore Activities"**: the elderly Activities screen no longer
+  shows a fixed list by default — it recommends one game (via the existing adaptive engine
+  plus a new `pickTodaysGame()` selector) with a plain-language reason, and the full
+  registry is one tap away for a user who'd rather choose themselves.
+- Voice narration, adaptive difficulty, and — as of the prior audit pass — correct
+  progress persistence and replay handling, all now apply uniformly across all 13 games
+  via the shared shell rather than being reimplemented per game.
 - Elderly / Caregiver / Healthcare role-scoped experiences on one shared backend.
 - **Role switching** for the elderly user (this pass's one explicitly-required feature):
   a visible "Switch Role" section in Voice Settings, direct re-login as another demo
@@ -29,27 +62,24 @@ data integrity, broken flows, accessibility, and visual consistency.
 
 ## Not implemented — and why
 
-### New cognitive games (Sequence Builder, Sound Recognition, Picture Story Recall, Find
-the Change, Word Association, Category Sorting, Festival Memory, Music Memory, etc.)
+### ~~New cognitive games~~ — SUPERSEDED, see the update note at the top of this file
 
-**Not built.** The existing 6 games had real, user-facing bugs (lost progress, duplicate
-results, stuck timers, a dead mic) that directly hurt the people using them today. Fixing
-those took priority over adding an 7th–15th game on top of a shakier foundation. Building
-even one of these properly (content authoring, voice narration text, cultural-content
-sourcing, difficulty tuning, testing) is comparable in scope to everything in
-`BUGS_FIXED.md` combined — attempting several in the time available would have meant
-shallow, likely-buggy stubs, which is worse than not shipping them.
-**Recommended next step**: pick exactly one (Sequence Builder is the closest fit to the
-existing `RoutineRecallGame` pattern — could reuse most of its reordering UI) and build it
-to the same bar as the other 6, including tests.
+Originally deferred here; 7 new games (Color Focus, Quick Response, Number Focus, Block
+Memory, Dual Memory, Go/No-Go, Find the Change) were built in a follow-up pass. Still
+genuinely **not built**, and deliberately so, for the same "quality over quantity"
+reasoning as before: Sequence Builder (too close to the existing Daily Routine Recall
+without a distinct content angle — needs one before it's worth building separately), Sound
+Recognition, Picture Story Recall, Word Association, Category Sorting, Festival Memory,
+Music Memory. Each would need real content/audio authoring, not just a UI wrapper.
 
-### Game generation engine (structured `GameDefinition` content model)
+### ~~Game generation engine~~ — SUPERSEDED, see the update note at the top of this file
 
-**Not built.** This is a real, valuable refactor — the 6 games currently duplicate logic
-independently (which is *why* the setTimeout-leak bug and the styling drift existed in
-multiple copies). But it's a foundational rewrite touching all 6 games at once, which is
-high-risk to do quickly and low-value to do halfway. Deferred as a deliberate,
-whole-refactor project rather than attempted as a partial one.
+Originally deferred here as "high-risk to do quickly." Built in a follow-up pass as
+`src/games/registry.ts` + `GameDefinition`/`CognitiveGameResult` (`src/games/types.ts`) —
+see `GAME_ENGINE.md` for the full architecture. What's still true: the original 6 games'
+*internal* logic was deliberately left untouched (only wrapped by the registry/shell) —
+a deeper refactor to make them share code with each other (not just a common shell) is
+still a separate, not-yet-attempted project.
 
 ### Cultural content library / NER content packs (Assam + 7 other states)
 

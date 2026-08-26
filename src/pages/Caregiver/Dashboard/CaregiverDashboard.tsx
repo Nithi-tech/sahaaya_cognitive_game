@@ -3,7 +3,7 @@ import { useApp } from '../../../store/AppContext';
 import { useAuth } from '../../../store/AuthContext';
 import { CaregiverSidebar } from '../../../components/Sidebar/Sidebar';
 import { NetworkToggle } from '../../../components/OfflineIndicator/OfflineIndicator';
-import { DomainBar, ScoreRing } from '../../../components/Charts/Charts';
+import { ScoreRing } from '../../../components/Charts/Charts';
 import { Pill, Droplets, Route, Brain, Bell, ArrowRight } from 'lucide-react';
 
 export default function CaregiverDashboard() {
@@ -135,8 +135,10 @@ export default function CaregiverDashboard() {
           ))}
         </div>
 
-        {/* Cognitive Profile + Quick Actions */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20 }}>
+        {/* Cognitive Profile + Quick Actions — stacks to one column below
+            900px (see .dashboard-two-col in index.css) instead of squeezing
+            a fixed 320px rail onto a phone-width screen. */}
+        <div className="dashboard-two-col" style={{ gap: 20 }}>
           {/* Cognitive Profile */}
           <div className="card" style={{ borderRadius: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -147,7 +149,11 @@ export default function CaregiverDashboard() {
               <button onClick={() => navigate('/activity')} className="btn btn--outline btn--sm">View Details</button>
             </div>
 
-            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 24 }}>
+            {/* Compact at-a-glance view only — the same 5 scores as bars/trends
+                live one tap away via "View Details" (/activity), so this card
+                shouldn't repeat them in a second format. Wraps instead of
+                overflowing on narrow screens. */}
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
               {[
                 { label: 'Memory', score: cognitiveProfile.memoryScore, color: '#E91E63' },
                 { label: 'Attention', score: cognitiveProfile.attentionScore, color: '#2196F3' },
@@ -158,12 +164,6 @@ export default function CaregiverDashboard() {
                 <ScoreRing key={d.label} score={d.score} label={d.label} color={d.color} size={76} />
               ))}
             </div>
-
-            <DomainBar domain="memory" score={cognitiveProfile.memoryScore} color="#E91E63" label="Memory" />
-            <DomainBar domain="attention" score={cognitiveProfile.attentionScore} color="#2196F3" label="Attention" />
-            <DomainBar domain="recognition" score={cognitiveProfile.recognitionScore} color="#FF9800" label="Recognition" />
-            <DomainBar domain="pattern" score={cognitiveProfile.patternScore} color="#9C27B0" label="Pattern" />
-            <DomainBar domain="routine" score={cognitiveProfile.routineScore} color="#4CAF50" label="Routine" />
 
             <div style={{ marginTop: 16, padding: '10px 14px', background: '#FFF8F0', borderRadius: 10, border: '1px solid #FFD08A', fontSize: 12, color: 'var(--text-secondary)' }}>
               ⚠️ These scores reflect activity engagement patterns and are not a medical diagnosis.

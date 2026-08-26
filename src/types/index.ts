@@ -4,7 +4,10 @@
 
 export type UserRole = 'elderly' | 'caregiver' | 'healthcare';
 export type Language = 'en' | 'as';
-export type GameType = 'memory_match' | 'object_recognition' | 'attention' | 'pattern' | 'routine_recall' | 'family_faces';
+export type GameType =
+  | 'memory_match' | 'object_recognition' | 'attention' | 'pattern' | 'routine_recall' | 'family_faces'
+  | 'color_focus' | 'quick_response' | 'number_focus' | 'block_memory' | 'dual_memory' | 'go_no_go' | 'find_the_change'
+  | 'peripheral_awareness' | 'memory_span';
 export type Difficulty = 'easy' | 'medium' | 'challenging';
 export type CognitiveDomain = 'memory' | 'attention' | 'recognition' | 'pattern' | 'routine';
 export type ReminderType = 'medicine' | 'hydration' | 'activity' | 'appointment';
