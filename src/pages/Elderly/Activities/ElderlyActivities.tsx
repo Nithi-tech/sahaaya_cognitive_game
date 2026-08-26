@@ -1,195 +1,147 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
+import { GameShell } from '../../../components/GameShell/GameShell';
+import { GameResultScreen } from '../../../components/GameShell/GameResultScreen';
 import { useApp } from '../../../store/AppContext';
 import { useTranslation } from '../../../i18n/useTranslation';
-import {
-  computeNextDifficulty, generateRecommendation, getDomainFromGame
-} from '../../../engines/adaptiveDifficulty';
-import { playFeedbackForAccuracy } from '../../../services/soundService';
-import type { Difficulty, GameType, CognitiveDomain, AdaptiveRecommendation } from '../../../types';
-import { ArrowLeft, CheckCircle, ChevronRight, Volume2 } from 'lucide-react';
-import MemoryMatchGame from './games/MemoryMatchGame';
-import ObjectRecognitionGame from './games/ObjectRecognitionGame';
-import AttentionGame from './games/AttentionGame';
-import PatternGame from './games/PatternGame';
-import RoutineRecallGame from './games/RoutineRecallGame';
-import FamilyFacesGame from './games/FamilyFacesGame';
+import { generateRecommendation } from '../../../engines/adaptiveDifficulty';
+import { GAME_REGISTRY } from '../../../games/registry';
+import { pickTodaysGame } from '../../../games/recommend';
+import { useGameSession } from '../../../hooks/useGameSession';
+import type { CognitiveGameResult } from '../../../games/types';
+import type { AdaptiveRecommendation } from '../../../types';
+import { ArrowLeft, Volume2, Sparkles } from 'lucide-react';
 
-const BASE_GAME_SEQUENCE: GameType[] = [
-  'memory_match', 'object_recognition', 'attention', 'pattern', 'routine_recall'
-];
-
-const GAME_INFO: Record<GameType, { emoji: string; label: string; domain: CognitiveDomain; color: string; description: string }> = {
-  memory_match: { emoji: '🧩', label: 'Memory Match', domain: 'memory', color: '#E91E63', description: 'Remember familiar objects' },
-  object_recognition: { emoji: '👁️', label: 'Object Recognition', domain: 'recognition', color: '#FF9800', description: 'Name what you see' },
-  attention: { emoji: '🎯', label: 'Attention', domain: 'attention', color: '#2196F3', description: 'Spot the right items' },
-  pattern: { emoji: '🔷', label: 'Pattern Recognition', domain: 'pattern', color: '#9C27B0', description: "What comes next?" },
-  routine_recall: { emoji: '📋', label: 'Daily Routine Recall', domain: 'routine', color: '#4CAF50', description: 'Order your morning' },
-  family_faces: { emoji: '👨‍👩‍👧', label: 'Family & Faces', domain: 'memory', color: '#F4511E', description: 'Recognize your loved ones' },
-};
-
-interface GameResult {
-  gameType: GameType;
-  accuracy: number;
-  responseTime: number;
-  mistakes: number;
-  completed: boolean;
-}
-
-type Screen = 'select' | 'playing' | 'result' | 'recommendation' | 'complete';
+type PageScreen = 'today' | 'recommendation';
 
 export default function ElderlyActivities() {
   const navigate = useNavigate();
-  const { t, lang } = useTranslation();
-  const { cognitiveProfile, addSession, memories, sessions } = useApp();
+  const { t } = useTranslation();
+  const { cognitiveProfile, memories, sessions } = useApp();
 
   const familyMemoryCount = useMemo(() => memories.filter((m) => m.category === 'family' && m.relationship).length, [memories]);
-  const GAME_SEQUENCE = useMemo(
-    () => (familyMemoryCount >= 2 ? [...BASE_GAME_SEQUENCE, 'family_faces' as GameType] : BASE_GAME_SEQUENCE),
+  const availableGames = useMemo(
+    () => GAME_REGISTRY.filter((g) => g.id !== 'family_faces' || familyMemoryCount >= 2),
     [familyMemoryCount],
   );
 
-  const [screen, setScreen] = useState<Screen>('select');
-  const [currentGameIdx, setCurrentGameIdx] = useState(0);
-  const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>('easy');
-  const [gameResults, setGameResults] = useState<GameResult[]>([]);
+  const [pageScreen, setPageScreen] = useState<PageScreen>('today');
+  const [gameResults, setGameResults] = useState<CognitiveGameResult[]>([]);
   const [seededToday, setSeededToday] = useState(false);
-  const [lastResult, setLastResult] = useState<GameResult | null>(null);
-  const [recommendation, setRecommendation] = useState<ReturnType<typeof generateRecommendation> | null>(null);
-  const [difficultyReason, setDifficultyReason] = useState('');
-  const [startTime, setStartTime] = useState(Date.now());
-  // The authoritative recommendation from the server (or offline fallback) —
-  // preferred over recomputing from `cognitiveProfile`, which can still
-  // reflect the pre-session score if the final screen is reached before that
-  // state update lands.
-  const [latestServerRecommendation, setLatestServerRecommendation] = useState<AdaptiveRecommendation | null>(null);
+  const [recommendation, setRecommendation] = useState<AdaptiveRecommendation | null>(null);
 
-  // Progress ("done" checkmarks) is otherwise local-only state that resets to
-  // empty every time this screen unmounts (e.g. tapping Home and coming
-  // back) even though the sessions were already saved. Seed it once from the
-  // real persisted sessions so progress survives navigating away and back.
+  const session = useGameSession((result) => setGameResults((prev) => [...prev, result]));
+
+  // Today's already-played results start empty every remount even though
+  // they were already saved server-side — seed from real sessions once so a
+  // recommendation right after opening the app isn't blind to today's play.
   useEffect(() => {
     if (seededToday) return;
     const today = new Date().toISOString().split('T')[0];
     const todaysSessions = sessions.filter((s) => s.timestamp.startsWith(today));
-    if (todaysSessions.length === 0) return;
-    setGameResults((prev) => {
-      const byType = new Map(prev.map((r) => [r.gameType, r]));
-      for (const s of todaysSessions) {
-        if (!byType.has(s.gameType)) {
-          byType.set(s.gameType, { gameType: s.gameType, accuracy: s.accuracy, responseTime: s.responseTime, mistakes: s.mistakes, completed: true });
-        }
-      }
-      return Array.from(byType.values());
-    });
+    if (todaysSessions.length === 0) { setSeededToday(true); return; }
+    setGameResults(
+      todaysSessions.map((s): CognitiveGameResult => ({
+        patientId: s.patientId,
+        gameId: s.gameType,
+        domain: s.domain,
+        difficulty: s.difficulty,
+        score: s.score,
+        accuracy: s.accuracy,
+        responseTime: s.responseTime,
+        mistakes: s.mistakes,
+        completionRate: s.completed ? 1 : 0,
+        replayCount: 0,
+        startedAt: s.timestamp,
+        completedAt: s.timestamp,
+        assistanceUsed: false,
+      })),
+    );
     setSeededToday(true);
   }, [sessions, seededToday]);
 
-  const currentGameType = GAME_SEQUENCE[currentGameIdx];
-  const currentGameInfo = GAME_INFO[currentGameType];
-  const totalGames = GAME_SEQUENCE.length;
-
-  // The single source of truth for "what should the user do next" — derived
-  // from which games actually have a saved result, not from currentGameIdx
-  // (which only tracks whichever game is currently on screen and drifts out
-  // of sync the moment a game is replayed or the user backs out early).
-  const completedGameTypes = useMemo(() => new Set(gameResults.map((r) => r.gameType)), [gameResults]);
-  const allGamesDone = completedGameTypes.size >= totalGames;
-  const nextIncompleteIdx = useMemo(() => {
-    const idx = GAME_SEQUENCE.findIndex((gt) => !completedGameTypes.has(gt));
-    return idx === -1 ? totalGames - 1 : idx;
-  }, [GAME_SEQUENCE, completedGameTypes, totalGames]);
-
-  const handleGameComplete = useCallback((accuracy: number, mistakes: number, responseTime?: number) => {
-    const rt = responseTime ?? (Date.now() - startTime) / 1000;
-    const result: GameResult = {
-      gameType: currentGameType,
-      accuracy,
-      responseTime: rt,
-      mistakes,
-      completed: true,
+  // Recomputed on every render that depends on it — always reflects the
+  // most recently completed activity, so "Today's Activity" never feels
+  // stuck recommending something just played.
+  const todaysRecommendation = useMemo(() => {
+    const domainScores = {
+      memory: cognitiveProfile.memoryScore,
+      attention: cognitiveProfile.attentionScore,
+      recognition: cognitiveProfile.recognitionScore,
+      pattern: cognitiveProfile.patternScore,
+      routine: cognitiveProfile.routineScore,
     };
-    setLastResult(result);
-    // Replace, not append — replaying an already-completed game (from the
-    // select screen, or the "Back to Activities" → tap-a-card path) must not
-    // create a second entry for the same gameType, which would corrupt the
-    // average-accuracy math and show the game twice on the summary screen.
-    setGameResults((prev) => [...prev.filter((r) => r.gameType !== currentGameType), result]);
-    playFeedbackForAccuracy(accuracy);
+    const recentDomains = [...gameResults].reverse().map((r) => r.domain).concat(sessions.slice(0, 3).map((s) => s.domain));
+    const lastAccuracy = gameResults[gameResults.length - 1]?.accuracy ?? sessions[0]?.accuracy ?? 75;
+    return generateRecommendation(domainScores, recentDomains, lastAccuracy);
+  }, [cognitiveProfile, gameResults, sessions]);
 
-    // Compute next difficulty
-    const domain = getDomainFromGame(currentGameType);
-    const nextDiff = computeNextDifficulty({
-      accuracy,
-      responseTime: rt,
-      mistakes,
-      completionRate: 1,
-      currentDifficulty,
-      domain,
-      recentDomains: gameResults.map(r => getDomainFromGame(r.gameType)),
-    });
+  const todaysPick = useMemo(() => {
+    const recentGameIds = [...gameResults].reverse().map((r) => r.gameId).concat(sessions.slice(0, 3).map((s) => s.gameType));
+    return pickTodaysGame(todaysRecommendation.nextDomain, recentGameIds, availableGames);
+  }, [todaysRecommendation, gameResults, sessions, availableGames]);
 
-    const reason = nextDiff !== currentDifficulty
-      ? `${nextDiff === 'easy' ? '🤗 Reducing' : '🚀 Increasing'} difficulty: accuracy was ${accuracy}%.`
-      : `✅ Maintaining difficulty: accuracy was ${accuracy}%.`;
-    setDifficultyReason(reason);
-
-    // Save session — the API (or the offline queue, if unreachable) recomputes
-    // the cognitive profile and returns a recommendation.
-    addSession({
-      gameType: currentGameType,
-      difficulty: currentDifficulty,
-      score: accuracy,
-      accuracy,
-      responseTime: rt,
-      mistakes,
-      completed: true,
-      domain,
-    })
-      .then((rec) => { if (rec) setLatestServerRecommendation(rec); })
-      .catch(() => {
-        /* addSession's own offline fallback already applies locally; a genuine
-           error here just means the recommendation screen falls back to the
-           local recompute below instead of the server's authoritative one. */
-      });
-
-    setCurrentDifficulty(nextDiff);
-    setScreen('result');
-  }, [currentGameType, currentDifficulty, startTime, gameResults, addSession]);
-
-  const handleNextGame = () => {
-    if (!allGamesDone) {
-      setCurrentGameIdx(nextIncompleteIdx);
-      setStartTime(Date.now());
-      setScreen('playing');
-    } else {
-      // All done — prefer the authoritative recommendation the server
-      // returned from the most recent addSession call; only recompute
-      // locally (from cognitiveProfile, which can still be mid-update) if
-      // that hasn't resolved yet.
-      if (latestServerRecommendation) {
-        setRecommendation(latestServerRecommendation);
-      } else {
-        const domainScores = {
-          memory: cognitiveProfile.memoryScore,
-          attention: cognitiveProfile.attentionScore,
-          recognition: cognitiveProfile.recognitionScore,
-          pattern: cognitiveProfile.patternScore,
-          routine: cognitiveProfile.routineScore,
-        };
-        const rec = generateRecommendation(
-          domainScores,
-          gameResults.map(r => getDomainFromGame(r.gameType)),
-          lastResult?.accuracy ?? 75,
-        );
-        setRecommendation(rec);
-      }
-      setScreen('recommendation');
-    }
+  const handleFinishForToday = () => {
+    const domainScores = {
+      memory: cognitiveProfile.memoryScore,
+      attention: cognitiveProfile.attentionScore,
+      recognition: cognitiveProfile.recognitionScore,
+      pattern: cognitiveProfile.patternScore,
+      routine: cognitiveProfile.routineScore,
+    };
+    const rec = session.latestServerRecommendation ?? generateRecommendation(
+      domainScores,
+      gameResults.map((r) => r.domain),
+      session.lastResult?.accuracy ?? 75,
+    );
+    setRecommendation(rec);
+    setPageScreen('recommendation');
   };
 
-  if (screen === 'select') {
+  const completedTodayCount = gameResults.length;
+
+  // ============================================================
+  // PLAYING / RESULT — shared across every "play a game" entry point; see
+  // useGameSession.ts. Checked before this page's own screens so a game
+  // started from "today" renders here regardless of pageScreen.
+  // ============================================================
+  if (session.screen === 'playing' && session.activeGame) {
+    const Component = session.activeGame.component;
+    return (
+      <GameShell
+        gameDefinition={session.activeGame}
+        difficultyLabel={session.currentDifficulty.charAt(0).toUpperCase() + session.currentDifficulty.slice(1)}
+        progressLabel={`Activity ${completedTodayCount + 1} today`}
+        onExit={session.exit}
+        onRestart={session.restart}
+      >
+        <Component
+          key={`${session.activeGame.id}-${session.restartKey}`}
+          difficulty={session.currentDifficulty}
+          onComplete={session.handleComplete}
+          memories={session.memories}
+        />
+      </GameShell>
+    );
+  }
+
+  if (session.screen === 'result' && session.lastResult) {
+    return (
+      <GameResultScreen
+        result={session.lastResult}
+        difficultyReason={session.difficultyReason}
+        primaryAction={{ label: '▶️ Next Activity', onClick: session.exit }}
+        secondaryAction={{ label: 'I\'m Done for Today', onClick: handleFinishForToday }}
+      />
+    );
+  }
+
+  // ============================================================
+  // TODAY'S ACTIVITY — the default screen. One AI-picked activity, not the
+  // full list, per the product rule: don't show every game immediately.
+  // ============================================================
+  if (pageScreen === 'today') {
     return (
       <div className="elderly-layout" style={{ paddingBottom: 90 }}>
         <div style={{ padding: '20px 20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -208,241 +160,103 @@ export default function ElderlyActivities() {
 
         <div style={{ padding: '16px 20px' }}>
           <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 6 }}>
-            {lang === 'as' ? t('game.today_activity') : "Today's Activity"}
+            {t('game.today_pick')}
           </h1>
-          <p style={{ fontSize: 16, color: 'var(--text-secondary)' }}>{totalGames} activities to keep your mind active</p>
+          {completedTodayCount > 0 && (
+            <p style={{ fontSize: 15, color: 'var(--text-secondary)' }}>
+              {completedTodayCount} {completedTodayCount === 1 ? 'activity' : 'activities'} completed today · nice work
+            </p>
+          )}
         </div>
 
-        <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {GAME_SEQUENCE.map((gt, idx) => {
-            const info = GAME_INFO[gt];
-            const isNext = idx === nextIncompleteIdx;
-            const isDone = completedGameTypes.has(gt);
-            return (
-              <button
-                key={gt}
-                className="game-card-tap"
-                onClick={() => {
-                  setCurrentGameIdx(idx);
-                  setStartTime(Date.now());
-                  setScreen('playing');
-                }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 16,
-                  padding: '18px 20px',
-                  background: isDone ? 'var(--color-success-light)' : 'white',
-                  border: `2px solid ${isDone ? 'var(--color-success)' : isNext ? info.color : 'var(--border-color)'}`,
-                  borderRadius: 20, cursor: 'pointer',
-                  boxShadow: isNext ? 'var(--shadow-md)' : 'none',
-                  transition: 'all 0.2s',
-                  animation: `slide-up 0.4s ease ${idx * 0.06}s both`,
-                }}
-              >
-                <span style={{
-                  fontSize: 32, width: 60, height: 60, flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  borderRadius: 16, background: `${info.color}1A`,
-                }}>
-                  {info.emoji}
-                </span>
-                <div style={{ flex: 1, textAlign: 'left' }}>
-                  <div style={{ fontSize: 18, fontWeight: 700 }}>{info.label}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-tertiary)', marginTop: 2 }}>
-                    {info.description} · {currentDifficulty}
-                  </div>
-                </div>
-                {isDone
-                  ? <CheckCircle size={24} color="var(--color-success)" />
-                  : isNext
-                    ? <ChevronRight size={24} color={info.color} />
-                    : <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>#{idx + 1}</span>
-                }
-              </button>
-            );
-          })}
-        </div>
-
-        <div style={{ padding: '20px' }}>
-          <button
-            className="btn btn--primary"
-            onClick={() => { setCurrentGameIdx(nextIncompleteIdx); setStartTime(Date.now()); setScreen('playing'); }}
-            style={{ width: '100%', height: 64, fontSize: 20, borderRadius: 18, fontWeight: 800 }}
-          >
-            {completedGameTypes.size === 0
-              ? '🚀 Start Activities'
-              : allGamesDone
-                ? '🔁 Replay Activities'
-                : `▶️ Continue — Game ${nextIncompleteIdx + 1}`}
-          </button>
-        </div>
-        <ElderlyNav />
-      </div>
-    );
-  }
-
-  if (screen === 'playing') {
-    return (
-      <div className="elderly-layout" style={{ paddingBottom: 90 }}>
-        {/* Game Header */}
-        <div style={{
-          background: 'white', borderBottom: '1px solid var(--border-color)',
-          padding: '16px 20px',
-          display: 'flex', alignItems: 'center', gap: 12,
-        }}>
-          <button
-            className="btn btn--ghost btn--sm"
-            onClick={() => setScreen('select')}
-            style={{ padding: '8px' }}
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              {currentGameInfo.emoji} {currentGameInfo.label}
-            </div>
-            <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
-              {GAME_SEQUENCE.map((_, i) => (
-                <div key={i} style={{
-                  height: 4, flex: 1, borderRadius: 2,
-                  background: i < currentGameIdx ? 'var(--color-success)' :
-                    i === currentGameIdx ? 'var(--color-primary)' : 'var(--border-color)',
-                }} />
-              ))}
-            </div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>
-              {lang === 'as' ? t('game.difficulty') : 'Difficulty'}
-            </div>
-            <div style={{
-              fontSize: 13, fontWeight: 700,
-              color: currentDifficulty === 'easy' ? 'var(--color-success)' :
-                currentDifficulty === 'medium' ? 'var(--color-accent)' : 'var(--color-danger)',
-            }}>
-              {currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1)}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ padding: '20px' }}>
-          {currentGameType === 'memory_match' && <MemoryMatchGame difficulty={currentDifficulty} onComplete={handleGameComplete} />}
-          {currentGameType === 'object_recognition' && <ObjectRecognitionGame difficulty={currentDifficulty} onComplete={handleGameComplete} />}
-          {currentGameType === 'attention' && <AttentionGame difficulty={currentDifficulty} onComplete={handleGameComplete} />}
-          {currentGameType === 'pattern' && <PatternGame difficulty={currentDifficulty} onComplete={handleGameComplete} />}
-          {currentGameType === 'routine_recall' && <RoutineRecallGame difficulty={currentDifficulty} onComplete={handleGameComplete} />}
-          {currentGameType === 'family_faces' && <FamilyFacesGame difficulty={currentDifficulty} memories={memories} onComplete={handleGameComplete} />}
-        </div>
-        <ElderlyNav />
-      </div>
-    );
-  }
-
-  if (screen === 'result' && lastResult) {
-    const improved = lastResult.accuracy >= 80;
-    const maintained = lastResult.accuracy >= 50;
-    return (
-      <div className="elderly-layout" style={{ padding: '40px 20px 90px' }}>
-        <div style={{ maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ position: 'relative', display: 'inline-block' }}>
-            {improved && (
-              <div className="confetti-burst">
-                {['🎉', '⭐', '🎊', '✨', '🌟', '🎈'].map((e, i) => (
-                  <span key={i} className="confetti-piece" style={{ ['--i' as string]: i }}>{e}</span>
-                ))}
-              </div>
-            )}
-            <div style={{ fontSize: 80, marginBottom: 16, animation: 'bounce-in 0.5s ease' }}>
-              {improved ? '🌟' : maintained ? '👍' : '💪'}
-            </div>
-          </div>
-          <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 8 }}>
-            {lang === 'as' ? t('game.great_work') : 'Great work!'}
-          </h2>
-
-          {/* Score Card */}
-          <div className="card" style={{ borderRadius: 20, marginBottom: 20, padding: '24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--color-primary)' }}>{lastResult.accuracy}%</div>
-                <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>ACCURACY</div>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--color-accent)' }}>{lastResult.mistakes}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>MISTAKES</div>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--color-success)' }}>
-                  {Math.round(lastResult.responseTime)}s
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>TIME</div>
-              </div>
-            </div>
-
-            {/* Difficulty adjustment */}
-            <div style={{
-              background: '#F8FAFB', borderRadius: 12, padding: '12px 16px',
-              fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5,
-            }}>
-              <div style={{ fontWeight: 600, marginBottom: 4, color: 'var(--text-primary)' }}>
-                🤖 AI Adjustment
-              </div>
-              {difficultyReason}
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ padding: '0 20px 20px' }}>
+          <div className="todays-activity-card">
+            <div style={{ fontSize: 56, marginBottom: 8 }}>{todaysPick.emoji}</div>
+            <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>{todaysPick.name}</h2>
+            <p style={{ opacity: 0.9, fontSize: 15, marginBottom: 20 }}>~{todaysPick.estimatedDuration} minutes</p>
             <button
-              className="btn btn--primary"
-              onClick={handleNextGame}
-              style={{ height: 64, fontSize: 20, borderRadius: 18, fontWeight: 800 }}
+              className="btn"
+              onClick={() => session.start(todaysPick)}
+              style={{
+                width: '100%', height: 60, fontSize: 18, fontWeight: 800, borderRadius: 16,
+                background: 'white', color: 'var(--color-primary)', border: 'none',
+              }}
             >
-              {currentGameIdx < totalGames - 1 ? `Next Activity →` : 'See Recommendations'}
-            </button>
-            <button
-              className="btn btn--outline"
-              onClick={() => setScreen('select')}
-              style={{ height: 52, fontSize: 16 }}
-            >
-              Back to Activities
+              {completedTodayCount === 0 ? '🚀 Start' : '▶️ Continue'}
             </button>
           </div>
+
+          <div style={{
+            display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 16,
+            background: '#F8FAFB', borderRadius: 14, padding: '14px 16px', border: '1px solid var(--border-color)',
+          }}>
+            <Sparkles size={18} color="var(--color-accent)" style={{ flexShrink: 0, marginTop: 2 }} />
+            {/* .insight, not .reason — .reason embeds a raw accuracy percentage
+                ("Your accuracy was 50%..."), which reads as a judgment to the
+                elderly user themselves rather than useful context; that level
+                of detail belongs on the caregiver dashboard, where it already
+                appears appropriately. */}
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{todaysRecommendation.insight}</p>
+          </div>
+        </div>
+
+        <div style={{ padding: '0 20px' }}>
+          <button
+            className="btn btn--outline"
+            onClick={() => navigate('/games')}
+            style={{ width: '100%', height: 52, fontSize: 16, borderRadius: 14, marginBottom: 10 }}
+          >
+            {t('game.explore')}
+          </button>
+          {completedTodayCount > 0 && (
+            <button
+              className="btn btn--ghost"
+              onClick={handleFinishForToday}
+              style={{ width: '100%', height: 44, fontSize: 14, color: 'var(--text-tertiary)' }}
+            >
+              I'm done for today
+            </button>
+          )}
         </div>
         <ElderlyNav />
       </div>
     );
   }
 
-  if (screen === 'recommendation' && recommendation) {
-    const avgAccuracy = Math.round(gameResults.reduce((a, r) => a + r.accuracy, 0) / gameResults.length);
+  if (pageScreen === 'recommendation' && recommendation) {
+    const avgAccuracy = gameResults.length
+      ? Math.round(gameResults.reduce((a, r) => a + r.accuracy, 0) / gameResults.length)
+      : 0;
     return (
       <div className="elderly-layout" style={{ padding: '40px 20px 90px' }}>
         <div style={{ maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ fontSize: 64, marginBottom: 12 }}>🎉</div>
-          <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 6 }}>All Activities Done!</h2>
+          <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 6 }}>Great Session!</h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>
             Today's average accuracy: <strong>{avgAccuracy}%</strong>
           </p>
 
-          {/* Summary */}
           <div className="card" style={{ borderRadius: 20, marginBottom: 20, padding: '20px' }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Today's Performance</h3>
-            {gameResults.map((r, i) => (
-              <div key={i} style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '8px 0', borderBottom: i < gameResults.length - 1 ? '1px solid var(--border-color)' : 'none',
-              }}>
-                <span style={{ fontSize: 14, fontWeight: 500 }}>
-                  {GAME_INFO[r.gameType].emoji} {GAME_INFO[r.gameType].label}
-                </span>
-                <span style={{
-                  fontWeight: 700, color: r.accuracy >= 80 ? 'var(--color-success)' :
-                    r.accuracy >= 50 ? 'var(--color-primary)' : 'var(--color-danger)'
-                }}>{r.accuracy}%</span>
-              </div>
-            ))}
+            {gameResults.map((r, i) => {
+              const def = GAME_REGISTRY.find((g) => g.id === r.gameId);
+              return (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '8px 0', borderBottom: i < gameResults.length - 1 ? '1px solid var(--border-color)' : 'none',
+                }}>
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>
+                    {def?.emoji ?? '🎮'} {def?.name ?? r.gameId}
+                  </span>
+                  <span style={{
+                    fontWeight: 700, color: r.accuracy >= 80 ? 'var(--color-success)' :
+                      r.accuracy >= 50 ? 'var(--color-primary)' : 'var(--color-danger)'
+                  }}>{r.accuracy}%</span>
+                </div>
+              );
+            })}
           </div>
 
-          {/* AI Recommendation */}
           <div className="card card--warm" style={{ borderRadius: 20, marginBottom: 24, textAlign: 'left' }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
               🤖 Sahaaya Recommends

@@ -1,4 +1,5 @@
 import type { Difficulty, CognitiveDomain, AdaptiveRecommendation } from '../types';
+import { getGameDefinition } from '../games/registry';
 
 export interface DomainScores {
   memory: number;
@@ -86,12 +87,15 @@ export function updateDomainScore(
 // AI Recommendation Engine
 // ============================================================
 
+// Domain-level labels, not a specific game name — several games can now
+// share the same domain (e.g. Attention, Color Focus, and Number Focus are
+// all 'attention'), so naming one specific game here would be misleading.
 const DOMAIN_NAMES: Record<CognitiveDomain, string> = {
-  memory: 'Memory Match',
+  memory: 'Memory',
   attention: 'Attention',
-  recognition: 'Object Recognition',
-  pattern: 'Pattern Recognition',
-  routine: 'Daily Routine Recall',
+  recognition: 'Recognition',
+  pattern: 'Pattern',
+  routine: 'Routine',
 };
 
 export function generateRecommendation(
@@ -145,16 +149,16 @@ export function getGameName(domain: CognitiveDomain): string {
   return DOMAIN_NAMES[domain];
 }
 
+/**
+ * The single, authoritative source is each game's own registry entry — not
+ * a second hand-maintained map here, which is exactly how a new game type
+ * silently fell through to a wrong default in the past. A game with more
+ * than one cognitiveDomains entry (e.g. Dual Memory) reports its first/
+ * primary domain, since a session can only be scored against one domain
+ * column server-side.
+ */
 export function getDomainFromGame(gameType: string): CognitiveDomain {
-  const map: Record<string, CognitiveDomain> = {
-    memory_match: 'memory',
-    family_faces: 'memory',
-    object_recognition: 'recognition',
-    attention: 'attention',
-    pattern: 'pattern',
-    routine_recall: 'routine',
-  };
-  return map[gameType] ?? 'memory';
+  return getGameDefinition(gameType)?.cognitiveDomains[0] ?? 'memory';
 }
 
 // ============================================================

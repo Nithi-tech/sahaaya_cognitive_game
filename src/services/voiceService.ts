@@ -62,10 +62,14 @@ export function listenOnce(lang: 'en' | 'as'): Promise<string> {
 }
 
 /** Speaks the given text aloud, if the browser supports speech synthesis. */
-export function speak(text: string, lang: 'en' | 'as') {
-  if (!isSpeechSynthesisSupported()) return;
+export function speak(text: string, lang: 'en' | 'as', onEnd?: () => void) {
+  if (!isSpeechSynthesisSupported()) { onEnd?.(); return; }
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = LANG_CODES[lang] ?? 'en-IN';
+  if (onEnd) {
+    utterance.onend = onEnd;
+    utterance.onerror = onEnd;
+  }
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
 }

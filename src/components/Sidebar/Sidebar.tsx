@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Activity, Bell, BookOpen, AlertTriangle,
-  Users, TrendingUp, LogOut, Repeat
+  Users, TrendingUp, LogOut, Repeat, Menu, X, BrainCircuit,
 } from 'lucide-react';
 import { useAuth } from '../../store/AuthContext';
 import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../../constants/demoAccounts';
@@ -21,8 +21,14 @@ interface SidebarProps {
 export function Sidebar({ items, role }: SidebarProps) {
   const { user, login, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showRoleSwitch, setShowRoleSwitch] = useState(false);
   const [switching, setSwitching] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // A route change from tapping a nav link should close the mobile drawer —
+  // otherwise it stays open, covering the page it just navigated to.
+  useEffect(() => setMobileOpen(false), [location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -39,14 +45,14 @@ export function Sidebar({ items, role }: SidebarProps) {
     }
   };
 
-  return (
-    <aside className="sidebar">
+  const portalLabel = role === 'caregiver' ? 'Caregiver Portal' : 'Healthcare Portal';
+
+  const sidebarContent = (
+    <>
       <div className="sidebar__brand">
-        <div style={{ fontSize: 28, marginBottom: 4 }}>🧠</div>
+        <BrainCircuit size={28} color="var(--color-primary)" style={{ marginBottom: 4 }} />
         <div className="sidebar__brand-name">Sahaaya</div>
-        <div className="sidebar__brand-tagline">
-          {role === 'caregiver' ? 'Caregiver Portal' : 'Healthcare Portal'}
-        </div>
+        <div className="sidebar__brand-tagline">{portalLabel}</div>
       </div>
 
       <nav className="sidebar__nav">
@@ -96,7 +102,41 @@ export function Sidebar({ items, role }: SidebarProps) {
           <LogOut size={14} /> Log Out
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile-only top bar — the sidebar itself is hidden below the
+          desktop/tablet breakpoint (see index.css), so without this a
+          caregiver or clinician opening the app on a phone would have no
+          way to navigate at all beyond the one page they landed on. */}
+      <div className="mobile-topbar">
+        <button
+          className="mobile-topbar__menu-btn"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open menu"
+        >
+          <Menu size={22} />
+        </button>
+        <span className="mobile-topbar__brand">Sahaaya · {portalLabel}</span>
+      </div>
+
+      {mobileOpen && (
+        <div className="sidebar-backdrop" onClick={() => setMobileOpen(false)} aria-hidden="true" />
+      )}
+
+      <aside className={`sidebar ${mobileOpen ? 'sidebar--open' : ''}`}>
+        <button
+          className="sidebar__close-btn"
+          onClick={() => setMobileOpen(false)}
+          aria-label="Close menu"
+        >
+          <X size={20} />
+        </button>
+        {sidebarContent}
+      </aside>
+    </>
   );
 }
 

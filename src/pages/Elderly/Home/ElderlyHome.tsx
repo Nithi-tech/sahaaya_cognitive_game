@@ -4,8 +4,9 @@ import { useApp } from '../../../store/AppContext';
 import { useAuth } from '../../../store/AuthContext';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
-import { Mic, ChevronRight, Settings as SettingsIcon, X } from 'lucide-react';
+import { Settings as SettingsIcon, X } from 'lucide-react';
 import { NetworkToggle } from '../../../components/OfflineIndicator/OfflineIndicator';
+import { VoiceOrb } from '../../../components/design-system/VoiceOrb';
 import type { MoodType } from '../../../types';
 
 const MOODS: { type: MoodType; emoji: string; label: string }[] = [
@@ -28,7 +29,7 @@ function computeStreak(sessionDates: Set<string>): number {
 
 export default function ElderlyHome() {
   const { t, lang } = useTranslation();
-  const { mood, setMood, reminders, cognitiveProfile, sessions, memories } = useApp();
+  const { mood, setMood, reminders, sessions } = useApp();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selectedMood, setSelectedMood] = useState<MoodType | null>(mood);
@@ -54,8 +55,6 @@ export default function ElderlyHome() {
 
   const today = new Date().toISOString().split('T')[0];
   const todaySessions = sessions.filter((s) => s.timestamp.startsWith(today));
-  const familyMemoryCount = memories.filter((m) => m.category === 'family' && m.relationship).length;
-  const totalGamesToday = familyMemoryCount >= 2 ? 6 : 5;
   const gamesCompletedToday = new Set(todaySessions.map((s) => s.gameType)).size;
   const latestDifficulty = sessions[0]?.difficulty ?? 'easy';
   const streak = computeStreak(new Set(sessions.map((s) => s.timestamp.split('T')[0])));
@@ -64,26 +63,20 @@ export default function ElderlyHome() {
     <div className="elderly-layout" style={{ paddingBottom: 90 }}>
       {/* Header */}
       <div className="elderly-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div className="mascot-avatar">🧠</div>
-            <div>
-              <p style={{ opacity: 0.85, fontSize: 16, marginBottom: 4 }}>
-                {lang === 'as' ? greetingAs : greeting},
-              </p>
-              <h1 className="elderly-greeting">Aita 👋</h1>
-            </div>
-          </div>
-          <div style={{
-            background: 'rgba(255,255,255,0.2)',
-            borderRadius: 12, padding: '8px 12px',
-            fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.95)',
-            backdropFilter: 'blur(8px)', flexShrink: 0, textAlign: 'center',
-          }}>
-            <div>{cognitiveProfile.overallEngagement}</div>
-            <div style={{ fontSize: 10, opacity: 0.8 }}>Engagement</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div className="mascot-avatar">🧠</div>
+          <div>
+            <p style={{ opacity: 0.85, fontSize: 16, marginBottom: 4 }}>
+              {lang === 'as' ? greetingAs : greeting},
+            </p>
+            <h1 className="elderly-greeting">Aita 👋</h1>
           </div>
         </div>
+
+        {/* No raw "Engagement: 69" score here on purpose — that kind of
+            metric is useful to a caregiver (and already shown there,
+            correctly framed); restated flatly to the person it's measuring,
+            it reads as a judgment rather than useful information. */}
 
         {streak >= 2 && (
           <div style={{ marginTop: 16 }}>
@@ -146,13 +139,27 @@ export default function ElderlyHome() {
             </div>
           </div>
 
+          {/* Today isn't a fixed curriculum with a total to complete (see
+              GAME_ENGINE.md) — dots show real progress made without implying
+              a required count, capped visually rather than ever claiming
+              "out of" a number that doesn't exist. */}
           <div style={{ display: 'flex', gap: 8 }}>
             <div style={{
               flex: 1, background: '#F0F8F5', borderRadius: 12, padding: '12px 16px',
-              display: 'flex', flexDirection: 'column', gap: 4,
+              display: 'flex', flexDirection: 'column', gap: 6,
             }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Progress</span>
-              <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{gamesCompletedToday} of {totalGamesToday}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Today</span>
+              <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+                {Array.from({ length: Math.min(gamesCompletedToday, 5) }).map((_, i) => (
+                  <span key={i} style={{ width: 9, height: 9, borderRadius: '50%', background: 'var(--color-primary)' }} />
+                ))}
+                {gamesCompletedToday === 0 && (
+                  <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>Not started yet</span>
+                )}
+                {gamesCompletedToday > 5 && (
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary)' }}>+{gamesCompletedToday - 5}</span>
+                )}
+              </div>
             </div>
             <div style={{
               flex: 1, background: '#FFF8F0', borderRadius: 12, padding: '12px 16px',
@@ -238,38 +245,49 @@ export default function ElderlyHome() {
             {lang === 'as' ? t('home.voice_prompt') : 'Ask me anything about your day.'}
           </p>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <button
-              className="voice-button"
-              onClick={() => navigate('/voice')}
-              style={{ width: 100, height: 100 }}
-            >
-              <Mic size={44} />
-            </button>
+            <VoiceOrb state="idle" onTap={() => navigate('/voice')} size={100} />
           </div>
           <p style={{ textAlign: 'center', marginTop: 12, fontSize: 14, color: 'var(--text-tertiary)' }}>
             Tap to speak
           </p>
         </div>
 
-        {/* Memory companion shortcut */}
-        <button
-          onClick={() => navigate('/memory')}
-          className="card"
-          style={{
-            borderRadius: 24, width: '100%', textAlign: 'left', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '20px 24px', border: '2px solid var(--border-color)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <span style={{ fontSize: 36 }}>❤️</span>
+        {/* Memory + Relax — side by side rather than two full-width stacked
+            cards, so the screen doesn't keep growing every time a new
+            secondary feature is added. */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <button
+            onClick={() => navigate('/memory')}
+            className="card"
+            style={{
+              borderRadius: 20, textAlign: 'left', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', gap: 10,
+              padding: '18px 16px', border: '2px solid var(--border-color)',
+            }}
+          >
+            <span style={{ fontSize: 30 }}>❤️</span>
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700 }}>My Memories</div>
-              <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Family, places & favourites</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>My Memories</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>Family &amp; favourites</div>
             </div>
-          </div>
-          <ChevronRight size={24} color="var(--text-tertiary)" />
-        </button>
+          </button>
+
+          <button
+            onClick={() => navigate('/relax')}
+            className="card"
+            style={{
+              borderRadius: 20, textAlign: 'left', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', gap: 10,
+              padding: '18px 16px', border: '2px solid var(--border-color)',
+            }}
+          >
+            <span style={{ fontSize: 30 }}>🌬️</span>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{lang === 'as' ? t('home.relax_card') : 'Relax'}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>{lang === 'as' ? t('home.relax_prompt') : 'A few calm breaths'}</div>
+            </div>
+          </button>
+        </div>
       </div>
 
       <ElderlyNav />

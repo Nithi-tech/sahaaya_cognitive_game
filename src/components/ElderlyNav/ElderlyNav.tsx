@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Zap, Calendar, Mic } from 'lucide-react';
+import { Home, Gamepad2, Zap, Calendar, Mic } from 'lucide-react';
 
 export function ElderlyNav() {
   return (
@@ -7,6 +7,10 @@ export function ElderlyNav() {
       <NavLink to="/" className={({ isActive }) => `bottom-nav__item ${isActive ? 'active' : ''}`} end>
         <Home size={24} />
         <span>Home</span>
+      </NavLink>
+      <NavLink to="/games" className={({ isActive }) => `bottom-nav__item ${isActive ? 'active' : ''}`}>
+        <Gamepad2 size={24} />
+        <span>Games</span>
       </NavLink>
       <NavLink to="/activities" className={({ isActive }) => `bottom-nav__item ${isActive ? 'active' : ''}`}>
         <Zap size={24} />

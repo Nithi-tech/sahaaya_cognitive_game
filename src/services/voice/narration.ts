@@ -41,3 +41,43 @@ export function narrateFeedback(lang: Language, correct: boolean): string {
 export function narrateSample(lang: Language): string {
   return t('voice.settings.sample', lang);
 }
+
+export function narrateColorFocus(lang: Language): string {
+  return t('voice.color_focus.instruction', lang);
+}
+
+export function narrateQuickResponse(lang: Language): string {
+  return t('voice.quick_response.instruction', lang);
+}
+
+export function narrateNumberFocus(lang: Language): string {
+  return t('voice.number_focus.instruction', lang);
+}
+
+export function narrateBlockMemory(lang: Language): string {
+  return `${t('voice.block_memory.look', lang)} ${t('voice.block_memory.repeat', lang)}`;
+}
+
+export function narrateDualMemory(lang: Language): string {
+  return t('voice.dual_memory.instruction', lang);
+}
+
+export function narrateGoNoGo(lang: Language): string {
+  return t('voice.go_no_go.instruction', lang);
+}
+
+export function narrateFindTheChange(lang: Language): string {
+  return t('voice.find_the_change.instruction', lang);
+}
+
+export function narratePeripheralAwareness(lang: Language): string {
+  return t('voice.peripheral_awareness.instruction', lang);
+}
+
+export function narrateMemorySpan(lang: Language): string {
+  return t('voice.memory_span.instruction', lang);
+}
+
+export function narrateBreathing(lang: Language): string {
+  return t('voice.breathing.instruction', lang);
+}

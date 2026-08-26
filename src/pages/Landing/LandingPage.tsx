@@ -3,6 +3,7 @@ import { useAuth } from '../../store/AuthContext';
 import { useApp } from '../../store/AppContext';
 import { useTranslation } from '../../i18n/useTranslation';
 import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../../constants/demoAccounts';
+import { GAME_REGISTRY } from '../../games/registry';
 import type { Language } from '../../types';
 
 const HOW_IT_WORKS = [
@@ -11,8 +12,11 @@ const HOW_IT_WORKS = [
   { step: '3', icon: '📈', title: 'Progress stays visible', body: 'Caregivers and clinicians see real engagement trends — never a diagnosis, always a signal.' },
 ];
 
+// Derived from the actual registry, not hand-maintained — the count used to
+// silently drift out of date (it still said "6" after the registry grew to
+// 15 games) because nothing forced it to stay in sync.
 const STATS = [
-  { value: '6', label: 'Cognitive activities' },
+  { value: String(GAME_REGISTRY.length), label: 'Cognitive activities' },
   { value: '2', label: 'Languages (EN · অসমীয়া)' },
   { value: '100%', label: 'Works offline-first' },
 ];
@@ -90,7 +94,7 @@ export default function LandingPage() {
             </button>
 
             <p className="landing-fineprint">
-              🔒 Each button above signs in as a real seeded account (password: demo1234) through the live backend —
+              Each button above signs in as a real seeded account through the live backend —
               every activity, score, and reminder you see is genuinely stored and computed, nothing is faked.
             </p>
           </>

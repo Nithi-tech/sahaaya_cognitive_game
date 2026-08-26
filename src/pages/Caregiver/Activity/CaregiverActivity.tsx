@@ -4,6 +4,7 @@ import { CaregiverSidebar } from '../../../components/Sidebar/Sidebar';
 import { TrendChart, ScoreRing } from '../../../components/Charts/Charts';
 import { buildTrendData } from '../../../utils/trends';
 import { generateInsights } from '../../../engines/adaptiveDifficulty';
+import { getGameDefinition } from '../../../games/registry';
 
 type Period = 'daily' | 'weekly' | 'monthly';
 
@@ -25,7 +26,11 @@ export default function CaregiverActivity() {
     chartData
   );
 
-  const recentSessions = sessions.slice(-10).reverse();
+  // sessions arrives newest-first (server/src/routes/sessions.ts orders by
+  // timestamp DESC) — slice(0, 10) takes the most recent 10 in that order.
+  // The previous slice(-10).reverse() assumed the opposite ordering, so it
+  // was silently showing the OLDEST 10 sessions under a "Recent" heading.
+  const recentSessions = sessions.slice(0, 10);
 
   return (
     <div className="dashboard-layout">
@@ -150,7 +155,7 @@ export default function CaregiverActivity() {
             <tbody>
               {recentSessions.map((s) => (
                 <tr key={s.id}>
-                  <td style={{ fontWeight: 600 }}>{s.gameType.replace('_', ' ')}</td>
+                  <td style={{ fontWeight: 600 }}>{getGameDefinition(s.gameType)?.name ?? s.gameType.replace(/_/g, ' ')}</td>
                   <td style={{ textTransform: 'capitalize' }}>{s.domain}</td>
                   <td>
                     <span className={`badge ${s.difficulty === 'easy' ? 'badge--success' : s.difficulty === 'medium' ? 'badge--info' : 'badge--warning'}`}>

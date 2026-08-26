@@ -16,7 +16,15 @@ interface ProfileRow {
   updated_at: string;
 }
 
-const VALID_GAME_TYPES = ['memory_match', 'object_recognition', 'attention', 'pattern', 'routine_recall', 'family_faces'];
+// Kept in sync with src/games/registry.ts on the frontend (the id field of
+// every GameDefinition) — there's no code sharing between the two apps'
+// build graphs, so this list has to be updated by hand alongside any new
+// game added to the registry.
+const VALID_GAME_TYPES = [
+  'memory_match', 'object_recognition', 'attention', 'pattern', 'routine_recall', 'family_faces',
+  'color_focus', 'quick_response', 'number_focus', 'block_memory', 'dual_memory', 'go_no_go', 'find_the_change',
+  'peripheral_awareness', 'memory_span',
+];
 const VALID_DIFFICULTIES = ['easy', 'medium', 'challenging'];
 const VALID_DOMAINS: CognitiveDomain[] = ['memory', 'attention', 'recognition', 'pattern', 'routine'];
 
