@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ElderlyNav } from '../ElderlyNav/ElderlyNav';
 import { useTranslation } from '../../i18n/useTranslation';
+import { useApp } from '../../store/AppContext';
 import type { CognitiveGameResult } from '../../games/types';
 
 interface Action {
@@ -23,8 +24,10 @@ interface Props {
  */
 export function GameResultScreen({ result, difficultyReason, primaryAction, secondaryAction }: Props) {
   const { t } = useTranslation();
+  const { currentPatient } = useApp();
   const improved = result.accuracy >= 80;
   const maintained = result.accuracy >= 50;
+  const favoriteColour = currentPatient?.preferences?.onboarding?.favorites?.colour;
 
   return (
     <div className="elderly-layout" style={{ padding: '40px 20px 90px' }}>
@@ -46,7 +49,7 @@ export function GameResultScreen({ result, difficultyReason, primaryAction, seco
         <div className="card" style={{ borderRadius: 20, marginBottom: 20, padding: '24px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--color-primary)' }}>{result.accuracy}%</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: favoriteColour || 'var(--color-primary)' }}>{result.accuracy}%</div>
               <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>ACCURACY</div>
             </div>
             <div style={{ textAlign: 'center' }}>
@@ -76,7 +79,10 @@ export function GameResultScreen({ result, difficultyReason, primaryAction, seco
           <button
             className="btn btn--primary"
             onClick={primaryAction.onClick}
-            style={{ height: 64, fontSize: 20, borderRadius: 18, fontWeight: 800 }}
+            style={{
+              height: 64, fontSize: 20, borderRadius: 18, fontWeight: 800,
+              ...(favoriteColour ? { background: favoriteColour, borderColor: favoriteColour } : {}),
+            }}
           >
             {primaryAction.label}
           </button>

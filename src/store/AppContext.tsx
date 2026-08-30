@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import type {
   Language, CognitiveProfile, CognitiveSession, Reminder, Memory, Alert, DailyActivity, MoodType,
-  PatientProfile, AdaptiveRecommendation, PatientPreferences,
+  PatientProfile, AdaptiveRecommendation, PatientPreferences, OnboardingData,
 } from '../types';
 import { api, ApiOfflineError, apiOrOffline } from '../api/client';
 import { updateDomainScore, generateRecommendation } from '../engines/adaptiveDifficulty';
@@ -13,6 +13,8 @@ interface AppContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   currentPatient: PatientProfile | null;
+  patients: PatientProfile[];
+  selectPatient: (patientId: string) => Promise<void>;
   cognitiveProfile: CognitiveProfile;
   sessions: CognitiveSession[];
   reminders: Reminder[];
@@ -28,6 +30,12 @@ interface AppContextType {
   updateDailyActivity: (id: string, status: DailyActivity['status']) => Promise<void>;
   resolveAlert: (id: string) => Promise<void>;
   updatePreferences: (partial: Partial<PatientPreferences>) => Promise<void>;
+  /** Creates a new patient + elder account from the onboarding wizard. Returns the created patient + PIN hint. */
+  createPatient: (input: { name: string; age: number; region: string; language: string; pin: string }) => Promise<{ patient: PatientProfile; pinHint: string }>;
+  /** Saves a single onboarding section for the current patient. */
+  saveOnboardingSection: (section: keyof OnboardingData, data: OnboardingData[keyof OnboardingData]) => Promise<void>;
+  /** Marks the onboarding wizard as complete for the current patient. */
+  markOnboardingComplete: () => Promise<void>;
 }
 
 export const AppContext = createContext<AppContextType | null>(null);
@@ -66,6 +74,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const [language, setLanguageState] = useState<Language>(() => (localStorage.getItem('sahaaya_lang') as Language) ?? 'en');
   const [loading, setLoading] = useState(true);
+  const [patients, setPatients] = useState<PatientProfile[]>([]);
   const [currentPatient, setCurrentPatient] = useState<PatientProfile | null>(null);
   const [cognitiveProfile, setCognitiveProfile] = useState<CognitiveProfile>(EMPTY_PROFILE('unknown'));
   const [sessions, setSessions] = useState<CognitiveSession[]>([]);
@@ -102,9 +111,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       setLoading(true);
       try {
-        const { patients } = await api.get<{ patients: PatientProfile[] }>('/patients');
-        const patient = patients[0] ?? null;
+        const { patients: fetchedPatients } = await api.get<{ patients: PatientProfile[] }>('/patients');
         if (cancelled) return;
+        setPatients(fetchedPatients);
+        const patient = fetchedPatients[0] ?? null;
         setCurrentPatient(patient);
         patientIdRef.current = patient?.id ?? null;
         if (!patient) {
@@ -392,16 +402,107 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [isOnline, addToQueue],
   );
 
+  const selectPatient = useCallback(async (patientId: string) => {
+    const selected = patients.find((p) => p.id === patientId) ?? null;
+    if (!selected) return;
+    setCurrentPatient(selected);
+    patientIdRef.current = selected.id;
+    writeCache(selected.id, 'patient', selected);
+    setLoading(true);
+    try {
+      const [profileRes, sessionsRes, remindersRes, memoriesRes, alertsRes, activitiesRes] = await Promise.all([
+        api.get<{ profile: CognitiveProfile }>(`/sessions/${selected.id}/profile`).catch(() => ({ profile: EMPTY_PROFILE(selected.id) })),
+        api.get<{ sessions: CognitiveSession[] }>(`/sessions/${selected.id}`),
+        api.get<{ reminders: Reminder[] }>(`/reminders/${selected.id}`),
+        api.get<{ memories: Memory[] }>(`/memories/${selected.id}`),
+        api.get<{ alerts: Alert[] }>(`/alerts/${selected.id}`),
+        api.get<{ activities: DailyActivity[] }>(`/daily-activities/${selected.id}`),
+      ]);
+      setCognitiveProfile(profileRes.profile);
+      setSessions(sessionsRes.sessions);
+      setReminders(remindersRes.reminders);
+      setMemories(memoriesRes.memories);
+      setAlerts(alertsRes.alerts);
+      setDailyActivities(activitiesRes.activities);
+      writeCache(selected.id, 'profile', profileRes.profile);
+      writeCache(selected.id, 'sessions', sessionsRes.sessions);
+      writeCache(selected.id, 'reminders', remindersRes.reminders);
+      writeCache(selected.id, 'memories', memoriesRes.memories);
+      writeCache(selected.id, 'alerts', alertsRes.alerts);
+      writeCache(selected.id, 'activities', activitiesRes.activities);
+    } catch {
+      // offline fallback
+      setCognitiveProfile(readCache(selected.id, 'profile', EMPTY_PROFILE(selected.id)));
+      setSessions(readCache(selected.id, 'sessions', []));
+      setReminders(readCache(selected.id, 'reminders', []));
+      setMemories(readCache(selected.id, 'memories', []));
+      setAlerts(readCache(selected.id, 'alerts', []));
+      setDailyActivities(readCache(selected.id, 'activities', []));
+    } finally {
+      setLoading(false);
+    }
+  }, [patients]);
+
+  const createPatient = useCallback(
+    async (input: { name: string; age: number; region: string; language: string; pin: string }) => {
+      const result = await api.post<{ patient: PatientProfile; pinHint: string }>('/patients', input);
+      setPatients((prev) => [...prev, result.patient]);
+      setCurrentPatient(result.patient);
+      patientIdRef.current = result.patient.id;
+      writeCache(result.patient.id, 'patient', result.patient);
+      return result;
+    },
+    [],
+  );
+
+  const saveOnboardingSection = useCallback(
+    async (section: keyof OnboardingData, data: OnboardingData[keyof OnboardingData]) => {
+      const patientId = patientIdRef.current;
+      if (!patientId) return;
+      await api.patch(`/onboarding/${patientId}/${section}`, { data });
+      // Merge the section into the local patient preferences so the wizard can
+      // read it back without a full reload.
+      setCurrentPatient((prev) => {
+        if (!prev) return prev;
+        const updated = {
+          ...prev,
+          preferences: {
+            ...prev.preferences,
+            onboarding: {
+              ...prev.preferences.onboarding,
+              [section]: data,
+            },
+          },
+        };
+        writeCache(patientId, 'patient', updated);
+        return updated;
+      });
+    },
+    [],
+  );
+
+  const markOnboardingComplete = useCallback(async () => {
+    const patientId = patientIdRef.current;
+    if (!patientId) return;
+    const { patient } = await api.patch<{ patient: PatientProfile }>(`/patients/${patientId}/onboarding-complete`);
+    setCurrentPatient(patient);
+    setPatients((prev) => prev.map((p) => (p.id === patient.id ? patient : p)));
+    writeCache(patientId, 'patient', patient);
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
         loading,
         language, setLanguage,
         currentPatient,
+        patients,
+        selectPatient,
         cognitiveProfile, sessions, reminders, memories, alerts, dailyActivities,
         mood, setMood,
         addSession, addReminder, updateReminderStatus, addMemory, updateDailyActivity, resolveAlert,
         updatePreferences,
+        createPatient, saveOnboardingSection, markOnboardingComplete,
       }}
     >
       {children}

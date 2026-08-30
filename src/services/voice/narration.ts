@@ -81,3 +81,7 @@ export function narrateMemorySpan(lang: Language): string {
 export function narrateBreathing(lang: Language): string {
   return t('voice.breathing.instruction', lang);
 }
+
+export function narrateCulturalMemoryAsk(lang: Language): string {
+  return t('voice.cultural_memory.ask', lang);
+}

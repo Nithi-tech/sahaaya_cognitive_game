@@ -4,6 +4,8 @@ import { AppProvider, useApp } from './store/AppContext';
 import { OfflineProvider } from './store/OfflineContext';
 import { OfflineIndicator } from './components/OfflineIndicator/OfflineIndicator';
 import LandingPage from './pages/Landing/LandingPage';
+import OnboardingFlow from './pages/Onboarding/OnboardingFlow';
+import ElderPinLogin from './pages/Onboarding/ElderPinLogin';
 
 // Elderly pages
 import ElderlyHome from './pages/Elderly/Home/ElderlyHome';
@@ -65,6 +67,7 @@ function AppRoutes() {
     return (
       <Routes>
         <Route path="/" element={<CaregiverDashboard />} />
+        <Route path="/onboarding" element={<OnboardingFlow />} />
         <Route path="/activity" element={<CaregiverActivity />} />
         <Route path="/reminders" element={<CaregiverReminders />} />
         <Route path="/memory" element={<CaregiverMemory />} />
@@ -93,10 +96,20 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <OfflineProvider>
-          <AppProvider>
-            <OfflineIndicator />
-            <AppRoutes />
-          </AppProvider>
+          {/* /pin-login is public — rendered before AppProvider so it never
+              needs a patient context. It manually handles its own auth. */}
+          <Routes>
+            <Route path="/pin-login" element={<ElderPinLogin />} />
+            <Route
+              path="*"
+              element={
+                <AppProvider>
+                  <OfflineIndicator />
+                  <AppRoutes />
+                </AppProvider>
+              }
+            />
+          </Routes>
         </OfflineProvider>
       </AuthProvider>
     </BrowserRouter>

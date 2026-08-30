@@ -70,3 +70,82 @@ authRouter.post('/login', async (req, res) => {
 authRouter.get('/me', requireAuth, (req, res) => {
   res.json({ user: req.authUser });
 });
+
+// Elder Access ID login — the elder only enters their unique ID (e.g. SAH-4821).
+// No need to select a patient, know an email, or enter a separate password.
+authRouter.post('/elder-login', async (req, res) => {
+  const rawInput = req.body?.accessId || req.body?.uniqueId || req.body?.id;
+  if (!rawInput) {
+    return res.status(400).json({ error: 'Please enter your Elder Access ID' });
+  }
+
+  const cleaned = String(rawInput).trim().toUpperCase();
+  const altCleaned = cleaned.startsWith('SAH-') ? cleaned.replace('SAH-', '') : `SAH-${cleaned}`;
+
+  const row = db.prepare(`
+    SELECT id, email, name, role, language 
+    FROM users 
+    WHERE (UPPER(elder_access_id) = ? OR UPPER(elder_access_id) = ?) 
+      AND role = 'elderly'
+  `).get(cleaned, altCleaned) as UserRow | undefined;
+
+  if (!row) {
+    return res.status(401).json({ error: 'Invalid Elder Access ID. Please check your ID and try again.' });
+  }
+
+  const user = { id: row.id, email: row.email, name: row.name, role: row.role, language: row.language };
+  return res.json({ token: signToken(user), user });
+});
+
+// PIN / Unique ID login route supporting both direct accessId and legacy { patientId, pin }
+authRouter.post('/pin-login', async (req, res) => {
+  const rawInput = req.body?.accessId || req.body?.uniqueId || (!req.body?.patientId ? req.body?.pin : undefined);
+  if (rawInput) {
+    const cleaned = String(rawInput).trim().toUpperCase();
+    const altCleaned = cleaned.startsWith('SAH-') ? cleaned.replace('SAH-', '') : `SAH-${cleaned}`;
+
+    const row = db.prepare(`
+      SELECT id, email, name, role, language 
+      FROM users 
+      WHERE (UPPER(elder_access_id) = ? OR UPPER(elder_access_id) = ?) 
+        AND role = 'elderly'
+    `).get(cleaned, altCleaned) as UserRow | undefined;
+
+    if (!row) {
+      return res.status(401).json({ error: 'Invalid Elder Access ID. Please check your ID and try again.' });
+    }
+
+    const user = { id: row.id, email: row.email, name: row.name, role: row.role, language: row.language };
+    return res.json({ token: signToken(user), user });
+  }
+
+  const { patientId, pin } = req.body ?? {};
+  if (!patientId || !pin) {
+    return res.status(400).json({ error: 'patientId and pin are required' });
+  }
+
+  // Find the patient row to get its linked elder user_id.
+  const patient = db.prepare('SELECT user_id FROM patients WHERE id = ?').get(patientId) as
+    | { user_id: string }
+    | undefined;
+  if (!patient) return res.status(404).json({ error: 'Patient not found' });
+
+  // Fetch the elder user
+  const row = db
+    .prepare('SELECT id, email, name, role, language, pin_hash FROM users WHERE id = ?')
+    .get(patient.user_id) as (UserRow & { pin_hash: string | null }) | undefined;
+
+  if (!row || !row.pin_hash) {
+    return res.status(401).json({ error: 'PIN login is not enabled for this account' });
+  }
+  if (row.role !== 'elderly') {
+    return res.status(403).json({ error: 'PIN login is only available for elder accounts' });
+  }
+
+  const valid = await bcrypt.compare(String(pin), row.pin_hash);
+  if (!valid) return res.status(401).json({ error: 'Incorrect PIN' });
+
+  const user = { id: row.id, email: row.email, name: row.name, role: row.role, language: row.language };
+  res.json({ token: signToken(user), user });
+});
+

@@ -22,6 +22,7 @@ import GoNoGoGame from '../pages/Elderly/Activities/games/GoNoGoGame';
 import FindTheChangeGame from '../pages/Elderly/Activities/games/FindTheChangeGame';
 import PeripheralAwarenessGame from '../pages/Elderly/Activities/games/PeripheralAwarenessGame';
 import MemorySpanGame from '../pages/Elderly/Activities/games/MemorySpanGame';
+import CulturalMemoryGame from '../pages/Elderly/Activities/games/CulturalMemoryGame';
 
 export const GAME_REGISTRY: GameDefinition[] = [
   {
@@ -248,6 +249,21 @@ export const GAME_REGISTRY: GameDefinition[] = [
     emoji: '📝',
     description: 'Remember a list of words',
     component: MemorySpanGame,
+  },
+  {
+    id: 'cultural_memory',
+    name: 'Procedural & Cultural Memory',
+    category: 'CULTURAL',
+    cognitiveDomains: ['recognition'],
+    difficultyLevels: ['easy', 'medium', 'challenging'],
+    estimatedDuration: 3,
+    elderlyFriendly: true,
+    voiceSupported: true,
+    offlineSupported: true,
+    culturalContentSupported: true,
+    emoji: '🎊',
+    description: 'Recognize festivals and traditional items',
+    component: CulturalMemoryGame,
   },
 ];
 

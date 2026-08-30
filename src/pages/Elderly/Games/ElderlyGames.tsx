@@ -16,13 +16,14 @@ import type { GameCategory } from '../../../games/types';
 // for a user who'd rather pick for themselves. Every game shown here is a
 // real GAME_REGISTRY entry, so "playable" is structural, not a claim: there
 // is no such thing as a card in this list that doesn't launch a working game.
-const CATEGORY_ORDER: GameCategory[] = ['MEMORY', 'FOCUS', 'REACTION', 'PATTERN', 'ROUTINE', 'GENTLE', 'ADVANCED'];
+const CATEGORY_ORDER: GameCategory[] = ['MEMORY', 'FOCUS', 'REACTION', 'PATTERN', 'CULTURAL', 'ROUTINE', 'GENTLE', 'ADVANCED'];
 
 const CATEGORY_META: Record<GameCategory, { labelKey: string; color: string; icon: string }> = {
   MEMORY: { labelKey: 'game.category.memory', color: '#E91E63', icon: '🧠' },
   FOCUS: { labelKey: 'game.category.focus', color: '#2E7D8B', icon: '🎯' },
   REACTION: { labelKey: 'game.category.reaction', color: '#E8A63A', icon: '⚡' },
   PATTERN: { labelKey: 'game.category.pattern', color: '#9C27B0', icon: '🔷' },
+  CULTURAL: { labelKey: 'game.category.cultural', color: '#FF7043', icon: '🎨' },
   ROUTINE: { labelKey: 'game.category.routine', color: '#4CAF50', icon: '📅' },
   GENTLE: { labelKey: 'game.category.gentle', color: '#26A69A', icon: '🟢' },
   ADVANCED: { labelKey: 'game.category.advanced', color: '#5C6BC0', icon: '🚀' },
@@ -31,14 +32,18 @@ const CATEGORY_META: Record<GameCategory, { labelKey: string; color: string; ico
 export default function ElderlyGames() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { memories } = useApp();
+  const { memories, currentPatient } = useApp();
   const [playedIds, setPlayedIds] = useState<Set<string>>(new Set());
   const [activeCategory, setActiveCategory] = useState<GameCategory | null>(null);
 
-  const familyMemoryCount = useMemo(
-    () => memories.filter((m) => m.category === 'family' && m.relationship).length,
-    [memories],
-  );
+  // Counts both the legacy Memory[] store and the newer onboarding.people
+  // section — a caregiver who only did the guided interview still unlocks
+  // the game, not just one who used "My Memories".
+  const familyMemoryCount = useMemo(() => {
+    const legacy = memories.filter((m) => m.category === 'family' && m.relationship).length;
+    const onboarding = currentPatient?.preferences?.onboarding?.people?.people?.length ?? 0;
+    return legacy + onboarding;
+  }, [memories, currentPatient]);
   const availableGames = useMemo(
     () => GAME_REGISTRY.filter((g) => g.id !== 'family_faces' || familyMemoryCount >= 2),
     [familyMemoryCount],

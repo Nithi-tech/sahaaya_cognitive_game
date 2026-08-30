@@ -12,15 +12,16 @@ interface SeedUser {
   name: string;
   role: 'elderly' | 'caregiver' | 'healthcare';
   language: string;
+  elderAccessId?: string;
 }
 
 const users: SeedUser[] = [
-  { id: 'user_elderly_1', email: 'maya@sahaaya.demo', name: 'Maya Devi', role: 'elderly', language: 'as' },
+  { id: 'user_elderly_1', email: 'maya@sahaaya.demo', name: 'Maya Devi', role: 'elderly', language: 'as', elderAccessId: 'SAH-1001' },
   { id: 'user_caregiver_1', email: 'priya@sahaaya.demo', name: 'Priya Devi', role: 'caregiver', language: 'en' },
   { id: 'user_hcw_1', email: 'akhil@sahaaya.demo', name: 'Dr. Akhil Sharma', role: 'healthcare', language: 'en' },
-  { id: 'user_elderly_2', email: 'basanta@sahaaya.demo', name: 'Basanta Kalita', role: 'elderly', language: 'as' },
+  { id: 'user_elderly_2', email: 'basanta@sahaaya.demo', name: 'Basanta Kalita', role: 'elderly', language: 'as', elderAccessId: 'SAH-1002' },
   { id: 'user_caregiver_2', email: 'rekha@sahaaya.demo', name: 'Rekha Kalita', role: 'caregiver', language: 'en' },
-  { id: 'user_elderly_3', email: 'sita@sahaaya.demo', name: 'Sita Bora', role: 'elderly', language: 'as' },
+  { id: 'user_elderly_3', email: 'sita@sahaaya.demo', name: 'Sita Bora', role: 'elderly', language: 'as', elderAccessId: 'SAH-1003' },
   { id: 'user_caregiver_3', email: 'dipak@sahaaya.demo', name: 'Dipak Bora', role: 'caregiver', language: 'en' },
 ];
 
@@ -150,8 +151,8 @@ function seed() {
   }
 
   const passwordHash = bcrypt.hashSync(DEMO_PASSWORD, 10);
-  const insertUser = db.prepare('INSERT INTO users (id, email, password_hash, name, role, language) VALUES (?, ?, ?, ?, ?, ?)');
-  for (const u of users) insertUser.run(u.id, u.email, passwordHash, u.name, u.role, u.language);
+  const insertUser = db.prepare('INSERT INTO users (id, email, password_hash, name, role, language, elder_access_id) VALUES (?, ?, ?, ?, ?, ?, ?)');
+  for (const u of users) insertUser.run(u.id, u.email, passwordHash, u.name, u.role, u.language, u.elderAccessId ?? null);
 
   const insertPatient = db.prepare(
     'INSERT INTO patients (id, user_id, name, age, language, region, caregiver_id, healthcare_worker_id, preferences_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',

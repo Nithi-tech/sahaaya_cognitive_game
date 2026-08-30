@@ -4,11 +4,11 @@ import { useAuth } from '../../../store/AuthContext';
 import { CaregiverSidebar } from '../../../components/Sidebar/Sidebar';
 import { NetworkToggle } from '../../../components/OfflineIndicator/OfflineIndicator';
 import { ScoreRing } from '../../../components/Charts/Charts';
-import { Pill, Droplets, Route, Brain, Bell, ArrowRight } from 'lucide-react';
+import { Pill, Droplets, Route, Brain, Bell, ArrowRight, Plus } from 'lucide-react';
 
 export default function CaregiverDashboard() {
   const { user } = useAuth();
-  const { currentPatient, reminders, alerts, cognitiveProfile, sessions, dailyActivities, loading } = useApp();
+  const { currentPatient, patients, selectPatient, reminders, alerts, cognitiveProfile, sessions, dailyActivities, loading } = useApp();
   const navigate = useNavigate();
 
   const todaySessions = sessions.filter(
@@ -31,37 +31,122 @@ export default function CaregiverDashboard() {
     <div className="dashboard-layout">
       <CaregiverSidebar />
       <main className="dashboard-content">
+        {/* Continue Setup Banner — shown when onboarding is incomplete */}
+        {currentPatient && !currentPatient.onboardingComplete && (
+          <div style={{
+            background: 'linear-gradient(135deg, #E3F2FD 0%, #FFF8E1 100%)',
+            border: '2px solid #90CAF9', borderRadius: 18,
+            padding: '18px 22px', marginBottom: 24,
+            display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
+          }}>
+            <div style={{ fontSize: 32 }}>📋</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 800, fontSize: 16, color: '#1565C0' }}>
+                Complete {currentPatient.name}'s personalisation setup
+              </div>
+              <div style={{ fontSize: 13, color: '#555', marginTop: 2 }}>
+                Some onboarding sections haven't been saved yet. Fill them in to unlock personalised games and reminders.
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/onboarding?continue=true')}
+              style={{
+                padding: '10px 20px', borderRadius: 12, border: 'none',
+                background: 'linear-gradient(135deg, #1565C0, #2E7D8B)',
+                color: 'white', fontWeight: 800, fontSize: 14, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0,
+              }}
+            >
+              Continue Setup <ArrowRight size={16} />
+            </button>
+          </div>
+        )}
+
         {/* Header */}
-        <div style={{ marginBottom: 28 }}>
+        <div style={{ marginBottom: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
             <div>
               <p style={{ color: 'var(--text-tertiary)', fontSize: 14 }}>{greeting},</p>
               <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em' }}>{user?.name}</h1>
             </div>
-            <div style={{ maxWidth: 280 }}>
-              <NetworkToggle />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <button
+                onClick={() => navigate('/onboarding?new=true')}
+                className="btn btn--primary"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  borderRadius: 12, height: 42, padding: '0 16px', fontSize: 14, fontWeight: 700,
+                }}
+              >
+                <Plus size={16} /> Add Patient
+              </button>
+              <div style={{ maxWidth: 280 }}>
+                <NetworkToggle />
+              </div>
             </div>
           </div>
 
-          {/* Patient Pill */}
-          <div style={{
-            marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 12,
-            background: 'white', border: '1px solid var(--border-color)',
-            borderRadius: 99, padding: '8px 16px', boxShadow: 'var(--shadow-sm)',
-          }}>
-            <div style={{ width: 36, height: 36, borderRadius: 50, background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 15 }}>
-              {currentPatient?.name[0] ?? '?'}
-            </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 15 }}>
-                {currentPatient?.name ?? (loading ? 'Loading…' : 'No patient assigned yet')}
+          {/* Patient Bar */}
+          <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            {currentPatient ? (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 12,
+                background: 'white', border: '1px solid var(--border-color)',
+                borderRadius: 99, padding: '8px 16px', boxShadow: 'var(--shadow-sm)',
+              }}>
+                <div style={{ width: 36, height: 36, borderRadius: 50, background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 15 }}>
+                  {currentPatient.name[0] ?? '?'}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15 }}>
+                    {currentPatient.name}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
+                    Age {currentPatient.age} · {currentPatient.region} · Last active: Today
+                  </div>
+                </div>
+                <span style={{ background: 'var(--color-success-light)', color: 'var(--color-success)', padding: '3px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700 }}>Active</span>
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
-                {currentPatient ? <>Age {currentPatient.age} · {currentPatient.region} · Last active: Today</> : 'Ask an admin to assign a patient to your account.'}
+            ) : !loading ? (
+              <div style={{
+                width: '100%',
+                background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
+                border: '2px dashed #0284C7', borderRadius: 20,
+                padding: '28px 24px', textAlign: 'center', marginTop: 8,
+              }}>
+                <div style={{ fontSize: 36, marginBottom: 6 }}>👤</div>
+                <h2 style={{ fontSize: 19, fontWeight: 800, color: '#0369A1', margin: '0 0 6px' }}>
+                  No Patient Added Yet
+                </h2>
+                <p style={{ color: '#475569', fontSize: 14, maxWidth: 460, margin: '0 auto 16px', lineHeight: 1.5 }}>
+                  Add your elder's profile to begin setting up their personalised routines, games, and reminders.
+                </p>
+                <button
+                  onClick={() => navigate('/onboarding?new=true')}
+                  className="btn btn--primary"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, height: 44, padding: '0 20px', borderRadius: 12, fontSize: 15, fontWeight: 800 }}
+                >
+                  <Plus size={18} /> Add New Patient
+                </button>
               </div>
-            </div>
-            {currentPatient && (
-              <span style={{ background: 'var(--color-success-light)', color: 'var(--color-success)', padding: '3px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700 }}>Active</span>
+            ) : null}
+
+            {/* Multiple Patients Switcher */}
+            {patients.length > 1 && (
+              <select
+                value={currentPatient?.id ?? ''}
+                onChange={(e) => selectPatient(e.target.value)}
+                style={{
+                  padding: '8px 14px', borderRadius: 12, border: '1.5px solid var(--border-color)',
+                  background: 'white', fontSize: 13, fontWeight: 600, color: '#333', cursor: 'pointer',
+                }}
+              >
+                {patients.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    👤 {p.name}
+                  </option>
+                ))}
+              </select>
             )}
           </div>
         </div>

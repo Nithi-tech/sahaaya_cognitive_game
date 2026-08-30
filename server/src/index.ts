@@ -9,10 +9,12 @@ import { memoriesRouter } from './routes/memories.js';
 import { dailyActivitiesRouter } from './routes/dailyActivities.js';
 import { alertsRouter } from './routes/alerts.js';
 import { syncRouter } from './routes/sync.js';
+import { onboardingRouter } from './routes/onboarding.js';
 
 export const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
@@ -24,6 +26,7 @@ app.use('/api/memories', memoriesRouter);
 app.use('/api/daily-activities', dailyActivitiesRouter);
 app.use('/api/alerts', alertsRouter);
 app.use('/api/sync', syncRouter);
+app.use('/api/onboarding', onboardingRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error & { status?: number; statusCode?: number }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

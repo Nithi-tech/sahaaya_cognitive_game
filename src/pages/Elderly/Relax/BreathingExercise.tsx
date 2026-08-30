@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pause, Play, RotateCcw } from 'lucide-react';
 import { useTranslation } from '../../../i18n/useTranslation';
+import { useApp } from '../../../store/AppContext';
 import { QuestionNarrator } from '../../../components/Voice/QuestionNarrator';
 import { narrateBreathing } from '../../../services/voice/narration';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
@@ -36,6 +37,9 @@ function formatTime(totalSeconds: number): string {
 export default function BreathingExercise() {
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
+  const { currentPatient } = useApp();
+  const emotional = currentPatient?.preferences?.onboarding?.emotional;
+  const calmingPhrase = emotional?.phrases?.[0] ?? emotional?.calming;
 
   const [mode, setMode] = useState<Mode>('resonance');
   const [phase, setPhase] = useState<Phase>('idle');
@@ -126,6 +130,18 @@ export default function BreathingExercise() {
           <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>{t('relax.title')}</h1>
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20 }}>{t('relax.subtitle')}</p>
         </QuestionNarrator>
+
+        {calmingPhrase && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(127,211,199,0.15), rgba(46,125,139,0.1))',
+            border: '1.5px solid rgba(46,125,139,0.25)', borderRadius: 16,
+            padding: '14px 18px', marginBottom: 20, textAlign: 'center',
+          }}>
+            <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+              💬 {calmingPhrase}
+            </p>
+          </div>
+        )}
       </div>
 
       <div style={{ padding: '0 20px' }}>

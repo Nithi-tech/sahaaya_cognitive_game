@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import type { Difficulty } from '../../../../types';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import type { Difficulty, OnboardingRoutineSection } from '../../../../types';
+import { useApp } from '../../../../store/AppContext';
 import { useTranslation } from '../../../../i18n/useTranslation';
 import { useQuizVoice } from '../../../../hooks/useQuizVoice';
 import { QuestionNarrator } from '../../../../components/Voice/QuestionNarrator';
@@ -41,10 +42,40 @@ const ROUTINES: Record<Difficulty, RoutineItem[]> = {
   ],
 };
 
+/** Builds a personalized routine from the caregiver's onboarding answers, ordered by time-of-day. */
+function buildPersonalRoutine(routine: OnboardingRoutineSection): RoutineItem[] {
+  const timed: { emoji: string; label: string; time: string }[] = [];
+  if (routine.wakeTime) timed.push({ emoji: '🌅', label: 'Wake up', time: routine.wakeTime });
+  if (routine.breakfastTime) timed.push({ emoji: '🍚', label: 'Breakfast', time: routine.breakfastTime });
+  if (routine.lunchTime) timed.push({ emoji: '🍛', label: 'Lunch', time: routine.lunchTime });
+  if (routine.dinnerTime) timed.push({ emoji: '🍽️', label: 'Dinner', time: routine.dinnerTime });
+  if (routine.sleepTime) timed.push({ emoji: '😴', label: 'Sleep', time: routine.sleepTime });
+
+  if (routine.rituals) {
+    // Free-text rituals have no clock time — slot them right after wake-up
+    // (most rituals like prayer/tea happen early), one entry per phrase.
+    const wakeIdx = timed.findIndex((t) => t.label === 'Wake up');
+    const insertAt = wakeIdx >= 0 ? wakeIdx + 1 : 0;
+    const anchorTime = wakeIdx >= 0 ? timed[wakeIdx].time : '06:30';
+    routine.rituals.split(',').map((r) => r.trim()).filter(Boolean).forEach((ritual, i) => {
+      timed.splice(insertAt + i, 0, { emoji: '🙏', label: ritual, time: anchorTime });
+    });
+  }
+
+  return timed
+    .sort((a, b) => a.time.localeCompare(b.time))
+    .map((t, i) => ({ emoji: t.emoji, label: routine.activityPhrase && t.label === 'Wake up' ? routine.activityPhrase : t.label, correctOrder: i }));
+}
+
 export default function RoutineRecallGame({ difficulty, onComplete }: Props) {
   const { lang } = useTranslation();
   const voice = useQuizVoice();
-  const correctRoutine = ROUTINES[difficulty];
+  const { currentPatient } = useApp();
+  const onboardingRoutine = currentPatient?.preferences?.onboarding?.routine;
+  const correctRoutine = useMemo(() => {
+    const personal = onboardingRoutine ? buildPersonalRoutine(onboardingRoutine) : [];
+    return personal.length >= 3 ? personal : ROUTINES[difficulty];
+  }, [onboardingRoutine, difficulty]);
   const [items, setItems] = useState<RoutineItem[]>(() =>
     [...correctRoutine].sort(() => Math.random() - 0.5)
   );

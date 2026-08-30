@@ -123,6 +123,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'voice.object_recognition.ask': 'Look at the picture. What is this?',
     'voice.routine.instruction': 'Please arrange these activities in the order you usually do them.',
     'voice.family_faces.ask': 'Who is your {relationship}?',
+    'voice.cultural_memory.ask': 'Which one of these is familiar to you?',
 
     'voice.feedback.correct': 'Well done!',
     'voice.feedback.incorrect': "Good try. Let's continue.",
@@ -161,6 +162,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'game.category.pattern': 'Pattern',
     'game.category.routine': 'Routine',
     'game.category.gentle': 'Gentle Focus',
+    'game.category.cultural': 'Cultural',
     'game.category.advanced': 'Advanced',
     'game.today_pick': "Today's Activity",
     'game.explore': 'Explore Activities',
@@ -403,6 +405,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'voice.object_recognition.ask': 'ছবিটো চাওক। এইটো কি?',
     'voice.routine.instruction': 'আপুনি সচাৰাচৰ কৰা ক্ৰম অনুসৰি এই কাৰ্যকলাপবোৰ সজাওক।',
     'voice.family_faces.ask': 'আপোনাৰ {relationship} কোন?',
+    'voice.cultural_memory.ask': 'এইবোৰৰ কোনটো আপোনাৰ চিনাকি?',
 
     'voice.feedback.correct': 'বহুত ভাল!',
     'voice.feedback.incorrect': 'ভাল প্ৰচেষ্টা। আহক আগবাঢ়ি যাওঁ।',
@@ -441,6 +444,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'game.category.pattern': 'আৰ্হি',
     'game.category.routine': 'নিয়মিততা',
     'game.category.gentle': 'শান্ত মনোযোগ',
+    'game.category.cultural': 'সাংস্কৃতিক',
     'game.category.advanced': 'উন্নত',
     'game.today_pick': 'আজিৰ কাৰ্যকলাপ',
     'game.explore': 'কাৰ্যকলাপ চাওক',

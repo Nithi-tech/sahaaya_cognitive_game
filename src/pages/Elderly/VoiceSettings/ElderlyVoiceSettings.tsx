@@ -1,13 +1,11 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Volume2, Repeat } from 'lucide-react';
+import { ArrowLeft, Volume2 } from 'lucide-react';
 import { useApp } from '../../../store/AppContext';
 import { useAuth } from '../../../store/AuthContext';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { useQuizVoice } from '../../../hooks/useQuizVoice';
 import { narrateSample } from '../../../services/voice/narration';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
-import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../../../constants/demoAccounts';
 import type { VoiceSpeed, Language } from '../../../types';
 
 const SPEEDS: VoiceSpeed[] = ['slow', 'normal', 'fast'];
@@ -48,21 +46,9 @@ export default function ElderlyVoiceSettings() {
   const navigate = useNavigate();
   const { t, lang } = useTranslation();
   const { currentPatient, updatePreferences } = useApp();
-  const { user, login, logout } = useAuth();
+  const { user, logout } = useAuth();
   const voice = useQuizVoice();
   const prefs = currentPatient?.preferences;
-  const [showRoleSwitch, setShowRoleSwitch] = useState(false);
-  const [switching, setSwitching] = useState<string | null>(null);
-
-  const handleSwitchRole = async (email: string) => {
-    setSwitching(email);
-    try {
-      await login(email, DEMO_PASSWORD);
-      navigate('/');
-    } catch {
-      setSwitching(null);
-    }
-  };
 
   const voiceEnabled = prefs?.voiceEnabled ?? true;
   const spokenFeedback = prefs?.spokenFeedback ?? true;
@@ -178,64 +164,10 @@ export default function ElderlyVoiceSettings() {
             {lang === 'as' ? 'অসমীয়া' : 'English'}
           </div>
 
-          {!showRoleSwitch ? (
-            <button
-              type="button"
-              className="btn btn--outline"
-              style={{ width: '100%', height: 56, fontSize: 16, borderRadius: 16, gap: 8, marginTop: 4 }}
-              onClick={() => setShowRoleSwitch(true)}
-            >
-              <Repeat size={18} /> Switch Role
-            </button>
-          ) : (
-            <div style={{ marginTop: 4 }}>
-              <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>
-                Switch to a different account type:
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {DEMO_ACCOUNTS.map((acc) => (
-                  <button
-                    key={acc.role}
-                    type="button"
-                    disabled={switching !== null}
-                    onClick={() => handleSwitchRole(acc.email)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 14,
-                      padding: '14px 16px', borderRadius: 14,
-                      border: `2px solid ${acc.email === user?.email ? 'var(--color-primary)' : 'var(--border-color)'}`,
-                      background: acc.email === user?.email ? 'rgba(46,125,139,0.06)' : 'white',
-                      cursor: switching !== null ? 'default' : 'pointer',
-                      opacity: switching !== null && switching !== acc.email ? 0.5 : 1,
-                      textAlign: 'left',
-                    }}
-                  >
-                    <span style={{ fontSize: 26 }}>{acc.emoji}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, fontSize: 15 }}>{acc.sub}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-tertiary)', textTransform: 'capitalize' }}>
-                        {acc.role}{acc.email === user?.email ? ' · Current' : ''}
-                      </div>
-                    </div>
-                    {switching === acc.email && <span style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>Switching…</span>}
-                  </button>
-                ))}
-              </div>
-              <button
-                type="button"
-                className="btn btn--ghost btn--sm"
-                style={{ width: '100%', marginTop: 10, color: 'var(--text-tertiary)' }}
-                onClick={() => setShowRoleSwitch(false)}
-                disabled={switching !== null}
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-
           <button
             type="button"
-            className="btn btn--ghost btn--sm"
-            style={{ width: '100%', marginTop: 8, color: 'var(--color-danger)' }}
+            className="btn btn--outline"
+            style={{ width: '100%', height: 52, fontSize: 16, borderRadius: 16, marginTop: 12, color: 'var(--color-danger)' }}
             onClick={() => { logout(); navigate('/'); }}
           >
             Log Out

@@ -7,7 +7,7 @@ export type Language = 'en' | 'as';
 export type GameType =
   | 'memory_match' | 'object_recognition' | 'attention' | 'pattern' | 'routine_recall' | 'family_faces'
   | 'color_focus' | 'quick_response' | 'number_focus' | 'block_memory' | 'dual_memory' | 'go_no_go' | 'find_the_change'
-  | 'peripheral_awareness' | 'memory_span';
+  | 'peripheral_awareness' | 'memory_span' | 'cultural_memory';
 export type Difficulty = 'easy' | 'medium' | 'challenging';
 export type CognitiveDomain = 'memory' | 'attention' | 'recognition' | 'pattern' | 'routine';
 export type ReminderType = 'medicine' | 'hydration' | 'activity' | 'appointment';
@@ -38,9 +38,73 @@ export interface PatientProfile {
   healthcareWorkerId?: string;
   caregiverName: string;
   createdAt: string;
+  onboardingComplete: boolean;
 }
 
 export type VoiceSpeed = 'slow' | 'normal' | 'fast';
+
+// ============================================================
+// Onboarding section types — captured by caregiver on elder's behalf.
+// All fields are optional so sections can be saved incrementally.
+// ============================================================
+
+export interface OnboardingPerson {
+  name: string;         // Name as the elder calls them (e.g. "Amma")
+  callsBy: string;      // What the elder calls this person
+  relationship: string; // e.g. "Daughter", "Son-in-law"
+  photoUrl?: string;    // base64 data-URI or null
+  greetingAudioUrl?: string; // base64 data-URI or null
+  askedForOften?: boolean; // elder asks for/mentions this person most
+}
+
+export interface OnboardingPeopleSection {
+  people: OnboardingPerson[];
+}
+
+export interface OnboardingFavoritesSection {
+  food?: string;
+  colour?: string;  // hex or CSS color string
+  music?: string;
+  place?: string;
+}
+
+export interface OnboardingRoutineSection {
+  wakeTime?: string;      // HH:MM
+  breakfastTime?: string;
+  lunchTime?: string;
+  dinnerTime?: string;
+  sleepTime?: string;
+  rituals?: string;       // free text e.g. "Morning prayer"
+  activityPhrase?: string; // custom wording for "brain activity" nudge
+}
+
+export interface OnboardingCulturalSection {
+  festivals?: string[];           // e.g. ["Bihu", "Durga Puja"]
+  traditionalObjects?: string[];  // e.g. ["Jaapi", "Mekhela"]
+  dialect?: string;               // regional language / dialect notes
+}
+
+export interface OnboardingHealthSection {
+  medicines?: Array<{ name: string; time: string }>;
+  mobilityIssues?: string;
+  diet?: string;
+}
+
+export interface OnboardingEmotionalSection {
+  calming?: string;    // what calms them when anxious
+  sounds?: string;     // e.g. "nature", "music", "silence"
+  images?: string;     // description of calming images
+  phrases?: string[];  // comforting phrases
+}
+
+export interface OnboardingData {
+  people?: OnboardingPeopleSection | null;
+  favorites?: OnboardingFavoritesSection | null;
+  routine?: OnboardingRoutineSection | null;
+  cultural?: OnboardingCulturalSection | null;
+  health?: OnboardingHealthSection | null;
+  emotional?: OnboardingEmotionalSection | null;
+}
 
 export interface PatientPreferences {
   preferredLanguage: Language;
@@ -53,6 +117,8 @@ export interface PatientPreferences {
   voiceSpeed?: VoiceSpeed;
   voiceVolume?: number;
   spokenFeedback?: boolean;
+  // Onboarding data — caregiver-populated, not directly editable by the elder
+  onboarding?: OnboardingData;
 }
 
 export interface CognitiveSession {

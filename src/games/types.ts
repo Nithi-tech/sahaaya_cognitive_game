@@ -14,7 +14,7 @@ import type { ComponentType } from 'react';
 import type { CognitiveDomain, Difficulty, GameType, Memory } from '../types';
 
 /** UI grouping only — never surfaced as a medical/diagnostic label. "Gentle Focus" stands in for anything ADHD-adjacent. */
-export type GameCategory = 'MEMORY' | 'FOCUS' | 'REACTION' | 'PATTERN' | 'ROUTINE' | 'GENTLE' | 'ADVANCED';
+export type GameCategory = 'MEMORY' | 'FOCUS' | 'REACTION' | 'PATTERN' | 'ROUTINE' | 'GENTLE' | 'ADVANCED' | 'CULTURAL';
 
 /** The props every game component receives — unchanged from the original 6 games, so none of them needed touching. */
 export interface GameComponentProps {

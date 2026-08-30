@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
-import type { Difficulty, Memory } from '../../../../types';
+import { useState, useMemo, useRef } from 'react';
+import type { Difficulty, Memory, OnboardingPerson } from '../../../../types';
+import { useApp } from '../../../../store/AppContext';
 import { useTranslation } from '../../../../i18n/useTranslation';
 import { useQuizVoice } from '../../../../hooks/useQuizVoice';
 import { QuestionNarrator } from '../../../../components/Voice/QuestionNarrator';
@@ -31,39 +32,89 @@ interface Round {
   relationship: string;
   correctName: string;
   options: string[];
+  photoUrl?: string;
+  greetingAudioUrl?: string;
 }
 
 function shuffle<T>(arr: T[]): T[] {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
-function buildRounds(memories: Memory[], difficulty: Difficulty): Round[] {
-  const family = memories.filter((m) => m.category === 'family' && m.relationship);
-  const allNames = family.map((m) => m.title);
-  const optionCount = Math.min(OPTION_COUNT[difficulty], family.length);
+/** Common shape both onboarding.people and the Memory[] fallback reduce to. */
+interface FaceEntry {
+  relationship: string;
+  name: string;
+  photoUrl?: string;
+  greetingAudioUrl?: string;
+  weight: number;
+}
 
-  return shuffle(family)
-    .slice(0, 4)
-    .map((m) => {
-      const distractors = shuffle(allNames.filter((n) => n !== m.title)).slice(0, optionCount - 1);
-      return {
-        relationship: m.relationship!,
-        correctName: m.title,
-        options: shuffle([m.title, ...distractors]),
-      };
-    });
+function buildRounds(memories: Memory[], onboardingPeople: OnboardingPerson[], difficulty: Difficulty): Round[] {
+  let entries: FaceEntry[];
+
+  if (onboardingPeople.length > 0) {
+    // Richer source: real photo + the elder's own nickname for the person,
+    // and "asked for often" people are weighted to appear more frequently.
+    entries = onboardingPeople
+      .filter((p) => p.relationship && (p.callsBy || p.name))
+      .map((p) => ({
+        relationship: p.relationship,
+        name: p.callsBy || p.name,
+        photoUrl: p.photoUrl,
+        greetingAudioUrl: p.greetingAudioUrl,
+        weight: p.askedForOften ? 2 : 1,
+      }));
+  } else {
+    entries = memories
+      .filter((m) => m.category === 'family' && m.relationship)
+      .map((m) => ({ relationship: m.relationship!, name: m.title, weight: 1 }));
+  }
+
+  if (entries.length === 0) return [];
+
+  // Weighted pool: entries marked "asked for often" get extra copies so
+  // they come up more often across rounds, without ever excluding anyone.
+  const pool = entries.flatMap((e) => Array(e.weight).fill(e) as FaceEntry[]);
+  const allNames = entries.map((e) => e.name);
+  const optionCount = Math.min(OPTION_COUNT[difficulty], entries.length);
+
+  const seen = new Set<string>();
+  const chosen: FaceEntry[] = [];
+  for (const e of shuffle(pool)) {
+    if (seen.has(e.name)) continue;
+    seen.add(e.name);
+    chosen.push(e);
+    if (chosen.length >= 4) break;
+  }
+
+  return chosen.map((e) => {
+    const distractors = shuffle(allNames.filter((n) => n !== e.name)).slice(0, optionCount - 1);
+    return {
+      relationship: e.relationship,
+      correctName: e.name,
+      options: shuffle([e.name, ...distractors]),
+      photoUrl: e.photoUrl,
+      greetingAudioUrl: e.greetingAudioUrl,
+    };
+  });
 }
 
 export default function FamilyFacesGame({ difficulty, memories, onComplete }: Props) {
   const { lang } = useTranslation();
   const voice = useQuizVoice();
-  const rounds = useMemo(() => buildRounds(memories, difficulty), [memories, difficulty]);
+  const { currentPatient } = useApp();
+  const onboardingPeople = useMemo(
+    () => currentPatient?.preferences?.onboarding?.people?.people ?? [],
+    [currentPatient],
+  );
+  const rounds = useMemo(() => buildRounds(memories, onboardingPeople, difficulty), [memories, onboardingPeople, difficulty]);
   const [qIdx, setQIdx] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [answered, setAnswered] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [mistakeCount, setMistakeCount] = useState(0);
   const [startTime] = useState(Date.now());
+  const greetingAudioRef = useRef<HTMLAudioElement | null>(null);
 
   if (rounds.length === 0) {
     return (
@@ -71,7 +122,7 @@ export default function FamilyFacesGame({ difficulty, memories, onComplete }: Pr
         <div style={{ fontSize: 56, marginBottom: 12 }}>👨‍👩‍👧</div>
         <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>No family memories yet</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>
-          Ask your caregiver to add a few family members in "My Memories" to unlock this game.
+          Ask your caregiver to add a few family members during onboarding or in "My Memories" to unlock this game.
         </p>
       </div>
     );
@@ -87,6 +138,10 @@ export default function FamilyFacesGame({ difficulty, memories, onComplete }: Pr
     if (isCorrect) setCorrectCount((p) => p + 1);
     else setMistakeCount((p) => p + 1);
     voice.speakFeedback(narrateFeedback(lang, isCorrect));
+    if (isCorrect && round.greetingAudioUrl && greetingAudioRef.current) {
+      greetingAudioRef.current.src = round.greetingAudioUrl;
+      greetingAudioRef.current.play().catch(() => { /* ignore autoplay rejection */ });
+    }
   };
 
   const handleNext = () => {
@@ -108,17 +163,27 @@ export default function FamilyFacesGame({ difficulty, memories, onComplete }: Pr
       </p>
 
       <QuestionNarrator text={narrateFamilyFacesAsk(lang, round.relationship)} speakKey={qIdx}>
-        <div style={{
-          fontSize: 100, lineHeight: 1, marginBottom: 16,
-          filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.12))',
-        }}>
-          {avatarFor(round.relationship)}
-        </div>
+        {round.photoUrl ? (
+          <div style={{
+            width: 140, height: 140, borderRadius: 24, overflow: 'hidden', margin: '0 auto 16px',
+            boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
+          }}>
+            <img src={round.photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        ) : (
+          <div style={{
+            fontSize: 100, lineHeight: 1, marginBottom: 16,
+            filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.12))',
+          }}>
+            {avatarFor(round.relationship)}
+          </div>
+        )}
 
         <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 28 }}>
           Who is your {round.relationship.toLowerCase()}?
         </h2>
       </QuestionNarrator>
+      <audio ref={greetingAudioRef} style={{ display: 'none' }} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
         {round.options.map((opt) => {

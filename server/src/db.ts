@@ -117,3 +117,32 @@ CREATE TABLE IF NOT EXISTS sync_log (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 `);
+
+// Migration-safe column additions — safe to run against both fresh and existing
+// databases. SQLite does not support IF NOT EXISTS on ALTER TABLE, so we use
+// try/catch and ignore SQLITE_DUPLICATE_COLUMN errors.
+const addColumnIfMissing = (table: string, column: string, definition: string) => {
+  try {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  } catch (err) {
+    // SQLITE_ERROR is thrown when the column already exists — ignore it.
+    if (!(err as { message?: string }).message?.includes('duplicate column name')) throw err;
+  }
+};
+
+// onboarding_complete: 0 = wizard not yet finished, 1 = all sections saved.
+addColumnIfMissing('patients', 'onboarding_complete', 'INTEGER NOT NULL DEFAULT 0');
+// pin_hash: bcrypt hash of the 4-digit PIN set during onboarding for elder login.
+// NULL for caregiver/healthcare accounts — only set on system-created elder accounts.
+addColumnIfMissing('users', 'pin_hash', 'TEXT');
+// elder_access_id: unique access code for elder login (e.g. SAH-4821)
+addColumnIfMissing('users', 'elder_access_id', 'TEXT');
+try {
+  db.exec(`
+    UPDATE users SET elder_access_id = 'SAH-1001' WHERE email = 'maya@sahaaya.demo' AND (elder_access_id IS NULL OR elder_access_id = '');
+    UPDATE users SET elder_access_id = 'SAH-1002' WHERE email = 'basanta@sahaaya.demo' AND (elder_access_id IS NULL OR elder_access_id = '');
+    UPDATE users SET elder_access_id = 'SAH-1003' WHERE email = 'sita@sahaaya.demo' AND (elder_access_id IS NULL OR elder_access_id = '');
+  `);
+} catch {
+  /* ignore */
+}
