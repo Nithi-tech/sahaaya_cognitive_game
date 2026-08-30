@@ -119,7 +119,7 @@ export default function FindTheChangeGame({ difficulty, onComplete }: Props) {
           marginTop: 20,
           background: picked === changedIdx ? 'var(--color-success-light)' : 'var(--color-danger-light)',
           borderRadius: 12, padding: '12px 16px',
-          color: picked === changedIdx ? '#2E7D32' : '#C62828', fontWeight: 600, fontSize: 16,
+          color: picked === changedIdx ? 'var(--color-success-text)' : 'var(--color-danger-text)', fontWeight: 600, fontSize: 16,
         }}>
           {picked === changedIdx ? '✓ Well spotted!' : 'Good try — that one changed.'}
         </div>

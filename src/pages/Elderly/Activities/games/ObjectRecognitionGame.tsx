@@ -87,10 +87,10 @@ export default function ObjectRecognitionGame({ difficulty, onComplete }: Props)
         {q.options.map((opt) => {
           let bg = 'white', border = 'var(--border-color)', textColor = 'var(--text-primary)';
           if (answered) {
-            if (opt === q.correct) { bg = 'var(--color-success-light)'; border = 'var(--color-success)'; textColor = '#2E7D32'; }
-            else if (opt === selected) { bg = 'var(--color-danger-light)'; border = 'var(--color-danger)'; textColor = '#C62828'; }
+            if (opt === q.correct) { bg = 'var(--color-success-light)'; border = 'var(--color-success)'; textColor = 'var(--color-success-text)'; }
+            else if (opt === selected) { bg = 'var(--color-danger-light)'; border = 'var(--color-danger)'; textColor = 'var(--color-danger-text)'; }
           } else if (opt === selected) {
-            bg = 'rgba(46,125,139,0.08)'; border = 'var(--color-primary)';
+            bg = 'rgba(109,66,245,0.08)'; border = 'var(--color-primary)';
           }
           return (
             <button
@@ -114,7 +114,7 @@ export default function ObjectRecognitionGame({ difficulty, onComplete }: Props)
           <div style={{
             background: selected === q.correct ? 'var(--color-success-light)' : 'var(--color-danger-light)',
             borderRadius: 12, padding: '12px 16px', marginBottom: 16,
-            color: selected === q.correct ? '#2E7D32' : '#C62828', fontWeight: 600, fontSize: 16,
+            color: selected === q.correct ? 'var(--color-success-text)' : 'var(--color-danger-text)', fontWeight: 600, fontSize: 16,
           }}>
             {selected === q.correct ? '✓ Correct!' : `✗ It was ${q.correct}`}
           </div>

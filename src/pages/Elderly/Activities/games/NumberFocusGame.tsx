@@ -55,7 +55,7 @@ export default function NumberFocusGame({ difficulty, onComplete }: Props) {
         <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Tap in order</h2>
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
-          background: '#E8F5F7', borderRadius: 99, padding: '8px 18px', marginBottom: 20,
+          background: 'var(--bg-surface-tint)', borderRadius: 99, padding: '8px 18px', marginBottom: 20,
         }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-primary)' }}>Find:</span>
           <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-primary)' }}>{nextExpected}</span>

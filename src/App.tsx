@@ -7,28 +7,9 @@ import LandingPage from './pages/Landing/LandingPage';
 import OnboardingFlow from './pages/Onboarding/OnboardingFlow';
 import ElderPinLogin from './pages/Onboarding/ElderPinLogin';
 
-// Elderly pages
-import ElderlyHome from './pages/Elderly/Home/ElderlyHome';
-import ElderlyActivities from './pages/Elderly/Activities/ElderlyActivities';
-import ElderlyGames from './pages/Elderly/Games/ElderlyGames';
-import ElderlyMyDay from './pages/Elderly/MyDay/ElderlyMyDay';
-import ElderlyReminders from './pages/Elderly/Reminders/ElderlyReminders';
-import ElderlyVoice from './pages/Elderly/Voice/ElderlyVoice';
-import ElderlyMemory from './pages/Elderly/Memory/ElderlyMemory';
-import ElderlyVoiceSettings from './pages/Elderly/VoiceSettings/ElderlyVoiceSettings';
-import BreathingExercise from './pages/Elderly/Relax/BreathingExercise';
-
-// Caregiver pages
+import ElderlyDashboard from './pages/Elderly/Dashboard/ElderlyDashboard';
 import CaregiverDashboard from './pages/Caregiver/Dashboard/CaregiverDashboard';
-import CaregiverActivity from './pages/Caregiver/Activity/CaregiverActivity';
-import CaregiverReminders from './pages/Caregiver/Reminders/CaregiverReminders';
-import CaregiverMemory from './pages/Caregiver/Memory/CaregiverMemory';
-import CaregiverAlerts from './pages/Caregiver/Alerts/CaregiverAlerts';
-
-// Healthcare pages
-import HCWPatients from './pages/Healthcare/Patients/HCWPatients';
-import HCWPatientDetail from './pages/Healthcare/PatientDetail/HCWPatientDetail';
-import HCWReports from './pages/Healthcare/Reports/HCWReports';
+import HealthcareDashboard from './pages/Healthcare/Dashboard/HealthcareDashboard';
 
 import './index.css';
 
@@ -49,15 +30,7 @@ function AppRoutes() {
   if (user.role === 'elderly') {
     return (
       <Routes>
-        <Route path="/" element={<ElderlyHome />} />
-        <Route path="/games" element={<ElderlyGames />} />
-        <Route path="/activities" element={<ElderlyActivities />} />
-        <Route path="/myday" element={<ElderlyMyDay />} />
-        <Route path="/reminders" element={<ElderlyReminders />} />
-        <Route path="/voice" element={<ElderlyVoice />} />
-        <Route path="/memory" element={<ElderlyMemory />} />
-        <Route path="/voice-settings" element={<ElderlyVoiceSettings />} />
-        <Route path="/relax" element={<BreathingExercise />} />
+        <Route path="/" element={<ElderlyDashboard />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     );
@@ -68,10 +41,6 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<CaregiverDashboard />} />
         <Route path="/onboarding" element={<OnboardingFlow />} />
-        <Route path="/activity" element={<CaregiverActivity />} />
-        <Route path="/reminders" element={<CaregiverReminders />} />
-        <Route path="/memory" element={<CaregiverMemory />} />
-        <Route path="/alerts" element={<CaregiverAlerts />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     );
@@ -80,9 +49,7 @@ function AppRoutes() {
   if (user.role === 'healthcare') {
     return (
       <Routes>
-        <Route path="/" element={<HCWPatients />} />
-        <Route path="/patient/:id" element={<HCWPatientDetail />} />
-        <Route path="/reports" element={<HCWReports />} />
+        <Route path="/" element={<HealthcareDashboard />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     );

@@ -166,8 +166,8 @@ export default function RoutineRecallGame({ difficulty, onComplete }: Props) {
                     aria-label={`Move ${item.label} earlier`}
                     style={{
                       width: 40, height: 36,
-                      background: idx === 0 ? '#F5F5F5' : 'var(--color-primary)',
-                      color: idx === 0 ? '#CCC' : 'white',
+                      background: idx === 0 ? 'var(--bg-surface-tint)' : 'var(--color-primary)',
+                      color: idx === 0 ? 'var(--text-tertiary)' : 'white',
                       border: 'none', borderRadius: 8,
                       cursor: idx === 0 ? 'default' : 'pointer', fontSize: 16, fontWeight: 700,
                     }}
@@ -178,8 +178,8 @@ export default function RoutineRecallGame({ difficulty, onComplete }: Props) {
                     aria-label={`Move ${item.label} later`}
                     style={{
                       width: 40, height: 36,
-                      background: idx === items.length - 1 ? '#F5F5F5' : 'var(--color-primary)',
-                      color: idx === items.length - 1 ? '#CCC' : 'white',
+                      background: idx === items.length - 1 ? 'var(--bg-surface-tint)' : 'var(--color-primary)',
+                      color: idx === items.length - 1 ? 'var(--text-tertiary)' : 'white',
                       border: 'none', borderRadius: 8,
                       cursor: idx === items.length - 1 ? 'default' : 'pointer', fontSize: 16, fontWeight: 700,
                     }}
@@ -205,7 +205,7 @@ export default function RoutineRecallGame({ difficulty, onComplete }: Props) {
       ) : (
         <div style={{
           background: 'var(--color-success-light)', borderRadius: 12, padding: '12px 16px',
-          color: '#2E7D32', fontWeight: 600, fontSize: 15, textAlign: 'center',
+          color: 'var(--color-success-text)', fontWeight: 600, fontSize: 15, textAlign: 'center',
         }}>
           ✓ Evaluating your routine order...
         </div>

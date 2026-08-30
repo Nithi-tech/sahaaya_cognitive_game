@@ -116,8 +116,8 @@ export default function BlockMemoryGame({ difficulty, onComplete }: Props) {
               disabled={phase !== 'recall'}
               style={{
                 aspectRatio: '1', borderRadius: 16, border: 'none',
-                background: isWrong ? 'var(--color-danger)' : isLit ? 'var(--color-primary)' : '#E2E8F0',
-                boxShadow: isLit ? '0 0 0 4px rgba(46,125,139,0.25)' : 'none',
+                background: isWrong ? 'var(--color-danger)' : isLit ? 'var(--color-primary)' : 'var(--border-color)',
+                boxShadow: isLit ? '0 0 0 4px rgba(109,66,245,0.25)' : 'none',
                 cursor: phase === 'recall' ? 'pointer' : 'default',
                 transition: 'background 0.15s',
               }}

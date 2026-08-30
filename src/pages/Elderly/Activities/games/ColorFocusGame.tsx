@@ -92,7 +92,7 @@ export default function ColorFocusGame({ difficulty, onComplete }: Props) {
         <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 24 }}>Not the word — the color it's printed in</p>
 
         <div style={{
-          background: '#F8FAFB', borderRadius: 20, padding: '32px 20px', marginBottom: 28,
+          background: 'var(--bg-surface-tint)', borderRadius: 20, padding: '32px 20px', marginBottom: 28,
           border: '2px solid var(--border-color)',
         }}>
           <span style={{ fontSize: 48, fontWeight: 800, color: trial.inkHex }}>{trial.word}</span>
@@ -128,7 +128,7 @@ export default function ColorFocusGame({ difficulty, onComplete }: Props) {
         <div style={{
           background: selected === trial.correctName ? 'var(--color-success-light)' : 'var(--color-danger-light)',
           borderRadius: 12, padding: '12px 16px',
-          color: selected === trial.correctName ? '#2E7D32' : '#C62828', fontWeight: 600, fontSize: 16,
+          color: selected === trial.correctName ? 'var(--color-success-text)' : 'var(--color-danger-text)', fontWeight: 600, fontSize: 16,
         }}>
           {selected === trial.correctName ? '✓ Well done!' : `Good try — it was ${trial.correctName}.`}
         </div>

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import { ElderlyNav } from '../ElderlyNav/ElderlyNav';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useApp } from '../../store/AppContext';
+import { ScoreRing } from '../Charts/Charts';
 import type { CognitiveGameResult } from '../../games/types';
 
 interface Action {
@@ -30,8 +30,8 @@ export function GameResultScreen({ result, difficultyReason, primaryAction, seco
   const favoriteColour = currentPatient?.preferences?.onboarding?.favorites?.colour;
 
   return (
-    <div className="elderly-layout" style={{ padding: '40px 20px 90px' }}>
-      <div style={{ maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
+    <div className="elderly-layout" style={{ padding: '40px 20px 60px' }}>
+      <div style={{ maxWidth: 420, margin: '0 auto', textAlign: 'center' }}>
         <div style={{ position: 'relative', display: 'inline-block' }}>
           {improved && (
             <div className="confetti-burst">
@@ -46,18 +46,24 @@ export function GameResultScreen({ result, difficultyReason, primaryAction, seco
         </div>
         <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 8 }}>{t('game.great_work')}</h2>
 
-        <div className="card" style={{ borderRadius: 20, marginBottom: 20, padding: '24px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
+        <div className="card result-card">
+          <ScoreRing
+            score={result.accuracy}
+            size={110}
+            color={improved ? 'var(--color-success)' : maintained ? 'var(--color-primary)' : 'var(--color-accent)'}
+            label="ACCURACY"
+          />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, margin: '20px 0 16px' }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: favoriteColour || 'var(--color-primary)' }}>{result.accuracy}%</div>
               <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>ACCURACY</div>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--color-accent)' }}>{result.mistakes}</div>
+              <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-accent)' }}>{result.mistakes}</div>
               <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>MISTAKES</div>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--color-success)' }}>
+              <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-success)' }}>
                 {Math.round(result.responseTime)}s
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>TIME</div>
@@ -97,7 +103,6 @@ export function GameResultScreen({ result, difficultyReason, primaryAction, seco
           )}
         </div>
       </div>
-      <ElderlyNav />
     </div>
   );
 }

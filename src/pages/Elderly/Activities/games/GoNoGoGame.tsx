@@ -103,7 +103,7 @@ export default function GoNoGoGame({ difficulty, onComplete }: Props) {
         style={{
           width: 180, height: 180, borderRadius: '50%', margin: '0 auto 24px',
           cursor: showing ? 'pointer' : 'default',
-          background: !showing ? '#E2E8F0' : current === 'go' ? 'var(--color-success)' : 'var(--color-danger)',
+          background: !showing ? 'var(--border-color)' : current === 'go' ? 'var(--color-success)' : 'var(--color-danger)',
           transition: 'background 0.1s',
           boxShadow: showing ? '0 8px 24px rgba(0,0,0,0.15)' : 'none',
         }}

@@ -35,7 +35,7 @@ const QUESTIONS: Record<Difficulty, PatternQuestion[]> = {
 };
 
 const SHAPE_COLORS: Record<string, string> = {
-  '●': '#2E7D8B', '▲': '#E8A63A', '■': '#E91E63', '★': '#9C27B0', '◆': '#4CAF50',
+  '●': '#6D42F5', '▲': '#FF6B4A', '■': '#FF3D81', '★': '#A238FF', '◆': '#16C784',
 };
 
 export default function PatternGame({ difficulty, onComplete }: Props) {
@@ -88,7 +88,7 @@ export default function PatternGame({ difficulty, onComplete }: Props) {
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           gap: 12, marginBottom: 32,
-          background: '#F8FAFB', borderRadius: 20, padding: '20px',
+          background: 'var(--bg-surface-tint)', borderRadius: 20, padding: '20px',
           border: '2px solid var(--border-color)',
         }}>
           {q.sequence.map((item, i) => (
@@ -103,7 +103,7 @@ export default function PatternGame({ difficulty, onComplete }: Props) {
               {item === '?' ? (
                 <span style={{ color: 'white', fontSize: 22, fontWeight: 800 }}>?</span>
               ) : (
-                <span style={{ fontSize: 28, color: SHAPE_COLORS[item] ?? '#333', fontWeight: 700 }}>{item}</span>
+                <span style={{ fontSize: 28, color: SHAPE_COLORS[item] ?? 'var(--text-primary)', fontWeight: 700 }}>{item}</span>
               )}
             </div>
           ))}
@@ -118,7 +118,7 @@ export default function PatternGame({ difficulty, onComplete }: Props) {
             if (opt === q.correct) { bg = 'var(--color-success-light)'; border = 'var(--color-success)'; }
             else if (opt === selected) { bg = 'var(--color-danger-light)'; border = 'var(--color-danger)'; }
           } else if (opt === selected) {
-            bg = 'rgba(46,125,139,0.1)'; border = 'var(--color-primary)';
+            bg = 'rgba(109,66,245,0.1)'; border = 'var(--color-primary)';
           }
           return (
             <button
@@ -129,7 +129,7 @@ export default function PatternGame({ difficulty, onComplete }: Props) {
                 borderRadius: 16, padding: '20px 8px',
                 cursor: 'pointer', transition: 'all 0.15s',
                 fontSize: 32, fontWeight: 700,
-                color: SHAPE_COLORS[opt] ?? '#333',
+                color: SHAPE_COLORS[opt] ?? 'var(--text-primary)',
               }}
             >
               {opt}
@@ -143,7 +143,7 @@ export default function PatternGame({ difficulty, onComplete }: Props) {
           <div style={{
             background: selected === q.correct ? 'var(--color-success-light)' : 'var(--color-danger-light)',
             borderRadius: 12, padding: '12px 16px', marginBottom: 16,
-            color: selected === q.correct ? '#2E7D32' : '#C62828', fontWeight: 600, fontSize: 16,
+            color: selected === q.correct ? 'var(--color-success-text)' : 'var(--color-danger-text)', fontWeight: 600, fontSize: 16,
           }}>
             {selected === q.correct ? '✓ Correct!' : `✗ The answer was ${q.correct}`}
           </div>
