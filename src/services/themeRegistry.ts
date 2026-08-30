@@ -5,6 +5,7 @@ export interface ThemeAsset {
   category: ThemeCategory;
   label: string;
   emoji: string;
+  imageUrl: string;
   primaryColor: string;
   headerGradient: string;
   cardGradient: string;
@@ -44,22 +45,24 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'food',
     label: 'Biryani',
     emoji: '🍗',
+    imageUrl: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#EA580C',
-    headerGradient: 'linear-gradient(135deg, #C2410C 0%, #EA580C 100%)',
-    cardGradient: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 50%, #FED7AA 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(194, 65, 12, 0.88) 0%, rgba(234, 88, 12, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(255, 247, 237, 0.96) 0%, rgba(254, 215, 170, 0.92) 100%)',
     borderColor: '#FDBA74',
     accentColor: '#C2410C',
     tagline: 'Fragrant saffron spices & rich culinary celebrations',
-    ambientNote: 'Warm slow-cooked rice aroma and festive joy',
+    ambientNote: 'Warm slow-cooked rice aroma and festive family joy',
   },
   'food_payesh': {
     id: 'food_payesh',
     category: 'food',
     label: 'Payesh / Kheer',
     emoji: '🍯',
+    imageUrl: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#DB2777',
-    headerGradient: 'linear-gradient(135deg, #BE185D 0%, #DB2777 100%)',
-    cardGradient: 'linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 50%, #FBCFE8 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(190, 24, 93, 0.88) 0%, rgba(219, 39, 119, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(253, 242, 248, 0.96) 0%, rgba(251, 207, 232, 0.92) 100%)',
     borderColor: '#F9A8D4',
     accentColor: '#9D174D',
     tagline: 'Sweet milk rice, cardamom warmth & festive blessings',
@@ -70,9 +73,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'food',
     label: 'Idli & Dosa',
     emoji: '🥞',
+    imageUrl: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#CA8A04',
-    headerGradient: 'linear-gradient(135deg, #A16207 0%, #CA8A04 100%)',
-    cardGradient: 'linear-gradient(135deg, #FEFCE8 0%, #FEF08A 50%, #FDE047 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(161, 98, 7, 0.88) 0%, rgba(202, 138, 4, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(254, 252, 232, 0.96) 0%, rgba(253, 224, 71, 0.92) 100%)',
     borderColor: '#FACC15',
     accentColor: '#854D0E',
     tagline: 'Golden griddle crispness, coconut chutney & fresh warmth',
@@ -83,9 +87,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'food',
     label: 'Momos',
     emoji: '🥟',
+    imageUrl: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#0D9488',
-    headerGradient: 'linear-gradient(135deg, #0F766E 0%, #0D9488 100%)',
-    cardGradient: 'linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 50%, #99F6E4 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(15, 118, 110, 0.88) 0%, rgba(13, 148, 136, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(240, 253, 250, 0.96) 0%, rgba(153, 246, 228, 0.92) 100%)',
     borderColor: '#5EEAD4',
     accentColor: '#115E59',
     tagline: 'Steaming Himalayan dumplings & fiery spicy chutney',
@@ -96,22 +101,24 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'food',
     label: 'Assam Pitha',
     emoji: '🥮',
+    imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#D97706',
-    headerGradient: 'linear-gradient(135deg, #B45309 0%, #D97706 100%)',
-    cardGradient: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #FDE68A 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(180, 83, 9, 0.88) 0%, rgba(217, 119, 6, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(255, 251, 235, 0.96) 0%, rgba(253, 230, 138, 0.92) 100%)',
     borderColor: '#FCD34D',
     accentColor: '#92400E',
     tagline: 'Traditional sesame, coconut & jaggery rice rolls',
-    ambientNote: 'Bihu harvest festival sweetness',
+    ambientNote: 'Bihu harvest festival sweetness and heritage',
   },
   'food_assam_tea': {
     id: 'food_assam_tea',
     category: 'food',
     label: 'Assam Tea',
     emoji: '🍵',
+    imageUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#16A34A',
-    headerGradient: 'linear-gradient(135deg, #15803D 0%, #16A34A 100%)',
-    cardGradient: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 50%, #BBF7D0 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(21, 128, 61, 0.88) 0%, rgba(22, 163, 74, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(240, 253, 244, 0.96) 0%, rgba(187, 247, 208, 0.92) 100%)',
     borderColor: '#86EFAC',
     accentColor: '#166534',
     tagline: 'Rich morning brew from the lush tea gardens of Assam',
@@ -124,9 +131,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'festival',
     label: 'Rongali Bihu',
     emoji: '🪘',
+    imageUrl: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#DC2626',
-    headerGradient: 'linear-gradient(135deg, #991B1B 0%, #DC2626 100%)',
-    cardGradient: 'linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 50%, #FECACA 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(153, 27, 27, 0.88) 0%, rgba(220, 38, 38, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(254, 242, 242, 0.96) 0%, rgba(254, 202, 202, 0.92) 100%)',
     borderColor: '#FCA5A5',
     accentColor: '#7F1D1D',
     tagline: 'Springtime dance, Dhol beats & woven red Gamusa traditions',
@@ -137,9 +145,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'festival',
     label: 'Durga Puja',
     emoji: '🪔',
+    imageUrl: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#BE123C',
-    headerGradient: 'linear-gradient(135deg, #9F1239 0%, #BE123C 100%)',
-    cardGradient: 'linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 50%, #FECDD3 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(159, 18, 57, 0.88) 0%, rgba(190, 18, 60, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(255, 241, 242, 0.96) 0%, rgba(254, 205, 211, 0.92) 100%)',
     borderColor: '#FDA4AF',
     accentColor: '#881337',
     tagline: 'Dhaak drums, sacred incense & grand autumn pandal celebrations',
@@ -150,9 +159,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'festival',
     label: 'Diwali',
     emoji: '✨',
+    imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#B45309',
-    headerGradient: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
-    cardGradient: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #FDE68A 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(120, 53, 15, 0.88) 0%, rgba(180, 83, 9, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(255, 251, 235, 0.96) 0%, rgba(253, 230, 138, 0.92) 100%)',
     borderColor: '#FCD34D',
     accentColor: '#78350F',
     tagline: 'Golden glowing diyas, rangoli designs & festival of lights',
@@ -163,9 +173,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'festival',
     label: 'Christmas',
     emoji: '🎄',
+    imageUrl: 'https://images.unsplash.com/photo-1543258103-a62bdc069871?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#15803D',
-    headerGradient: 'linear-gradient(135deg, #14532D 0%, #15803D 100%)',
-    cardGradient: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 50%, #BBF7D0 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(20, 83, 45, 0.88) 0%, rgba(21, 128, 61, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(240, 253, 244, 0.96) 0%, rgba(187, 247, 208, 0.92) 100%)',
     borderColor: '#86EFAC',
     accentColor: '#14532D',
     tagline: 'Festive evergreen pine, carols & warm family gatherings',
@@ -178,9 +189,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'nature',
     label: 'Flower Garden',
     emoji: '🌸',
+    imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#E11D48',
-    headerGradient: 'linear-gradient(135deg, #BE123C 0%, #E11D48 100%)',
-    cardGradient: 'linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 50%, #FECDD3 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(190, 18, 60, 0.88) 0%, rgba(225, 29, 72, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(255, 241, 242, 0.96) 0%, rgba(254, 205, 211, 0.92) 100%)',
     borderColor: '#FDA4AF',
     accentColor: '#9F1239',
     tagline: 'Blooming marigolds, roses, orchids & fragrant garden walks',
@@ -191,9 +203,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'nature',
     label: 'Birds & Wildlife',
     emoji: '🦜',
+    imageUrl: 'https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#0284C7',
-    headerGradient: 'linear-gradient(135deg, #0369A1 0%, #0284C7 100%)',
-    cardGradient: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #BAE6FD 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(3, 105, 161, 0.88) 0%, rgba(2, 132, 199, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(240, 249, 255, 0.96) 0%, rgba(186, 230, 253, 0.92) 100%)',
     borderColor: '#7DD3FC',
     accentColor: '#075985',
     tagline: 'Graceful flight of hornbills, kingfishers & singing birds',
@@ -204,9 +217,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'nature',
     label: 'Misty Mountains',
     emoji: '⛰️',
+    imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#475569',
-    headerGradient: 'linear-gradient(135deg, #334155 0%, #475569 100%)',
-    cardGradient: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #E2E8F0 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(51, 65, 85, 0.88) 0%, rgba(71, 85, 105, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(248, 250, 252, 0.96) 0%, rgba(226, 232, 240, 0.92) 100%)',
     borderColor: '#CBD5E1',
     accentColor: '#1E293B',
     tagline: 'Serene mountain ridges, misty pine forests & calm air',
@@ -217,9 +231,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'nature',
     label: 'Brahmaputra River',
     emoji: '🌊',
+    imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#0891B2',
-    headerGradient: 'linear-gradient(135deg, #0E7490 0%, #0891B2 100%)',
-    cardGradient: 'linear-gradient(135deg, #ECFEFF 0%, #CFFAFE 50%, #A5F3FC 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(14, 116, 144, 0.88) 0%, rgba(8, 145, 178, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(236, 254, 255, 0.96) 0%, rgba(165, 243, 252, 0.92) 100%)',
     borderColor: '#67E8F9',
     accentColor: '#155E75',
     tagline: 'Mighty flowing waters, golden sunsets & gentle rippling waves',
@@ -232,9 +247,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'hobby',
     label: 'Classical Music',
     emoji: '🎶',
+    imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#7C3AED',
-    headerGradient: 'linear-gradient(135deg, #6D28D9 0%, #7C3AED 100%)',
-    cardGradient: 'linear-gradient(135deg, #FAF5FF 0%, #F3E8FF 50%, #E9D5FF 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(109, 40, 217, 0.88) 0%, rgba(124, 58, 237, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(250, 245, 255, 0.96) 0%, rgba(233, 213, 255, 0.92) 100%)',
     borderColor: '#D8B4FE',
     accentColor: '#5B21B6',
     tagline: 'Soulful flute melodies, sitar ragas & devotional bhajans',
@@ -245,9 +261,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'hobby',
     label: 'Farming & Agriculture',
     emoji: '🌾',
+    imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#65A30D',
-    headerGradient: 'linear-gradient(135deg, #4D7C0F 0%, #65A30D 100%)',
-    cardGradient: 'linear-gradient(135deg, #F7FEE7 0%, #ECFCCB 50%, #D9F99D 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(77, 124, 15, 0.88) 0%, rgba(101, 163, 13, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(247, 254, 231, 0.96) 0%, rgba(217, 249, 157, 0.92) 100%)',
     borderColor: '#BEF264',
     accentColor: '#365314',
     tagline: 'Golden paddy fields, fresh harvest earth & agrarian heritage',
@@ -258,9 +275,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'hobby',
     label: 'Weaving & Handloom',
     emoji: '🧵',
+    imageUrl: 'https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#0F766E',
-    headerGradient: 'linear-gradient(135deg, #115E59 0%, #0F766E 100%)',
-    cardGradient: 'linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 50%, #99F6E4 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(17, 94, 89, 0.88) 0%, rgba(15, 118, 110, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(240, 253, 250, 0.96) 0%, rgba(153, 246, 228, 0.92) 100%)',
     borderColor: '#5EEAD4',
     accentColor: '#134E4A',
     tagline: 'Traditional wooden loom, Muga silk & intricate artisan motifs',
@@ -271,9 +289,10 @@ export const THEME_REGISTRY: Record<string, ThemeAsset> = {
     category: 'hobby',
     label: 'Cricket & Sports',
     emoji: '🏏',
+    imageUrl: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&w=1200&q=80',
     primaryColor: '#16A34A',
-    headerGradient: 'linear-gradient(135deg, #15803D 0%, #16A34A 100%)',
-    cardGradient: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 50%, #BBF7D0 100%)',
+    headerGradient: 'linear-gradient(135deg, rgba(21, 128, 61, 0.88) 0%, rgba(22, 163, 74, 0.92) 100%)',
+    cardGradient: 'linear-gradient(135deg, rgba(240, 253, 244, 0.96) 0%, rgba(187, 247, 208, 0.92) 100%)',
     borderColor: '#86EFAC',
     accentColor: '#14532D',
     tagline: 'Sunny afternoon matches, radio commentary & cheering joy',
@@ -286,9 +305,10 @@ export const NEUTRAL_DEFAULT_THEME: ThemeAsset = {
   category: 'nature',
   label: 'Sahaaya Serenity',
   emoji: '🧠',
+  imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
   primaryColor: '#2E7D8B',
-  headerGradient: 'linear-gradient(135deg, #1565C0 0%, #2E7D8B 100%)',
-  cardGradient: 'linear-gradient(135deg, #F0F8FA 0%, #E0F2FE 100%)',
+  headerGradient: 'linear-gradient(135deg, rgba(21, 101, 192, 0.90) 0%, rgba(46, 125, 139, 0.94) 100%)',
+  cardGradient: 'linear-gradient(135deg, rgba(240, 248, 250, 0.96) 0%, rgba(224, 242, 254, 0.92) 100%)',
   borderColor: '#BAE6FD',
   accentColor: '#0369A1',
   tagline: 'Calm, clear and supportive cognitive companionship',
@@ -301,10 +321,86 @@ export function getThemeAsset(themeAssetId?: string): ThemeAsset {
   return THEME_REGISTRY[themeAssetId] ?? NEUTRAL_DEFAULT_THEME;
 }
 
-/** Resolves the patient's theme preference from their profile */
-export function resolvePatientTheme(themePreference?: ThemePreference): ThemeAsset {
-  if (!themePreference?.themeAssetId) return NEUTRAL_DEFAULT_THEME;
-  return getThemeAsset(themePreference.themeAssetId);
+/**
+ * Resolves the patient's theme preference from either:
+ * 1. Explicit themePreference.themeAssetId
+ * 2. Explicit themePreference category & subOption
+ * 3. Fallback free-text favorites (e.g. food: "Chicken Biryani", place: "Tea Garden", etc.)
+ */
+export function resolvePatientTheme(
+  themePreference?: ThemePreference | null,
+  fallbackFavorites?: { food?: string; place?: string; music?: string; colour?: string } | null,
+): ThemeAsset {
+  // 1. Direct match on themeAssetId
+  if (themePreference?.themeAssetId && THEME_REGISTRY[themePreference.themeAssetId]) {
+    return THEME_REGISTRY[themePreference.themeAssetId];
+  }
+
+  // 2. Match on category + subOption
+  if (themePreference?.category && themePreference?.subOption) {
+    const matched = Object.values(THEME_REGISTRY).find(
+      (t) => t.category === themePreference.category && t.label.toLowerCase().includes(themePreference.subOption.toLowerCase()),
+    );
+    if (matched) return matched;
+  }
+
+  // 3. Fallback matching on free-text inputs (e.g. "Chicken Biryani", "chicken briyani", "pitha", etc.)
+  const food = (fallbackFavorites?.food || '').toLowerCase();
+  const place = (fallbackFavorites?.place || '').toLowerCase();
+  const music = (fallbackFavorites?.music || '').toLowerCase();
+
+  if (food.includes('biryani') || food.includes('briyani') || food.includes('pulao') || food.includes('chicken') || food.includes('mutton') || food.includes('rice')) {
+    return THEME_REGISTRY['food_biryani'];
+  }
+  if (food.includes('payesh') || food.includes('kheer') || food.includes('sweet') || food.includes('mithai')) {
+    return THEME_REGISTRY['food_payesh'];
+  }
+  if (food.includes('idli') || food.includes('dosa') || food.includes('sambar')) {
+    return THEME_REGISTRY['food_idli'];
+  }
+  if (food.includes('momo') || food.includes('dumpling')) {
+    return THEME_REGISTRY['food_momos'];
+  }
+  if (food.includes('pitha') || food.includes('laru') || food.includes('til')) {
+    return THEME_REGISTRY['food_pitha'];
+  }
+  if (food.includes('tea') || food.includes('chai') || food.includes('kahwa')) {
+    return THEME_REGISTRY['food_assam_tea'];
+  }
+
+  if (place.includes('tea') || place.includes('garden')) {
+    return THEME_REGISTRY['food_assam_tea'];
+  }
+  if (place.includes('river') || place.includes('brahmaputra') || place.includes('water') || place.includes('ghat')) {
+    return THEME_REGISTRY['nature_rivers'];
+  }
+  if (place.includes('mountain') || place.includes('hill') || place.includes('mist') || place.includes('shillong')) {
+    return THEME_REGISTRY['nature_mountains'];
+  }
+  if (place.includes('flower') || place.includes('garden') || place.includes('park')) {
+    return THEME_REGISTRY['nature_flowers'];
+  }
+  if (place.includes('bird') || place.includes('forest') || place.includes('kaziranga') || place.includes('jungle')) {
+    return THEME_REGISTRY['nature_birds'];
+  }
+
+  if (music.includes('bihu')) {
+    return THEME_REGISTRY['festival_bihu'];
+  }
+  if (music.includes('classic') || music.includes('bhajan') || music.includes('song') || music.includes('radio') || music.includes('old')) {
+    return THEME_REGISTRY['hobby_music'];
+  }
+  if (music.includes('cricket') || music.includes('sport') || music.includes('match')) {
+    return THEME_REGISTRY['hobby_cricket'];
+  }
+  if (music.includes('weave') || music.includes('loom') || music.includes('sari') || music.includes('muga')) {
+    return THEME_REGISTRY['hobby_weaving'];
+  }
+  if (music.includes('farm') || music.includes('village') || music.includes('paddy')) {
+    return THEME_REGISTRY['hobby_farming'];
+  }
+
+  return NEUTRAL_DEFAULT_THEME;
 }
 
 /** Lists themes for a specific category */

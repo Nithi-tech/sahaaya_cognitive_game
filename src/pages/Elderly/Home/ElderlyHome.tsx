@@ -39,7 +39,10 @@ export default function ElderlyHome() {
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
 
   const personalization = getPersonalization(currentPatient);
-  const themeAsset = resolvePatientTheme(currentPatient?.preferences?.onboarding?.favorites?.themePreference);
+  const themeAsset = resolvePatientTheme(
+    currentPatient?.preferences?.onboarding?.favorites?.themePreference,
+    currentPatient?.preferences?.onboarding?.favorites,
+  );
   const primaryColor = themeAsset.id !== 'default' ? themeAsset.primaryColor : personalization.primaryColor;
   const headerGradient = themeAsset.id !== 'default' ? themeAsset.headerGradient : personalization.headerGradient;
 
@@ -95,17 +98,22 @@ export default function ElderlyHome() {
       style={{
         paddingBottom: 90,
         ['--color-primary' as string]: primaryColor,
+        background: '#FAF7F2',
       }}
     >
-      {/* Header with dynamic personalized gradient */}
+      {/* Header with soothing warm theme gradient */}
       <div
         className="elderly-header"
-        style={{ background: headerGradient }}
+        style={{
+          background: headerGradient,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div className="mascot-avatar">🧠</div>
           <div>
-            <p style={{ opacity: 0.85, fontSize: 16, marginBottom: 4 }}>
+            <p style={{ opacity: 0.9, fontSize: 16, marginBottom: 4 }}>
               {lang === 'as' ? greetingAs : greeting},
             </p>
             <h1 className="elderly-greeting">{elderName} 👋</h1>
@@ -118,7 +126,7 @@ export default function ElderlyHome() {
           </div>
         )}
 
-        <p style={{ fontSize: 18, opacity: 0.9, marginTop: 12, marginBottom: 20 }}>
+        <p style={{ fontSize: 18, opacity: 0.95, marginTop: 12, marginBottom: 20 }}>
           {lang === 'as' ? t('home.feeling') : 'How are you feeling today?'}
         </p>
 
@@ -146,8 +154,8 @@ export default function ElderlyHome() {
         {personalization.favoritePerson && (
           <div style={{
             background: 'white', borderRadius: 22, padding: '16px 20px',
-            marginBottom: 20, boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
-            border: `2px solid ${personalization.primaryColor}33`,
+            marginBottom: 16, boxShadow: '0 4px 18px rgba(0,0,0,0.04)',
+            border: `1.5px solid ${primaryColor}26`,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14,
             flexWrap: 'wrap',
           }}>
@@ -156,19 +164,20 @@ export default function ElderlyHome() {
                 <img
                   src={personalization.favoritePerson.photoUrl}
                   alt={personalization.favoritePerson.name}
-                  style={{ width: 54, height: 54, borderRadius: 50, objectFit: 'cover', border: `2px solid ${personalization.primaryColor}` }}
+                  style={{ width: 52, height: 52, borderRadius: 50, objectFit: 'cover', border: `2px solid ${primaryColor}` }}
                 />
               ) : (
                 <div style={{
-                  width: 54, height: 54, borderRadius: 50,
-                  background: 'linear-gradient(135deg, #E0F2FE, #BAE6FD)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
+                  width: 52, height: 52, borderRadius: 50,
+                  background: `${primaryColor}18`,
+                  color: primaryColor,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
                 }}>
                   ❤️
                 </div>
               )}
               <div>
-                <div style={{ fontSize: 12, fontWeight: 800, color: personalization.primaryColor, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: primaryColor, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                   Voice Companion · {personalization.favoritePerson.relationship}
                 </div>
                 <div style={{ fontSize: 18, fontWeight: 900, color: '#1E293B' }}>
@@ -183,11 +192,11 @@ export default function ElderlyHome() {
             <button
               onClick={handlePlayVoice}
               style={{
-                background: isPlayingVoice ? '#10B981' : `linear-gradient(135deg, ${personalization.primaryColor}, #1565C0)`,
+                background: isPlayingVoice ? '#10B981' : primaryColor,
                 color: 'white', border: 'none', borderRadius: 99,
                 padding: '12px 20px', fontSize: 14, fontWeight: 800,
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                boxShadow: `0 4px 14px ${personalization.primaryColor}44`,
+                boxShadow: `0 4px 14px ${primaryColor}44`,
                 transition: 'all 0.2s',
               }}
             >
@@ -196,35 +205,70 @@ export default function ElderlyHome() {
           </div>
         )}
 
-        {/* Tagged-Category UI Theme Card */}
+        {/* Tagged-Category UI Theme Showcase with Background Image */}
         {themeAsset.id !== 'default' ? (
           <div style={{
-            background: themeAsset.cardGradient,
+            position: 'relative',
+            borderRadius: 24,
+            overflow: 'hidden',
+            marginBottom: 20,
+            boxShadow: '0 12px 30px rgba(0,0,0,0.08)',
             border: `2px solid ${themeAsset.borderColor}`,
-            borderRadius: 22, padding: '18px 22px', marginBottom: 20,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.04)',
-            position: 'relative', overflow: 'hidden',
+            minHeight: 154,
+            display: 'flex',
+            alignItems: 'flex-end',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            {/* Real Background Image with high-res cover */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `url(${themeAsset.imageUrl})`,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              transform: 'scale(1.02)',
+              filter: 'brightness(0.92)',
+            }} />
+
+            {/* Gradient Overlay ensuring text readability */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.65) 55%, rgba(15,23,42,0.25) 100%)',
+            }} />
+
+            {/* Content on top */}
+            <div style={{
+              position: 'relative',
+              zIndex: 1,
+              padding: '18px 20px',
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+            }}>
               <div style={{
-                fontSize: 40, width: 64, height: 64, borderRadius: 18,
-                background: 'rgba(255,255,255,0.9)',
+                fontSize: 36, width: 62, height: 62, borderRadius: 18,
+                background: 'rgba(255,255,255,0.92)',
+                backdropFilter: 'blur(8px)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.06)', flexShrink: 0,
+                boxShadow: '0 6px 18px rgba(0,0,0,0.25)', flexShrink: 0,
               }}>
                 {themeAsset.emoji}
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, color: 'white' }}>
                 <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: `${themeAsset.primaryColor}E6`,
+                  padding: '3px 10px', borderRadius: 99,
                   fontSize: 11, fontWeight: 800, textTransform: 'uppercase',
-                  letterSpacing: 1, color: themeAsset.accentColor,
+                  letterSpacing: 0.8, color: 'white', marginBottom: 4,
                 }}>
                   {CATEGORY_METADATA[themeAsset.category].label} · {themeAsset.label}
                 </div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#1E293B', marginTop: 2 }}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: 'white', textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
                   {themeAsset.tagline}
                 </div>
-                <p style={{ fontSize: 13, color: '#475569', margin: '4px 0 0', lineHeight: 1.4 }}>
+                <p style={{ fontSize: 13, color: '#E2E8F0', margin: '4px 0 0', lineHeight: 1.4, textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
                   ✨ {themeAsset.ambientNote}
                 </p>
               </div>
