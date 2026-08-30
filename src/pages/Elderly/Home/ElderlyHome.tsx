@@ -43,8 +43,14 @@ export default function ElderlyHome() {
     currentPatient?.preferences?.onboarding?.favorites?.themePreference,
     currentPatient?.preferences?.onboarding?.favorites,
   );
-  const primaryColor = themeAsset.id !== 'default' ? themeAsset.primaryColor : personalization.primaryColor;
-  const headerGradient = themeAsset.id !== 'default' ? themeAsset.headerGradient : personalization.headerGradient;
+  const hasTheme = themeAsset.id !== 'default';
+  const primaryColor = hasTheme ? themeAsset.primaryColor : personalization.primaryColor;
+  const headerGradient = hasTheme ? themeAsset.headerGradient : personalization.headerGradient;
+  const pageBackground = hasTheme
+    ? `radial-gradient(circle at 12% 0%, ${themeAsset.borderColor}40 0%, transparent 42%), ` +
+      `radial-gradient(circle at 100% 14%, ${themeAsset.primaryColor}26 0%, transparent 38%), ` +
+      `#FAF7F2`
+    : '#FAF7F2';
 
   const elderName = currentPatient?.name?.split(' ')[0] || user?.name?.split(' ')[0] || (lang === 'as' ? 'আইতা' : 'Friend');
 
@@ -98,7 +104,7 @@ export default function ElderlyHome() {
       style={{
         paddingBottom: 90,
         ['--color-primary' as string]: primaryColor,
-        background: '#FAF7F2',
+        background: pageBackground,
       }}
     >
       {/* Header with soothing warm theme gradient */}
@@ -219,21 +225,25 @@ export default function ElderlyHome() {
             alignItems: 'flex-end',
           }}>
             {/* Real Background Image with high-res cover */}
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `url(${themeAsset.imageUrl})`,
-              backgroundPosition: 'center',
-              backgroundSize: 'cover',
-              transform: 'scale(1.02)',
-              filter: 'brightness(0.92)',
-            }} />
+            {themeAsset.imageUrl && (
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url(${themeAsset.imageUrl})`,
+                backgroundPosition: 'center',
+                backgroundSize: 'cover',
+                transform: 'scale(1.02)',
+                filter: 'brightness(0.92)',
+              }} />
+            )}
 
             {/* Gradient Overlay ensuring text readability */}
             <div style={{
               position: 'absolute',
               inset: 0,
-              background: 'linear-gradient(to top, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.65) 55%, rgba(15,23,42,0.25) 100%)',
+              background: themeAsset.imageUrl
+                ? 'linear-gradient(to top, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.65) 55%, rgba(15,23,42,0.25) 100%)'
+                : themeAsset.cardGradient,
             }} />
 
             {/* Content on top */}
@@ -253,7 +263,7 @@ export default function ElderlyHome() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 6px 18px rgba(0,0,0,0.25)', flexShrink: 0,
               }}>
-                {themeAsset.emoji}
+                <span style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.2))' }}>{themeAsset.emoji}</span>
               </div>
               <div style={{ flex: 1, color: 'white' }}>
                 <div style={{

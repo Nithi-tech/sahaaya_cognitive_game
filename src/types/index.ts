@@ -71,7 +71,7 @@ export interface OnboardingPeopleSection {
   people: OnboardingPerson[];
 }
 
-export type ThemeCategory = 'food' | 'festival' | 'nature' | 'hobby';
+export type ThemeCategory = 'food' | 'festival' | 'nature' | 'hobby' | 'fruit' | 'vegetable';
 
 export interface ThemePreference {
   category: ThemeCategory;

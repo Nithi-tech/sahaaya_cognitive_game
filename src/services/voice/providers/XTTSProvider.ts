@@ -3,6 +3,10 @@ import type { VoiceCloneProvider } from './types';
 export class XTTSProvider implements VoiceCloneProvider {
   name = 'Coqui XTTS-v2';
 
+  // Local CPU inference (no GPU) commonly takes 10-30s+ per line — far past
+  // the 3.5s default used for hosted APIs like ElevenLabs.
+  timeoutMs = Number(import.meta.env.VITE_XTTS_TIMEOUT_MS as string | undefined) || 30000;
+
   private endpoint = (import.meta.env.VITE_XTTS_ENDPOINT as string | undefined) || '';
 
   isConfigured(): boolean {

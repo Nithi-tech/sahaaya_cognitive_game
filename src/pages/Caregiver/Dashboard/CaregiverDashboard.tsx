@@ -5,9 +5,12 @@ import { useAuth } from '../../../store/AuthContext';
 import { CaregiverSidebar } from '../../../components/Sidebar/Sidebar';
 import { NetworkToggle } from '../../../components/OfflineIndicator/OfflineIndicator';
 import { ScoreRing } from '../../../components/Charts/Charts';
-import { Pill, Droplets, Route, Brain, Bell, ArrowRight, Plus, CheckCircle, Copy } from 'lucide-react';
+import { Pill, Droplets, Route, Brain, Bell, ArrowRight, Plus, CheckCircle, Copy, Pencil, X } from 'lucide-react';
 import { getVoiceCloneStatus } from '../../../services/voice/voiceCloneService';
 import { api } from '../../../api/client';
+import type { PatientProfile, Language } from '../../../types';
+
+const REGIONS = ['Assam', 'Meghalaya', 'Manipur', 'Nagaland', 'Arunachal Pradesh', 'Mizoram', 'Tripura', 'Sikkim', 'Other'];
 
 export default function CaregiverDashboard() {
   const { user } = useAuth();
@@ -22,9 +25,50 @@ export default function CaregiverDashboard() {
     sessions,
     dailyActivities,
     loading,
+    updatePatientProfile,
   } = useApp();
   const navigate = useNavigate();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [editingPatient, setEditingPatient] = useState<PatientProfile | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', age: '', region: 'Assam', language: 'en' as Language });
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+  const [editSaving, setEditSaving] = useState(false);
+  const [editApiError, setEditApiError] = useState('');
+
+  const openEditDetails = (p: PatientProfile) => {
+    setEditingPatient(p);
+    setEditForm({ name: p.name, age: String(p.age), region: p.region, language: p.language });
+    setEditErrors({});
+    setEditApiError('');
+  };
+
+  const closeEditDetails = () => setEditingPatient(null);
+
+  const handleSaveDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPatient) return;
+    const errs: Record<string, string> = {};
+    if (!editForm.name.trim()) errs.name = "Please enter the elder's name";
+    if (!editForm.age || isNaN(Number(editForm.age)) || Number(editForm.age) < 40 || Number(editForm.age) > 110)
+      errs.age = 'Please enter a valid age (40–110)';
+    if (Object.keys(errs).length) { setEditErrors(errs); return; }
+
+    setEditSaving(true);
+    setEditApiError('');
+    try {
+      await updatePatientProfile(editingPatient.id, {
+        name: editForm.name.trim(),
+        age: Number(editForm.age),
+        region: editForm.region,
+        language: editForm.language,
+      });
+      setEditingPatient(null);
+    } catch (err) {
+      setEditApiError((err as Error).message);
+    } finally {
+      setEditSaving(false);
+    }
+  };
 
   const handleToggleAiVoice = async (p: (typeof patients)[0]) => {
     const isCurrentlyEnabled = p.preferences?.aiVoiceEnabled !== false;
@@ -320,6 +364,17 @@ export default function CaregiverDashboard() {
                       </div>
 
                       <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          onClick={() => openEditDetails(p)}
+                          title="Change this elder's details"
+                          style={{
+                            padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border-color)',
+                            background: 'white', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 700,
+                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                          }}
+                        >
+                          <Pencil size={12} /> Change Details
+                        </button>
                         {!p.onboardingComplete && (
                           <button
                             onClick={() => {
@@ -511,6 +566,161 @@ export default function CaregiverDashboard() {
           </div>
         </div>
       </main>
+
+      {/* Change Details Modal */}
+      {editingPatient && (
+        <div
+          onClick={closeEditDetails}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 1000, padding: 16,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 440, background: 'white', borderRadius: 20,
+              boxShadow: '0 32px 80px rgba(0,0,0,0.35)', overflow: 'hidden',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px 0' }}>
+              <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Change {editingPatient.name.split(' ')[0]}'s Details</h2>
+              <button
+                onClick={closeEditDetails}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', padding: 4 }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p style={{ padding: '6px 24px 0', color: '#666', fontSize: 13 }}>
+              Update the elder's basic details. This won't change their login access ID.
+            </p>
+
+            <form onSubmit={handleSaveDetails} style={{ padding: '16px 24px 24px' }}>
+              {editApiError && (
+                <div style={{ background: '#FFEBEE', borderRadius: 10, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: '#C62828' }}>
+                  {editApiError}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>
+                    Elder's full name *
+                  </label>
+                  <input
+                    style={{
+                      width: '100%', padding: '12px 14px', borderRadius: 12, fontSize: 15,
+                      border: `2px solid ${editErrors.name ? '#F44336' : '#E0E0E0'}`,
+                      outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
+                    }}
+                    value={editForm.name}
+                    onChange={e => { setEditForm(f => ({ ...f, name: e.target.value })); setEditErrors(v => ({ ...v, name: '' })); }}
+                    autoFocus
+                  />
+                  {editErrors.name && <p style={{ color: '#F44336', fontSize: 12, marginTop: 4 }}>{editErrors.name}</p>}
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Age *</label>
+                    <input
+                      type="number" min={40} max={110}
+                      style={{
+                        width: '100%', padding: '12px 14px', borderRadius: 12, fontSize: 15,
+                        border: `2px solid ${editErrors.age ? '#F44336' : '#E0E0E0'}`,
+                        outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
+                      }}
+                      value={editForm.age}
+                      onChange={e => { setEditForm(f => ({ ...f, age: e.target.value })); setEditErrors(v => ({ ...v, age: '' })); }}
+                    />
+                    {editErrors.age && <p style={{ color: '#F44336', fontSize: 12, marginTop: 4 }}>{editErrors.age}</p>}
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Region</label>
+                    <select
+                      style={{
+                        width: '100%', padding: '12px 14px', borderRadius: 12, fontSize: 15,
+                        border: '2px solid #E0E0E0', outline: 'none', boxSizing: 'border-box',
+                        fontFamily: 'inherit', background: 'white',
+                      }}
+                      value={editForm.region}
+                      onChange={e => setEditForm(f => ({ ...f, region: e.target.value }))}
+                    >
+                      {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontWeight: 700, fontSize: 14, marginBottom: 8 }}>Preferred language</label>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    {([['en', 'English', '🇮🇳'], ['as', 'অসমীয়া', '🌿']] as [Language, string, string][]).map(([code, label, emoji]) => (
+                      <button
+                        key={code}
+                        type="button"
+                        onClick={() => setEditForm(f => ({ ...f, language: code }))}
+                        style={{
+                          flex: 1, padding: '12px', borderRadius: 12,
+                          border: `2px solid ${editForm.language === code ? 'var(--color-primary)' : '#E0E0E0'}`,
+                          background: editForm.language === code ? 'rgba(46,125,139,0.08)' : 'white',
+                          cursor: 'pointer', fontSize: 14, fontWeight: 700,
+                        }}
+                      >
+                        {emoji} {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                  <button
+                    type="button"
+                    onClick={closeEditDetails}
+                    style={{
+                      flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #E0E0E0',
+                      background: 'white', color: '#334155', fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={editSaving}
+                    style={{
+                      flex: 2, padding: '14px', borderRadius: 12, border: 'none',
+                      background: editSaving ? '#B0BEC5' : 'linear-gradient(135deg, #2E7D8B 0%, #1565C0 100%)',
+                      color: 'white', fontSize: 15, fontWeight: 800, cursor: editSaving ? 'default' : 'pointer',
+                    }}
+                  >
+                    {editSaving ? 'Saving…' : 'Save Changes'}
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <div style={{ borderTop: '1px solid #F1F5F9', padding: '16px 24px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  const patientId = editingPatient.id;
+                  closeEditDetails();
+                  selectPatient(patientId);
+                  navigate('/onboarding?continue=true');
+                }}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  background: 'none', border: '1.5px solid var(--color-primary)', color: 'var(--color-primary)',
+                  borderRadius: 12, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                }}
+              >
+                Edit People, Favourites, Routine & other preferences <ArrowRight size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
