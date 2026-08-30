@@ -33,7 +33,7 @@ function getCacheKey(text: string, voiceRef?: string, lang = 'en'): string {
 
 /**
  * Synthesizes dynamic text into a cloned family voice clip.
- * - Online-only with strict 3.5s timeout.
+ * - Online-only with a strict timeout (3.5s by default, provider-overridable).
  * - Checks navigator.onLine and client-side cache first.
  * - Returns null silently on offline, timeout, or error (never throws).
  */
@@ -61,9 +61,10 @@ export async function generateSpeech(
     return null;
   }
 
-  // 3. Strict 3.5-second timeout via AbortController
+  // 3. Strict timeout via AbortController — providers may override the
+  // default 3.5s (e.g. local CPU inference needs much longer, see XTTSProvider).
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 3500);
+  const timeoutId = setTimeout(() => controller.abort(), activeVoiceProvider.timeoutMs ?? 3500);
 
   try {
     const audioDataUrl = await activeVoiceProvider.synthesizeSpeech(

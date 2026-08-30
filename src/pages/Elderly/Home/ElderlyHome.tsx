@@ -40,8 +40,16 @@ export default function ElderlyHome() {
 
   const personalization = getPersonalization(currentPatient);
   const themeAsset = resolvePatientTheme(currentPatient?.preferences?.onboarding?.favorites?.themePreference);
-  const primaryColor = themeAsset.id !== 'default' ? themeAsset.primaryColor : personalization.primaryColor;
-  const headerGradient = themeAsset.id !== 'default' ? themeAsset.headerGradient : personalization.headerGradient;
+  const hasTheme = themeAsset.id !== 'default';
+  const primaryColor = hasTheme ? themeAsset.primaryColor : personalization.primaryColor;
+  const headerGradient = hasTheme ? themeAsset.headerGradient : personalization.headerGradient;
+  // Soft themed wash behind the whole screen — echoes the elder's favourite
+  // (food/fruit/vegetable/festival/nature/hobby) without fighting page contrast.
+  const pageBackground = hasTheme
+    ? `radial-gradient(circle at 12% 0%, ${themeAsset.borderColor}40 0%, transparent 42%), ` +
+      `radial-gradient(circle at 100% 14%, ${themeAsset.primaryColor}26 0%, transparent 38%), ` +
+      `var(--bg-elderly)`
+    : undefined;
 
   const elderName = currentPatient?.name?.split(' ')[0] || user?.name?.split(' ')[0] || (lang === 'as' ? 'আইতা' : 'Friend');
 
@@ -95,6 +103,7 @@ export default function ElderlyHome() {
       style={{
         paddingBottom: 90,
         ['--color-primary' as string]: primaryColor,
+        ...(pageBackground ? { background: pageBackground } : {}),
       }}
     >
       {/* Header with dynamic personalized gradient */}
@@ -205,14 +214,18 @@ export default function ElderlyHome() {
             boxShadow: '0 8px 24px rgba(0,0,0,0.04)',
             position: 'relative', overflow: 'hidden',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{
-                fontSize: 40, width: 64, height: 64, borderRadius: 18,
-                background: 'rgba(255,255,255,0.9)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.06)', flexShrink: 0,
-              }}>
-                {themeAsset.emoji}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+              <div
+                className="theme-sticker"
+                style={{
+                  fontSize: 46, width: 80, height: 80, borderRadius: 26,
+                  background: `linear-gradient(145deg, #ffffff 0%, ${themeAsset.borderColor}55 45%, ${themeAsset.primaryColor} 100%)`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: `inset -6px -6px 12px rgba(0,0,0,0.12), inset 6px 6px 10px rgba(255,255,255,0.8), 0 10px 22px ${themeAsset.primaryColor}55`,
+                  flexShrink: 0,
+                }}
+              >
+                <span style={{ filter: 'drop-shadow(0 3px 2px rgba(0,0,0,0.25))' }}>{themeAsset.emoji}</span>
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { db } from '../db.js';
 import { requireAuth, requirePatientAccess, requireRole } from '../auth.js';
-import { applyPatientPreferencesUpdate } from '../mutations.js';
+import { applyPatientPreferencesUpdate, applyPatientProfileUpdate } from '../mutations.js';
 import { newId } from '../ids.js';
 
 export const patientsRouter = Router();
@@ -159,7 +159,16 @@ patientsRouter.post('/', requireRole('caregiver'), async (req, res) => {
 
 patientsRouter.patch('/:patientId', requirePatientAccess, (req, res) => {
   try {
-    const row = applyPatientPreferencesUpdate(String(req.params.patientId), req.body?.preferences) as PatientRow;
+    const { preferences, name, age, region, language } = req.body ?? {};
+    let row: PatientRow;
+    if (name !== undefined || age !== undefined || region !== undefined || language !== undefined) {
+      if (req.authUser!.role !== 'caregiver') {
+        return res.status(403).json({ error: 'Forbidden: only the caregiver can edit these details' });
+      }
+      row = applyPatientProfileUpdate(String(req.params.patientId), { name, age, region, language }) as PatientRow;
+    } else {
+      row = applyPatientPreferencesUpdate(String(req.params.patientId), preferences) as PatientRow;
+    }
     res.json({ patient: serialize(row, req.authUser!.role) });
   } catch (err) {
     res.status(400).json({ error: (err as Error).message });

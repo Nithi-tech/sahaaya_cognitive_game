@@ -208,3 +208,30 @@ export function applyPatientPreferencesUpdate(patientId: string, preferences: Re
   db.prepare('UPDATE patients SET preferences_json = ? WHERE id = ?').run(JSON.stringify(merged), patientId);
   return db.prepare('SELECT * FROM patients WHERE id = ?').get(patientId);
 }
+
+export function applyPatientProfileUpdate(
+  patientId: string,
+  profile: { name?: string; age?: number; region?: string; language?: string }
+) {
+  const row = db.prepare('SELECT * FROM patients WHERE id = ?').get(patientId) as
+    | { id: string; user_id: string; name: string; age: number; region: string; language: string }
+    | undefined;
+  if (!row) throw new Error('Patient not found');
+
+  const name = profile.name !== undefined ? String(profile.name).trim() : row.name;
+  const age = profile.age !== undefined ? Number(profile.age) : row.age;
+  const region = profile.region !== undefined ? String(profile.region).trim() : row.region;
+  const language = profile.language !== undefined ? String(profile.language) : row.language;
+
+  if (!name) throw new Error('name cannot be empty');
+  if (!Number.isFinite(age) || age < 40 || age > 110) throw new Error('age must be between 40 and 110');
+  if (!region) throw new Error('region cannot be empty');
+
+  db.prepare('UPDATE patients SET name = ?, age = ?, region = ?, language = ? WHERE id = ?').run(
+    name, age, region, language, patientId
+  );
+  // Keep the elder's own user record (used for login/greeting) in sync with the patient profile.
+  db.prepare('UPDATE users SET name = ?, language = ? WHERE id = ?').run(name, language, row.user_id);
+
+  return db.prepare('SELECT * FROM patients WHERE id = ?').get(patientId);
+}

@@ -35,6 +35,8 @@ interface AppContextType {
   refreshPatients: () => Promise<void>;
   /** Creates a new patient + elder account from the onboarding wizard. Returns the created patient + PIN hint. */
   createPatient: (input: { name: string; age: number; region: string; language: string; pin: string }) => Promise<{ patient: PatientProfile; pinHint: string }>;
+  /** Updates an elder's basic profile details (name, age, region, language). Caregiver-only. */
+  updatePatientProfile: (patientId: string, input: { name: string; age: number; region: string; language: string }) => Promise<void>;
   /** Saves a single onboarding section for the current patient. */
   saveOnboardingSection: (section: keyof OnboardingData, data: OnboardingData[keyof OnboardingData]) => Promise<void>;
   /** Marks the onboarding wizard as complete for the current patient. */
@@ -502,6 +504,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  const updatePatientProfile = useCallback(
+    async (patientId: string, input: { name: string; age: number; region: string; language: string }) => {
+      const { patient } = await api.patch<{ patient: PatientProfile }>(`/patients/${patientId}`, input);
+      setPatients((prev) => prev.map((p) => (p.id === patient.id ? patient : p)));
+      setCurrentPatient((prev) => (prev?.id === patient.id ? patient : prev));
+      writeCache(patientId, 'patient', patient);
+    },
+    [],
+  );
+
   const saveOnboardingSection = useCallback(
     async (section: keyof OnboardingData, data: OnboardingData[keyof OnboardingData]) => {
       const patientId = patientIdRef.current;
@@ -550,7 +562,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         mood, setMood,
         addSession, addReminder, updateReminderStatus, addMemory, updateDailyActivity, resolveAlert,
         updatePreferences,
-        createPatient, saveOnboardingSection, markOnboardingComplete,
+        createPatient, updatePatientProfile, saveOnboardingSection, markOnboardingComplete,
       }}
     >
       {children}

@@ -16,6 +16,12 @@ server/*.db
 server/*.db-wal
 server/*.db-shm
 
+# XTTS local voice-cloning server (see xtts-server/README.md)
+xtts-server/venv
+xtts-server/__pycache__
+TTS-dev/**/__pycache__
+TTS-dev/**/*.egg-info
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

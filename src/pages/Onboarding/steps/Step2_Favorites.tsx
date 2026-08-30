@@ -40,7 +40,7 @@ export default function Step2_Favorites({ saved, onSave, onSkip, saving }: Props
     const theme = getThemeAsset(selectedThemeId);
     const data: OnboardingFavoritesSection = {
       ...saved,
-      food: theme.category === 'food' ? theme.label : (saved?.food || ''),
+      food: ['food', 'fruit', 'vegetable'].includes(theme.category) ? theme.label : (saved?.food || ''),
       colour: theme.primaryColor,
       music: theme.category === 'hobby' ? theme.label : (saved?.music || ''),
       place: theme.category === 'nature' ? theme.label : (saved?.place || ''),

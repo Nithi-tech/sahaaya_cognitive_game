@@ -1321,6 +1321,18 @@ input, textarea, select {
   gap: var(--space-4);
 }
 
+/* 3D-sticker style badge for the elder's favourite-theme visual (food,
+   fruit, vegetable, festival, nature, hobby) — a gentle float + tilt gives
+   it a raised, glossy feel using pure CSS (no external 3D assets). */
+@keyframes theme-sticker-float {
+  0%, 100% { transform: rotate(-4deg) translateY(0); }
+  50% { transform: rotate(-1deg) translateY(-5px); }
+}
+
+.theme-sticker {
+  animation: theme-sticker-float 4.5s ease-in-out infinite;
+}
+
 .welcome-card {
   position: relative;
   background: linear-gradient(135deg, #FFF8F0 0%, #F0F8FA 100%);
