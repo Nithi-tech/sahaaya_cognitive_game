@@ -3,24 +3,13 @@ import { useAuth } from '../../store/AuthContext';
 import { useApp } from '../../store/AppContext';
 import { useTranslation } from '../../i18n/useTranslation';
 import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../../constants/demoAccounts';
-import { GAME_REGISTRY } from '../../games/registry';
 import type { Language } from '../../types';
 
-const HOW_IT_WORKS = [
-  { step: '1', icon: '🙋', title: 'Pick who you are', body: 'Elderly, caregiver, or healthcare worker — each gets a purpose-built experience.' },
-  { step: '2', icon: '🗣️', title: 'Sahaaya guides gently', body: 'Voice-narrated memory, attention & pattern games at a comfortable, unhurried pace.' },
-  { step: '3', icon: '📈', title: 'Progress stays visible', body: 'Caregivers and clinicians see real engagement trends — never a diagnosis, always a signal.' },
-];
-
-// Derived from the actual registry, not hand-maintained — the count used to
-// silently drift out of date (it still said "6" after the registry grew to
-// 15 games) because nothing forced it to stay in sync.
-const STATS = [
-  { value: String(GAME_REGISTRY.length), label: 'Cognitive activities' },
-  { value: '2', label: 'Languages (EN · অসমীয়া)' },
-  { value: '100%', label: 'Works offline-first' },
-];
-
+/**
+ * A single focused mobile login screen — not a marketing site. Picking a
+ * role signs straight into that role's app experience through the same
+ * real backend login every account uses (see AuthContext.login).
+ */
 export default function LandingPage() {
   const { login, authError } = useAuth();
   const { t } = useTranslation();
@@ -54,35 +43,31 @@ export default function LandingPage() {
 
   return (
     <div className="landing">
-      {/* Hero Section */}
-      <div className="landing-hero animate-fade-in">
+      <div className="landing-card animate-scale-in">
         <div className="landing-logo">🧠</div>
         <h1 className="landing-brand">Sahaaya</h1>
-        <div className="landing-badge">✨ Free live demo &mdash; no signup required</div>
-        <h2 className="landing-headline">{t('landing.headline')}</h2>
-        <p className="landing-subheadline">{t('landing.subheadline')}</p>
+        <p className="landing-tagline">{t('landing.headline')}</p>
 
-        {/* Language Selector */}
         <div className="landing-lang-toggle">
           <LanguageToggle />
         </div>
 
         {mode === 'closed' ? (
           <>
-            {/* Quick Demo Role Buttons */}
             <div className="landing-role-buttons">
               {DEMO_ACCOUNTS.map((acc, i) => (
                 <button
                   key={acc.role}
-                  className={`landing-role-btn ${i === 0 ? 'landing-role-btn--primary' : ''}`}
+                  className={`landing-role-btn ${i === 0 ? 'landing-role-btn--primary' : `landing-role-btn--${acc.role}`}`}
                   onClick={() => handleDemoLogin(acc.email)}
                   disabled={submitting}
                 >
-                  <span style={{ fontSize: 28 }}>{acc.emoji}</span>
-                  <div style={{ textAlign: 'left' }}>
-                    <div>{t(acc.label)}</div>
-                    <div style={{ fontSize: 12, opacity: 0.85, fontWeight: 400, marginTop: 2 }}>{acc.sub}</div>
-                  </div>
+                  <span className="landing-role-btn__emoji">{acc.emoji}</span>
+                  <span className="landing-role-btn__text">
+                    <span className="landing-role-btn__label">{t(acc.label)}</span>
+                    <span className="landing-role-btn__sub">{acc.sub}</span>
+                  </span>
+                  <span className="landing-role-btn__arrow">→</span>
                 </button>
               ))}
             </div>
@@ -92,11 +77,6 @@ export default function LandingPage() {
             <button className="landing-link-btn" onClick={() => setMode('login')}>
               Sign in with your own account
             </button>
-
-            <p className="landing-fineprint">
-              Each button above signs in as a real seeded account through the live backend —
-              every activity, score, and reminder you see is genuinely stored and computed, nothing is faked.
-            </p>
           </>
         ) : (
           <form onSubmit={handleSubmit} className="landing-login-form">
@@ -117,67 +97,14 @@ export default function LandingPage() {
               className="landing-input"
             />
             {authError && <p className="landing-error">{authError}</p>}
-            <button type="submit" className="btn btn--primary" disabled={submitting} style={{ height: 52, fontSize: 16, borderRadius: 14 }}>
+            <button type="submit" className="btn btn--primary" disabled={submitting} style={{ height: 60, fontSize: 18, borderRadius: 18 }}>
               {submitting ? 'Signing in…' : 'Sign in'}
             </button>
             <button type="button" className="landing-link-btn" onClick={() => setMode('closed')}>
-              ← Back to demo accounts
+              ← Back
             </button>
           </form>
         )}
-      </div>
-
-      {/* How it works */}
-      <div className="landing-how">
-        <h3 className="landing-section-title">How Sahaaya works</h3>
-        <div className="landing-how-grid">
-          {HOW_IT_WORKS.map((s) => (
-            <div key={s.step} className="landing-how-card">
-              <div className="landing-how-card__step">{s.step}</div>
-              <div className="landing-how-card__icon">{s.icon}</div>
-              <div className="landing-how-card__title">{s.title}</div>
-              <div className="landing-how-card__body">{s.body}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Why Sahaaya */}
-      <div className="landing-features">
-        <h3 className="landing-section-title">{t('landing.why')}</h3>
-        <p className="landing-section-subtitle">Built for North-East India · Assam Pilot Content</p>
-        <div className="features-grid">
-          {[
-            { icon: '🧠', label: t('landing.feature1') },
-            { icon: '🗣️', label: t('landing.feature2') },
-            { icon: '❤️', label: t('landing.feature3') },
-            { icon: '📶', label: t('landing.feature4') },
-            { icon: '👨‍👩‍👧', label: t('landing.feature5') },
-            { icon: '🌏', label: t('landing.feature6') },
-          ].map((f) => (
-            <div key={f.label} className="feature-item">
-              <div className="feature-item__icon">{f.icon}</div>
-              <div className="feature-item__label">{f.label}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="landing-stats">
-          {STATS.map((s) => (
-            <div key={s.label} className="landing-stat">
-              <div className="landing-stat__value">{s.value}</div>
-              <div className="landing-stat__label">{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Disclaimer */}
-        <div className="landing-disclaimer">
-          ⚠️ <strong>Important:</strong> Sahaaya is a cognitive engagement and activity platform.
-          It does not diagnose, treat, or predict any medical condition including dementia or Alzheimer's disease.
-        </div>
-
-        <p className="landing-footer-note">Made with care for elderly wellbeing · Sahaaya</p>
       </div>
     </div>
   );

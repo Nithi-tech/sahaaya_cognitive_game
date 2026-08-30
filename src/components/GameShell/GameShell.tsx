@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { ArrowLeft, Pause, Play, RotateCcw } from 'lucide-react';
 import { voiceService } from '../../services/voice/VoiceService';
 import { useTranslation } from '../../i18n/useTranslation';
-import { ElderlyNav } from '../ElderlyNav/ElderlyNav';
 import type { GameDefinition } from '../../games/types';
 
 interface GameShellProps {
@@ -39,7 +38,7 @@ export function GameShell({ gameDefinition, difficultyLabel, progressLabel, onEx
   };
 
   return (
-    <div className="elderly-layout" style={{ paddingBottom: 90 }}>
+    <div className="elderly-layout">
       <div className="game-shell__header">
         <button className="btn btn--ghost btn--sm" onClick={onExit} aria-label={t('game.exit')} style={{ padding: 8 }}>
           <ArrowLeft size={20} />
@@ -82,8 +81,6 @@ export function GameShell({ gameDefinition, difficultyLabel, progressLabel, onEx
           <RotateCcw size={16} /> {t('game.restart')}
         </button>
       </div>
-
-      <ElderlyNav />
     </div>
   );
 }

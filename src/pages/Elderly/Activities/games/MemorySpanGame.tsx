@@ -130,9 +130,9 @@ export default function MemorySpanGame({ difficulty, onComplete }: Props) {
           if (submitted) {
             if (isCorrect && isSelected) { bg = 'var(--color-success-light)'; border = 'var(--color-success)'; }
             else if (!isCorrect && isSelected) { bg = 'var(--color-danger-light)'; border = 'var(--color-danger)'; }
-            else if (isCorrect && !isSelected) { bg = '#FFF3E0'; border = 'var(--color-warning)'; }
+            else if (isCorrect && !isSelected) { bg = 'var(--color-warning-light)'; border = 'var(--color-warning)'; }
           } else if (isSelected) {
-            bg = 'rgba(46,125,139,0.08)'; border = 'var(--color-primary)';
+            bg = 'rgba(109,66,245,0.08)'; border = 'var(--color-primary)';
           }
           return (
             <button
@@ -165,7 +165,7 @@ export default function MemorySpanGame({ difficulty, onComplete }: Props) {
       {submitted && (
         <div style={{
           background: 'var(--color-success-light)', borderRadius: 16, padding: '16px',
-          fontSize: 15, color: '#2E7D32', fontWeight: 600,
+          fontSize: 15, color: 'var(--color-success-text)', fontWeight: 600,
         }}>
           Checking your answers... ✓
         </div>

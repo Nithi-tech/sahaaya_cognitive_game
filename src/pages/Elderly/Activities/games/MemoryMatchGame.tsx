@@ -157,9 +157,9 @@ export default function MemoryMatchGame({ difficulty, onComplete }: Props) {
           if (submitted) {
             if (isCorrect && isSelected) { bgColor = 'var(--color-success-light)'; borderColor = 'var(--color-success)'; }
             else if (!isCorrect && isSelected) { bgColor = 'var(--color-danger-light)'; borderColor = 'var(--color-danger)'; }
-            else if (isCorrect && !isSelected) { bgColor = '#FFF3E0'; borderColor = 'var(--color-warning)'; }
+            else if (isCorrect && !isSelected) { bgColor = 'var(--color-warning-light)'; borderColor = 'var(--color-warning)'; }
           } else if (isSelected) {
-            bgColor = 'rgba(46,125,139,0.08)';
+            bgColor = 'rgba(109,66,245,0.08)';
             borderColor = 'var(--color-primary)';
           }
 
@@ -217,7 +217,7 @@ export default function MemoryMatchGame({ difficulty, onComplete }: Props) {
         <div style={{
           background: 'var(--color-success-light)',
           borderRadius: 16, padding: '16px',
-          fontSize: 15, color: '#2E7D32', fontWeight: 600,
+          fontSize: 15, color: 'var(--color-success-text)', fontWeight: 600,
         }}>
           Checking your answers... ✓
         </div>

@@ -152,7 +152,7 @@ export default function DualMemoryGame({ difficulty, onComplete }: Props) {
             key={i}
             style={{
               aspectRatio: '1', borderRadius: 12,
-              background: litPosition === i ? 'var(--color-primary)' : '#E2E8F0',
+              background: litPosition === i ? 'var(--color-primary)' : 'var(--border-color)',
               transition: 'background 0.15s',
             }}
           />

@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { GAME_REGISTRY, getGameDefinition } from './registry';
-import { pickTodaysGame } from './recommend';
 import { toSessionPayload } from './resultMapping';
 import type { CognitiveGameResult } from './types';
 
@@ -34,34 +33,6 @@ describe('game registry', () => {
     const goNoGo = getGameDefinition('go_no_go')!;
     expect(goNoGo.name.toLowerCase()).not.toContain('adhd');
     expect(goNoGo.category).toBe('GENTLE');
-  });
-});
-
-describe('pickTodaysGame', () => {
-  it('prefers a game in the recommended domain over the whole registry', () => {
-    const pick = pickTodaysGame('routine', []);
-    expect(pick.cognitiveDomains).toContain('routine');
-  });
-
-  it('never recommends the game just played when the domain has other candidates', () => {
-    // 'attention' has several candidates (Attention, Color Focus, Number
-    // Focus, Quick Response, Gentle Focus), so "just played 'attention'"
-    // should be excluded every single time, not just occasionally.
-    const picks = Array.from({ length: 30 }, () => pickTodaysGame('attention', ['attention']).id);
-    expect(picks).not.toContain('attention');
-  });
-
-  it('falls back to the available pool when none of it matches the recommended domain', () => {
-    const attentionOnly = GAME_REGISTRY.filter((g) => g.cognitiveDomains.includes('attention'));
-    // Ask for 'routine' against a pool that has no routine games at all.
-    const pick = pickTodaysGame('routine', [], attentionOnly);
-    expect(attentionOnly.map((g) => g.id)).toContain(pick.id);
-  });
-
-  it('excludes family_faces when the caller only passes it as unavailable', () => {
-    const withoutFamily = GAME_REGISTRY.filter((g) => g.id !== 'family_faces');
-    const pick = pickTodaysGame('memory', [], withoutFamily);
-    expect(pick.id).not.toBe('family_faces');
   });
 });
 

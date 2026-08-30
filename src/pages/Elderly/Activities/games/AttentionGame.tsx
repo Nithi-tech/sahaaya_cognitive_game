@@ -78,7 +78,7 @@ export default function AttentionGame({ difficulty, onComplete }: Props) {
     <div style={{ textAlign: 'center' }}>
       <div style={{
         display: 'inline-flex', alignItems: 'center', gap: 8,
-        background: '#E8F5F7', borderRadius: 99, padding: '8px 16px',
+        background: 'var(--bg-surface-tint)', borderRadius: 99, padding: '8px 16px',
         marginBottom: 20,
       }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-primary)' }}>Find all:</span>
@@ -103,13 +103,13 @@ export default function AttentionGame({ difficulty, onComplete }: Props) {
         {grid.map((emoji, i) => {
           const isSelected = selected.has(i);
           const isTarget = targetIndices.has(i);
-          let bg = 'white', border = '#E2E8F0';
+          let bg = 'white', border = 'var(--border-color)';
           if (submitted) {
             if (isTarget && isSelected) { bg = 'var(--color-success-light)'; border = 'var(--color-success)'; }
             else if (!isTarget && isSelected) { bg = 'var(--color-danger-light)'; border = 'var(--color-danger)'; }
-            else if (isTarget && !isSelected) { bg = '#FFF3E0'; border = 'var(--color-warning)'; }
+            else if (isTarget && !isSelected) { bg = 'var(--color-warning-light)'; border = 'var(--color-warning)'; }
           } else if (isSelected) {
-            bg = 'rgba(46,125,139,0.1)'; border = 'var(--color-primary)';
+            bg = 'rgba(109,66,245,0.1)'; border = 'var(--color-primary)';
           }
 
           const mark = submitted
@@ -161,7 +161,7 @@ export default function AttentionGame({ difficulty, onComplete }: Props) {
       ) : (
         <div style={{
           background: 'var(--color-success-light)', borderRadius: 12, padding: '12px 16px',
-          color: '#2E7D32', fontWeight: 600, fontSize: 15,
+          color: 'var(--color-success-text)', fontWeight: 600, fontSize: 15,
         }}>
           ✓ Checking answers...
         </div>

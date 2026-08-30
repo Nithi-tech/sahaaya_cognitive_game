@@ -157,7 +157,7 @@ export default function PeripheralAwarenessGame({ difficulty, onComplete }: Prop
 
       <div style={{
         position: 'relative', width: '100%', maxWidth: 320, aspectRatio: '1', margin: '0 auto 20px',
-        background: '#F0F4F3', borderRadius: 24, border: '2px solid var(--border-color)', overflow: 'hidden',
+        background: 'var(--bg-surface-tint)', borderRadius: 24, border: '2px solid var(--border-color)', overflow: 'hidden',
       }}>
         {phase === 'stimulus' && (
           <>
@@ -188,7 +188,7 @@ export default function PeripheralAwarenessGame({ difficulty, onComplete }: Prop
         {phase === 'mask' && (
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'repeating-conic-gradient(#DDE3E2 0deg 10deg, #EDF1F0 10deg 20deg)',
+            background: 'repeating-conic-gradient(var(--border-color) 0deg 10deg, var(--bg-surface-tint) 10deg 20deg)',
           }} />
         )}
 

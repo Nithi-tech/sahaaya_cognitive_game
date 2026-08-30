@@ -87,7 +87,7 @@ export default function QuickResponseGame({ difficulty, onComplete }: Props) {
           background:
             phase === 'go' ? 'var(--color-success)' :
             phase === 'too-soon' ? 'var(--color-warning)' :
-            phase === 'waiting' ? '#C62828' :
+            phase === 'waiting' ? 'var(--color-danger-text)' :
             'var(--color-primary)',
           color: 'white', fontSize: 22, fontWeight: 800,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
