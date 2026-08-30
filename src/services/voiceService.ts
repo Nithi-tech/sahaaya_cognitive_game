@@ -61,14 +61,95 @@ export function listenOnce(lang: 'en' | 'as'): Promise<string> {
   });
 }
 
-/** Speaks the given text aloud, if the browser supports speech synthesis. */
-export function speak(text: string, lang: 'en' | 'as', onEnd?: () => void) {
-  if (!isSpeechSynthesisSupported()) { onEnd?.(); return; }
+export interface SpeakOptions {
+  pitch?: number;
+  rate?: number;
+  audioClipUrl?: string;
+  onEnd?: () => void;
+}
+
+let activePatientVoiceClip: string | null = null;
+
+/** Sets the global active patient's family voice clip so ALL app speech uses it */
+export function setActivePatientVoiceClip(clipUrl: string | null) {
+  activePatientVoiceClip = clipUrl;
+}
+
+export function getActivePatientVoiceClip(): string | null {
+  return activePatientVoiceClip;
+}
+
+/** Plays a recorded voice audio clip */
+export function playAudioClip(audioUrl: string, onEnd?: () => void): HTMLAudioElement {
+  const audio = new Audio(audioUrl);
+  if (onEnd) {
+    audio.onended = () => onEnd();
+    audio.onerror = () => onEnd();
+  }
+  audio.play().catch(() => onEnd?.());
+  return audio;
+}
+
+function selectPersonaVoice(lang: 'en' | 'as', pitch?: number): SpeechSynthesisVoice | null {
+  if (!isSpeechSynthesisSupported()) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) return null;
+
+  const targetPrefix = lang === 'as' ? 'as' : 'en';
+  const matchingLang = voices.filter(v => v.lang.toLowerCase().startsWith(targetPrefix));
+  const pool = matchingLang.length > 0 ? matchingLang : voices;
+
+  const isMale = pitch !== undefined && pitch <= 1.0;
+  if (isMale) {
+    const maleVoice = pool.find(v => {
+      const n = v.name.toLowerCase();
+      return n.includes('prabhat') || n.includes('ravi') || n.includes('male') || n.includes('david') || n.includes('george') || n.includes('guy');
+    });
+    if (maleVoice) return maleVoice;
+  } else if (pitch !== undefined && pitch > 1.0) {
+    const femaleVoice = pool.find(v => {
+      const n = v.name.toLowerCase();
+      return n.includes('heera') || n.includes('female') || n.includes('zira') || n.includes('aria') || n.includes('samantha');
+    });
+    if (femaleVoice) return femaleVoice;
+  }
+
+  return pool[0] || null;
+}
+
+/**
+ * Speaks the given text aloud using the loved one's added voice clip if available,
+ * and only falls back to robotic speech synthesis if no family voice exists.
+ */
+export function speak(
+  text: string,
+  lang: 'en' | 'as',
+  onEndOrOptions?: (() => void) | SpeakOptions,
+) {
+  const options: SpeakOptions = typeof onEndOrOptions === 'function' ? { onEnd: onEndOrOptions } : (onEndOrOptions ?? {});
+
+  // If an exact audio clip was explicitly requested (e.g. pre-recorded greeting), play it:
+  if (options.audioClipUrl) {
+    try {
+      playAudioClip(options.audioClipUrl, options.onEnd);
+      return;
+    } catch {
+      // Fall through to synthesis if audio fails to play
+    }
+  }
+
+  if (!isSpeechSynthesisSupported()) { options.onEnd?.(); return; }
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = LANG_CODES[lang] ?? 'en-IN';
-  if (onEnd) {
-    utterance.onend = onEnd;
-    utterance.onerror = onEnd;
+  if (options.pitch !== undefined) utterance.pitch = options.pitch;
+  if (options.rate !== undefined) utterance.rate = options.rate;
+
+  const personaVoice = selectPersonaVoice(lang, options.pitch);
+  if (personaVoice) utterance.voice = personaVoice;
+
+  if (options.onEnd) {
+    utterance.onend = () => options.onEnd?.();
+    utterance.onerror = () => options.onEnd?.();
   }
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);

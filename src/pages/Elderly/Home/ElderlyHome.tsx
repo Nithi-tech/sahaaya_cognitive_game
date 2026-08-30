@@ -4,9 +4,12 @@ import { useApp } from '../../../store/AppContext';
 import { useAuth } from '../../../store/AuthContext';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
-import { Settings as SettingsIcon, X } from 'lucide-react';
+import { Settings as SettingsIcon, X, Volume2 } from 'lucide-react';
 import { NetworkToggle } from '../../../components/OfflineIndicator/OfflineIndicator';
 import { VoiceOrb } from '../../../components/design-system/VoiceOrb';
+import { getPersonalization } from '../../../services/personalization';
+import { resolvePatientTheme, CATEGORY_METADATA } from '../../../services/themeRegistry';
+import { playPersonalizedPrompt } from '../../../services/voice/personalizedAudio';
 import type { MoodType } from '../../../types';
 
 const MOODS: { type: MoodType; emoji: string; label: string }[] = [
@@ -29,10 +32,18 @@ function computeStreak(sessionDates: Set<string>): number {
 
 export default function ElderlyHome() {
   const { t, lang } = useTranslation();
-  const { mood, setMood, reminders, sessions } = useApp();
+  const { mood, setMood, reminders, sessions, currentPatient } = useApp();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selectedMood, setSelectedMood] = useState<MoodType | null>(mood);
+  const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+
+  const personalization = getPersonalization(currentPatient);
+  const themeAsset = resolvePatientTheme(currentPatient?.preferences?.onboarding?.favorites?.themePreference);
+  const primaryColor = themeAsset.id !== 'default' ? themeAsset.primaryColor : personalization.primaryColor;
+  const headerGradient = themeAsset.id !== 'default' ? themeAsset.headerGradient : personalization.headerGradient;
+
+  const elderName = currentPatient?.name?.split(' ')[0] || user?.name?.split(' ')[0] || (lang === 'as' ? 'আইতা' : 'Friend');
 
   const welcomeKey = user ? `sahaaya_welcomed_${user.id}` : null;
   const [showWelcome, setShowWelcome] = useState(() => !!welcomeKey && !localStorage.getItem(welcomeKey));
@@ -50,6 +61,25 @@ export default function ElderlyHome() {
     setMood(m);
   };
 
+  const handlePlayVoice = () => {
+    if (isPlayingVoice) return;
+    setIsPlayingVoice(true);
+
+    const person = personalization.favoritePerson;
+    const fallbackText = lang === 'as'
+      ? `নমস্কাৰ ${elderName}! মই ${person?.name || 'সহায়া'}। আজিৰ দিনটো আনন্দৰে পাৰ হওক।`
+      : `Hello ${elderName}! This is ${person?.name || 'Sahaaya'}. Wishing you a peaceful and wonderful day.`;
+
+    playPersonalizedPrompt({
+      patient: currentPatient,
+      trigger: 'greeting',
+      fallbackText,
+      lang,
+      onStart: () => setIsPlayingVoice(true),
+      onEnd: () => setIsPlayingVoice(false),
+    });
+  };
+
   const todayReminders = reminders.slice(0, 4);
   const completedToday = reminders.filter(r => r.status === 'completed').length;
 
@@ -60,23 +90,27 @@ export default function ElderlyHome() {
   const streak = computeStreak(new Set(sessions.map((s) => s.timestamp.split('T')[0])));
 
   return (
-    <div className="elderly-layout" style={{ paddingBottom: 90 }}>
-      {/* Header */}
-      <div className="elderly-header">
+    <div
+      className="elderly-layout"
+      style={{
+        paddingBottom: 90,
+        ['--color-primary' as string]: primaryColor,
+      }}
+    >
+      {/* Header with dynamic personalized gradient */}
+      <div
+        className="elderly-header"
+        style={{ background: headerGradient }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div className="mascot-avatar">🧠</div>
           <div>
             <p style={{ opacity: 0.85, fontSize: 16, marginBottom: 4 }}>
               {lang === 'as' ? greetingAs : greeting},
             </p>
-            <h1 className="elderly-greeting">Aita 👋</h1>
+            <h1 className="elderly-greeting">{elderName} 👋</h1>
           </div>
         </div>
-
-        {/* No raw "Engagement: 69" score here on purpose — that kind of
-            metric is useful to a caregiver (and already shown there,
-            correctly framed); restated flatly to the person it's measuring,
-            it reads as a judgment rather than useful information. */}
 
         {streak >= 2 && (
           <div style={{ marginTop: 16 }}>
@@ -107,6 +141,166 @@ export default function ElderlyHome() {
       <div className="elderly-content">
         {/* Network toggle for demo */}
         <NetworkToggle />
+
+        {/* Dynamic Family Voice Companion Banner */}
+        {personalization.favoritePerson && (
+          <div style={{
+            background: 'white', borderRadius: 22, padding: '16px 20px',
+            marginBottom: 20, boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
+            border: `2px solid ${personalization.primaryColor}33`,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14,
+            flexWrap: 'wrap',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              {personalization.favoritePerson.photoUrl ? (
+                <img
+                  src={personalization.favoritePerson.photoUrl}
+                  alt={personalization.favoritePerson.name}
+                  style={{ width: 54, height: 54, borderRadius: 50, objectFit: 'cover', border: `2px solid ${personalization.primaryColor}` }}
+                />
+              ) : (
+                <div style={{
+                  width: 54, height: 54, borderRadius: 50,
+                  background: 'linear-gradient(135deg, #E0F2FE, #BAE6FD)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
+                }}>
+                  ❤️
+                </div>
+              )}
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 800, color: personalization.primaryColor, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  Voice Companion · {personalization.favoritePerson.relationship}
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#1E293B' }}>
+                  {personalization.favoritePerson.name}
+                </div>
+                <div style={{ fontSize: 13, color: '#64748B', marginTop: 1 }}>
+                  {isPlayingVoice ? 'Speaking to you now…' : 'Tap to hear loving greetings'}
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={handlePlayVoice}
+              style={{
+                background: isPlayingVoice ? '#10B981' : `linear-gradient(135deg, ${personalization.primaryColor}, #1565C0)`,
+                color: 'white', border: 'none', borderRadius: 99,
+                padding: '12px 20px', fontSize: 14, fontWeight: 800,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                boxShadow: `0 4px 14px ${personalization.primaryColor}44`,
+                transition: 'all 0.2s',
+              }}
+            >
+              <Volume2 size={18} /> {isPlayingVoice ? 'Listening…' : 'Hear Voice'}
+            </button>
+          </div>
+        )}
+
+        {/* Tagged-Category UI Theme Card */}
+        {themeAsset.id !== 'default' ? (
+          <div style={{
+            background: themeAsset.cardGradient,
+            border: `2px solid ${themeAsset.borderColor}`,
+            borderRadius: 22, padding: '18px 22px', marginBottom: 20,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.04)',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{
+                fontSize: 40, width: 64, height: 64, borderRadius: 18,
+                background: 'rgba(255,255,255,0.9)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.06)', flexShrink: 0,
+              }}>
+                {themeAsset.emoji}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{
+                  fontSize: 11, fontWeight: 800, textTransform: 'uppercase',
+                  letterSpacing: 1, color: themeAsset.accentColor,
+                }}>
+                  {CATEGORY_METADATA[themeAsset.category].label} · {themeAsset.label}
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#1E293B', marginTop: 2 }}>
+                  {themeAsset.tagline}
+                </div>
+                <p style={{ fontSize: 13, color: '#475569', margin: '4px 0 0', lineHeight: 1.4 }}>
+                  ✨ {themeAsset.ambientNote}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : personalization.food ? (
+          <div style={{
+            background: personalization.food.bgGradient,
+            border: `2px solid ${personalization.food.accentColor}44`,
+            borderRadius: 22, padding: '18px 22px', marginBottom: 20,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.04)',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{
+                fontSize: 40, width: 64, height: 64, borderRadius: 18,
+                background: 'rgba(255,255,255,0.85)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.06)', flexShrink: 0,
+              }}>
+                {personalization.food.emoji}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{
+                  fontSize: 11, fontWeight: 800, textTransform: 'uppercase',
+                  letterSpacing: 1, color: personalization.food.accentColor,
+                }}>
+                  {personalization.food.category}
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: '#1E293B', marginTop: 2 }}>
+                  Favourite: {personalization.food.name}
+                </div>
+                <p style={{ fontSize: 13, color: '#475569', margin: '4px 0 0', lineHeight: 1.4 }}>
+                  {personalization.food.tagline}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {/* Dynamic Favorite Place / Nostalgia Card */}
+        {personalization.place && (
+          <div style={{
+            background: personalization.place.bgGradient,
+            border: '2px solid rgba(0,0,0,0.06)',
+            borderRadius: 22, padding: '16px 20px', marginBottom: 20,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.03)',
+            flexWrap: 'wrap', gap: 12,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 36 }}>{personalization.place.emoji}</span>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>
+                  Cherished Memory Spot
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#0F172A' }}>
+                  {personalization.place.name}
+                </div>
+                <div style={{ fontSize: 12, color: '#475569' }}>
+                  Relax with gentle ambiance of {personalization.place.ambientSoundName}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/relax')}
+              style={{
+                background: 'white', border: '1.5px solid #CBD5E1', borderRadius: 12,
+                padding: '8px 16px', fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                color: '#1E293B',
+              }}
+            >
+              Visit & Relax →
+            </button>
+          </div>
+        )}
 
         {showWelcome && (
           <div className="welcome-card animate-slide-up">

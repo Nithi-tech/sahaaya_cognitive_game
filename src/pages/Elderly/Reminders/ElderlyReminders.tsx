@@ -3,7 +3,8 @@ import { useApp } from '../../../store/AppContext';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Volume2 } from 'lucide-react';
+import { playPersonalizedPrompt } from '../../../services/voice/personalizedAudio';
 import type { Reminder } from '../../../types';
 
 const REMINDER_CONFIG = {
@@ -14,15 +15,36 @@ const REMINDER_CONFIG = {
 };
 
 export default function ElderlyReminders() {
-  const { reminders, updateReminderStatus } = useApp();
+  const { reminders, updateReminderStatus, currentPatient } = useApp();
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const [justDone, setJustDone] = useState<string | null>(null);
+  const [playingId, setPlayingId] = useState<string | null>(null);
 
   const handleDone = (id: string) => {
     updateReminderStatus(id, 'completed');
     setJustDone(id);
+
+    // Play reward clip
+    playPersonalizedPrompt({
+      patient: currentPatient,
+      trigger: 'reward',
+      fallbackText: lang === 'as' ? 'বৰ ভাল কাম! আপুনি সম্পূৰ্ণ কৰিলে।' : 'Wonderful job! Marked done.',
+      lang,
+    });
+
     setTimeout(() => setJustDone(null), 2000);
+  };
+
+  const handleHearReminder = (reminder: Reminder) => {
+    setPlayingId(reminder.id);
+    playPersonalizedPrompt({
+      patient: currentPatient,
+      trigger: 'reminder',
+      fallbackText: `${reminder.title}. ${reminder.description || ''}`,
+      lang,
+      onEnd: () => setPlayingId(null),
+    });
   };
 
   const handleLater = (id: string) => {
@@ -79,6 +101,8 @@ export default function ElderlyReminders() {
                     reminder={r}
                     config={conf}
                     justDone={justDone === r.id}
+                    isPlaying={playingId === r.id}
+                    onHear={() => handleHearReminder(r)}
                     onDone={() => handleDone(r.id)}
                     onLater={() => handleLater(r.id)}
                   />
@@ -93,10 +117,12 @@ export default function ElderlyReminders() {
   );
 }
 
-function ReminderCard({ reminder, config, justDone, onDone, onLater }: {
+function ReminderCard({ reminder, config, justDone, isPlaying, onHear, onDone, onLater }: {
   reminder: Reminder;
   config: { emoji: string; color: string; bg: string; title: string };
   justDone: boolean;
+  isPlaying: boolean;
+  onHear: () => void;
   onDone: () => void;
   onLater: () => void;
 }) {
@@ -114,7 +140,24 @@ function ReminderCard({ reminder, config, justDone, onDone, onLater }: {
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: isCompleted ? 0 : 16 }}>
         <span style={{ fontSize: 36 }}>{config.emoji}</span>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 18, fontWeight: 700 }}>{reminder.title}</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>{reminder.title}</div>
+            {!isCompleted && (
+              <button
+                onClick={onHear}
+                title="Hear voice reminder"
+                style={{
+                  background: isPlaying ? '#10B981' : 'white',
+                  color: isPlaying ? 'white' : config.color,
+                  border: `1px solid ${config.color}40`,
+                  borderRadius: 99, padding: '4px 10px', fontSize: 12, fontWeight: 700,
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                }}
+              >
+                <Volume2 size={13} /> {isPlaying ? 'Playing…' : 'Hear'}
+              </button>
+            )}
+          </div>
           <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 2 }}>{reminder.description}</div>
           <div style={{ fontSize: 13, fontWeight: 600, color: config.color, marginTop: 4 }}>
             🕐 {reminder.time}

@@ -8,9 +8,10 @@ function isSupported(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }
 
-/** Thin adapter over window.speechSynthesis. First of possibly several VoiceProviders. */
+/** Thin adapter over window.speechSynthesis. */
 export class BrowserTTSProvider implements VoiceProvider {
   readonly name = 'browser';
+  private currentAudio: HTMLAudioElement | null = null;
 
   isSupported(): boolean {
     return isSupported();
@@ -31,23 +32,41 @@ export class BrowserTTSProvider implements VoiceProvider {
     utterance.onerror = (event) => handlers.onError?.(event.error || 'speech-error');
     utterance.onpause = () => handlers.onPause?.();
     utterance.onresume = () => handlers.onResume?.();
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
   }
 
   pause(): void {
-    if (isSupported()) window.speechSynthesis.pause();
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+    } else if (isSupported()) {
+      window.speechSynthesis.pause();
+    }
   }
 
   resume(): void {
-    if (isSupported()) window.speechSynthesis.resume();
+    if (this.currentAudio) {
+      this.currentAudio.play().catch(() => {});
+    } else if (isSupported()) {
+      window.speechSynthesis.resume();
+    }
   }
 
   cancel(): void {
+    if (this.currentAudio) {
+      try {
+        this.currentAudio.pause();
+        this.currentAudio.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
+      this.currentAudio = null;
+    }
     if (isSupported()) window.speechSynthesis.cancel();
   }
 
   isSpeaking(): boolean {
-    return isSupported() && window.speechSynthesis.speaking;
+    return (this.currentAudio !== null && !this.currentAudio.paused) || (isSupported() && window.speechSynthesis.speaking);
   }
 
   isPaused(): boolean {

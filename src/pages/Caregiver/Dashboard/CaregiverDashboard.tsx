@@ -1,15 +1,57 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../../store/AppContext';
 import { useAuth } from '../../../store/AuthContext';
 import { CaregiverSidebar } from '../../../components/Sidebar/Sidebar';
 import { NetworkToggle } from '../../../components/OfflineIndicator/OfflineIndicator';
 import { ScoreRing } from '../../../components/Charts/Charts';
-import { Pill, Droplets, Route, Brain, Bell, ArrowRight, Plus } from 'lucide-react';
+import { Pill, Droplets, Route, Brain, Bell, ArrowRight, Plus, CheckCircle, Copy } from 'lucide-react';
+import { getVoiceCloneStatus } from '../../../services/voice/voiceCloneService';
+import { api } from '../../../api/client';
 
 export default function CaregiverDashboard() {
   const { user } = useAuth();
-  const { currentPatient, patients, selectPatient, reminders, alerts, cognitiveProfile, sessions, dailyActivities, loading } = useApp();
+  const {
+    currentPatient,
+    patients,
+    selectPatient,
+    refreshPatients,
+    reminders,
+    alerts,
+    cognitiveProfile,
+    sessions,
+    dailyActivities,
+    loading,
+  } = useApp();
   const navigate = useNavigate();
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleToggleAiVoice = async (p: (typeof patients)[0]) => {
+    const isCurrentlyEnabled = p.preferences?.aiVoiceEnabled !== false;
+    const newAiVoiceVal = !isCurrentlyEnabled;
+    try {
+      await api.patch(`/patients/${p.id}`, {
+        preferences: {
+          aiVoiceEnabled: newAiVoiceVal,
+        },
+      });
+      await refreshPatients();
+    } catch (err) {
+      console.error('Failed to toggle AI voice:', err);
+    }
+  };
+
+  // Automatically ensure patient list is fresh whenever CaregiverDashboard mounts
+  useEffect(() => {
+    refreshPatients();
+  }, [refreshPatients]);
+
+  const handleCopyId = (id: string) => {
+    navigator.clipboard.writeText(id).then(() => {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
 
   const todaySessions = sessions.filter(
     s => s.timestamp.startsWith(new Date().toISOString().split('T')[0])
@@ -85,70 +127,237 @@ export default function CaregiverDashboard() {
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Patient Bar */}
-          <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            {currentPatient ? (
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 12,
-                background: 'white', border: '1px solid var(--border-color)',
-                borderRadius: 99, padding: '8px 16px', boxShadow: 'var(--shadow-sm)',
+        {/* Patients Section */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0 }}>
+                Patients Under Your Care
+              </h2>
+              <span style={{
+                background: 'rgba(46,125,139,0.12)', color: 'var(--color-primary)',
+                fontSize: 12, fontWeight: 800, padding: '2px 10px', borderRadius: 99,
               }}>
-                <div style={{ width: 36, height: 36, borderRadius: 50, background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 15 }}>
-                  {currentPatient.name[0] ?? '?'}
-                </div>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 15 }}>
-                    {currentPatient.name}
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
-                    Age {currentPatient.age} · {currentPatient.region} · Last active: Today
-                  </div>
-                </div>
-                <span style={{ background: 'var(--color-success-light)', color: 'var(--color-success)', padding: '3px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700 }}>Active</span>
-              </div>
-            ) : !loading ? (
-              <div style={{
-                width: '100%',
-                background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
-                border: '2px dashed #0284C7', borderRadius: 20,
-                padding: '28px 24px', textAlign: 'center', marginTop: 8,
-              }}>
-                <div style={{ fontSize: 36, marginBottom: 6 }}>👤</div>
-                <h2 style={{ fontSize: 19, fontWeight: 800, color: '#0369A1', margin: '0 0 6px' }}>
-                  No Patient Added Yet
-                </h2>
-                <p style={{ color: '#475569', fontSize: 14, maxWidth: 460, margin: '0 auto 16px', lineHeight: 1.5 }}>
-                  Add your elder's profile to begin setting up their personalised routines, games, and reminders.
-                </p>
-                <button
-                  onClick={() => navigate('/onboarding?new=true')}
-                  className="btn btn--primary"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, height: 44, padding: '0 20px', borderRadius: 12, fontSize: 15, fontWeight: 800 }}
-                >
-                  <Plus size={18} /> Add New Patient
-                </button>
-              </div>
-            ) : null}
-
-            {/* Multiple Patients Switcher */}
-            {patients.length > 1 && (
-              <select
-                value={currentPatient?.id ?? ''}
-                onChange={(e) => selectPatient(e.target.value)}
+                {patients.length} {patients.length === 1 ? 'elder' : 'elders'}
+              </span>
+            </div>
+            {patients.length > 0 && (
+              <button
+                onClick={() => navigate('/onboarding?new=true')}
                 style={{
-                  padding: '8px 14px', borderRadius: 12, border: '1.5px solid var(--border-color)',
-                  background: 'white', fontSize: 13, fontWeight: 600, color: '#333', cursor: 'pointer',
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: 'none', border: '1.5px solid var(--color-primary)',
+                  color: 'var(--color-primary)', borderRadius: 10, padding: '6px 12px',
+                  fontSize: 13, fontWeight: 700, cursor: 'pointer',
                 }}
               >
-                {patients.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    👤 {p.name}
-                  </option>
-                ))}
-              </select>
+                <Plus size={15} /> Add Another Elder
+              </button>
             )}
           </div>
+
+          {patients.length === 0 && !loading ? (
+            <div style={{
+              background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
+              border: '2px dashed #0284C7', borderRadius: 20,
+              padding: '32px 24px', textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 40, marginBottom: 8 }}>👤</div>
+              <h3 style={{ fontSize: 19, fontWeight: 800, color: '#0369A1', margin: '0 0 6px' }}>
+                No Patient Added Yet
+              </h3>
+              <p style={{ color: '#475569', fontSize: 14, maxWidth: 460, margin: '0 auto 18px', lineHeight: 1.5 }}>
+                Add your elder's profile to begin setting up their personalised routines, games, and unique login ID.
+              </p>
+              <button
+                onClick={() => navigate('/onboarding?new=true')}
+                className="btn btn--primary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, height: 44, padding: '0 22px', borderRadius: 12, fontSize: 15, fontWeight: 800 }}
+              >
+                <Plus size={18} /> Add Your First Patient
+              </button>
+            </div>
+          ) : (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gap: 16,
+            }}>
+              {patients.map((p) => {
+                const isSelected = currentPatient?.id === p.id;
+                return (
+                  <div
+                    key={p.id}
+                    style={{
+                      background: 'white',
+                      borderRadius: 18,
+                      border: `2px solid ${isSelected ? 'var(--color-primary)' : 'var(--border-color)'}`,
+                      boxShadow: isSelected ? '0 8px 24px rgba(46,125,139,0.15)' : 'var(--shadow-sm)',
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 14,
+                      position: 'relative',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    {/* Top Row: Avatar, Name, Status */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{
+                        width: 44, height: 44, borderRadius: 50,
+                        background: 'linear-gradient(135deg, var(--color-primary) 0%, #1565C0 100%)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'white', fontWeight: 800, fontSize: 18, flexShrink: 0,
+                      }}>
+                        {p.name[0] ?? '?'}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontWeight: 800, fontSize: 16, color: '#1E293B' }}>
+                            {p.name}
+                          </span>
+                          {isSelected && (
+                            <span style={{
+                              background: '#E0F2FE', color: '#0369A1',
+                              padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 800,
+                            }}>
+                              Currently Monitoring
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>
+                          Age {p.age} · {p.region} · {p.language === 'as' ? 'অসমীয়া' : 'English'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Access ID Bar */}
+                    <div style={{
+                      background: '#F8FAFC', border: '1px solid #E2E8F0',
+                      borderRadius: 12, padding: '10px 14px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B' }}>
+                          🔑 Elder Access ID:
+                        </span>
+                        <span style={{
+                          fontFamily: 'monospace', fontWeight: 900, fontSize: 14,
+                          color: '#0F172A', letterSpacing: 1,
+                        }}>
+                          {p.elderAccessId || 'Pending'}
+                        </span>
+                      </div>
+                      {p.elderAccessId && (
+                        <button
+                          type="button"
+                          onClick={() => handleCopyId(p.elderAccessId!)}
+                          title="Copy Elder ID"
+                          style={{
+                            background: copiedId === p.elderAccessId ? '#DCFCE7' : 'white',
+                            border: `1px solid ${copiedId === p.elderAccessId ? '#86EFAC' : '#CBD5E1'}`,
+                            color: copiedId === p.elderAccessId ? '#15803D' : '#475569',
+                            borderRadius: 6, padding: '4px 8px', fontSize: 11, fontWeight: 700,
+                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                          }}
+                        >
+                          <Copy size={12} /> {copiedId === p.elderAccessId ? 'Copied' : 'Copy'}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* AI Voice Cloning Status & Toggle */}
+                    {(() => {
+                      const voiceStatus = getVoiceCloneStatus(p);
+                      return (
+                        <div style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          padding: '8px 12px', background: '#F8FAFC', borderRadius: 10, border: '1px solid #E2E8F0',
+                          fontSize: 12,
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: voiceStatus.badgeColor, flexShrink: 0 }} />
+                            <span style={{ fontWeight: 700, color: '#334155' }}>
+                              {voiceStatus.label}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleAiVoice(p)}
+                            style={{
+                              background: 'none', border: 'none', color: 'var(--color-primary)',
+                              fontSize: 11, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline',
+                            }}
+                          >
+                            {p.preferences?.aiVoiceEnabled !== false ? 'Turn Off' : 'Turn On'}
+                          </button>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Personalisation status & action buttons */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 2, gap: 8, flexWrap: 'wrap' }}>
+                      <div>
+                        {p.onboardingComplete ? (
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            background: '#F0FDF4', color: '#16A34A',
+                            padding: '3px 10px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                          }}>
+                            <CheckCircle size={13} /> Setup Complete
+                          </span>
+                        ) : (
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            background: '#FEF3C7', color: '#D97706',
+                            padding: '3px 10px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                          }}>
+                            ⚠️ Personalisation Incomplete
+                          </span>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        {!p.onboardingComplete && (
+                          <button
+                            onClick={() => {
+                              selectPatient(p.id);
+                              navigate('/onboarding?continue=true');
+                            }}
+                            style={{
+                              padding: '6px 12px', borderRadius: 8, border: '1px solid #D97706',
+                              background: '#FFFBEB', color: '#B45309', fontSize: 12, fontWeight: 700,
+                              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                            }}
+                          >
+                            Setup <ArrowRight size={12} />
+                          </button>
+                        )}
+                        {!isSelected ? (
+                          <button
+                            onClick={() => selectPatient(p.id)}
+                            style={{
+                              padding: '6px 14px', borderRadius: 8, border: 'none',
+                              background: 'var(--color-primary)', color: 'white',
+                              fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                            }}
+                          >
+                            Switch to {p.name.split(' ')[0]}
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary)', padding: '6px 0' }}>
+                            ✓ Active
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Alert Banner */}

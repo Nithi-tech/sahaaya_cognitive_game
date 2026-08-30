@@ -143,6 +143,19 @@ try {
     UPDATE users SET elder_access_id = 'SAH-1002' WHERE email = 'basanta@sahaaya.demo' AND (elder_access_id IS NULL OR elder_access_id = '');
     UPDATE users SET elder_access_id = 'SAH-1003' WHERE email = 'sita@sahaaya.demo' AND (elder_access_id IS NULL OR elder_access_id = '');
   `);
+  const missingElders = db.prepare(
+    "SELECT id FROM users WHERE role = 'elderly' AND (elder_access_id IS NULL OR elder_access_id = '')"
+  ).all() as { id: string }[];
+  for (const elder of missingElders) {
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const candidate = `SAH-${Math.floor(1000 + Math.random() * 9000)}`;
+      const exists = db.prepare('SELECT id FROM users WHERE elder_access_id = ?').get(candidate);
+      if (!exists) {
+        db.prepare('UPDATE users SET elder_access_id = ? WHERE id = ?').run(candidate, elder.id);
+        break;
+      }
+    }
+  }
 } catch {
   /* ignore */
 }

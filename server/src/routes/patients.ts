@@ -26,6 +26,23 @@ function serialize(row: PatientRow, viewerRole?: string) {
   const caregiver = db.prepare('SELECT name FROM users WHERE id = ?').get(row.caregiver_id) as
     | { name: string }
     | undefined;
+  const elderUser = db.prepare('SELECT elder_access_id FROM users WHERE id = ?').get(row.user_id) as
+    | { elder_access_id: string | null }
+    | undefined;
+
+  let elderAccessId = elderUser?.elder_access_id ?? undefined;
+  if (!elderAccessId) {
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const candidate = `SAH-${Math.floor(1000 + Math.random() * 9000)}`;
+      const exists = db.prepare('SELECT id FROM users WHERE elder_access_id = ?').get(candidate);
+      if (!exists) {
+        elderAccessId = candidate;
+        db.prepare('UPDATE users SET elder_access_id = ? WHERE id = ?').run(candidate, row.user_id);
+        break;
+      }
+    }
+  }
+
   const preferences = JSON.parse(row.preferences_json);
   // The Health & Safety onboarding section is explicitly caregiver-only —
   // the elder's own login must never see it, matching the banner shown on
@@ -45,6 +62,7 @@ function serialize(row: PatientRow, viewerRole?: string) {
     caregiverName: caregiver?.name ?? '',
     preferences,
     onboardingComplete: row.onboarding_complete === 1,
+    elderAccessId,
     createdAt: row.created_at,
   };
 }

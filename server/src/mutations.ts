@@ -195,6 +195,16 @@ export function applyAlertResolve(patientId: string, alertId: string) {
 
 export function applyPatientPreferencesUpdate(patientId: string, preferences: Record<string, unknown>) {
   if (!preferences || typeof preferences !== 'object') throw new Error('preferences is required');
-  db.prepare('UPDATE patients SET preferences_json = ? WHERE id = ?').run(JSON.stringify(preferences), patientId);
+  const existingRow = db.prepare('SELECT preferences_json FROM patients WHERE id = ?').get(patientId) as { preferences_json: string } | undefined;
+  let existingPrefs: Record<string, unknown> = {};
+  if (existingRow?.preferences_json) {
+    try {
+      existingPrefs = JSON.parse(existingRow.preferences_json);
+    } catch {
+      existingPrefs = {};
+    }
+  }
+  const merged = { ...existingPrefs, ...preferences };
+  db.prepare('UPDATE patients SET preferences_json = ? WHERE id = ?').run(JSON.stringify(merged), patientId);
   return db.prepare('SELECT * FROM patients WHERE id = ?').get(patientId);
 }

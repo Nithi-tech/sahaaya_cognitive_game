@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import type { OnboardingPeopleSection, OnboardingPerson } from '../../../types';
-import { VoiceRecorder } from '../../../components/Voice/VoiceRecorder';
+import { MultiClipRecorder } from '../../../components/Voice/MultiClipRecorder';
 
 interface Props {
   saved: OnboardingPeopleSection | null;
@@ -173,13 +173,15 @@ export default function Step1_People({ saved, onSave, onSkip, saving }: Props) {
             </label>
 
             <div style={{ marginTop: 10 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 4 }}>
-                Voice greeting (optional):
-              </label>
-              <VoiceRecorder
-                value={p.greetingAudioUrl}
-                label={p.name || 'this person'}
-                onChange={(dataUri) => update(i, 'greetingAudioUrl', dataUri)}
+              <MultiClipRecorder
+                personName={p.name}
+                clips={p.audioClips ?? (p.greetingAudioUrl ? { greeting: p.greetingAudioUrl } : {})}
+                aiVoiceEnabled={p.aiVoiceEnabled !== false}
+                onToggleAiVoice={(enabled) => update(i, 'aiVoiceEnabled', enabled)}
+                onChange={(clips) => {
+                  update(i, 'audioClips', clips);
+                  update(i, 'greetingAudioUrl', clips.greeting);
+                }}
               />
             </div>
           </div>

@@ -7,6 +7,7 @@ import { api, ApiOfflineError, apiOrOffline } from '../api/client';
 import { updateDomainScore, generateRecommendation } from '../engines/adaptiveDifficulty';
 import { useAuth } from './AuthContext';
 import { useOffline } from './OfflineContext';
+import { setActivePatientVoiceClip } from '../services/voiceService';
 
 interface AppContextType {
   loading: boolean;
@@ -30,6 +31,8 @@ interface AppContextType {
   updateDailyActivity: (id: string, status: DailyActivity['status']) => Promise<void>;
   resolveAlert: (id: string) => Promise<void>;
   updatePreferences: (partial: Partial<PatientPreferences>) => Promise<void>;
+  /** Refetches the patient list from the server. */
+  refreshPatients: () => Promise<void>;
   /** Creates a new patient + elder account from the onboarding wizard. Returns the created patient + PIN hint. */
   createPatient: (input: { name: string; age: number; region: string; language: string; pin: string }) => Promise<{ patient: PatientProfile; pinHint: string }>;
   /** Saves a single onboarding section for the current patient. */
@@ -114,9 +117,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const { patients: fetchedPatients } = await api.get<{ patients: PatientProfile[] }>('/patients');
         if (cancelled) return;
         setPatients(fetchedPatients);
-        const patient = fetchedPatients[0] ?? null;
+        const storedPid = localStorage.getItem('sahaaya_active_patient_id');
+        const patient = user?.role === 'elderly'
+          ? (fetchedPatients.find((p) => p.userId === user.id) ?? fetchedPatients[0] ?? null)
+          : ((storedPid ? fetchedPatients.find((p) => p.id === storedPid) : undefined) ?? fetchedPatients[0] ?? null);
         setCurrentPatient(patient);
-        patientIdRef.current = patient?.id ?? null;
+        patientIdRef.current = patient ? patient.id : null;
+        if (patient) {
+          localStorage.setItem('sahaaya_active_patient_id', patient.id);
+        }
         if (!patient) {
           setLoading(false);
           return;
@@ -171,6 +180,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
     };
   }, [isAuthenticated, user?.id]);
+
+  // Synchronize the active patient's added family voice clip globally across all speech output
+  useEffect(() => {
+    if (currentPatient) {
+      const people = currentPatient.preferences?.onboarding?.people?.people ?? [];
+      const personWithClip = people.find(
+        (p) => p.audioClips?.greeting || p.audioClips?.reminder || p.audioClips?.reward || p.greetingAudioUrl
+      );
+      const clip = personWithClip?.audioClips?.greeting
+        || personWithClip?.audioClips?.reminder
+        || personWithClip?.audioClips?.reward
+        || personWithClip?.greetingAudioUrl;
+      setActivePatientVoiceClip(clip ?? null);
+    } else {
+      setActivePatientVoiceClip(null);
+    }
+  }, [currentPatient]);
 
   const addSession = useCallback(
     async (input: Omit<CognitiveSession, 'id' | 'patientId' | 'timestamp'>): Promise<AdaptiveRecommendation | null> => {
@@ -407,6 +433,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (!selected) return;
     setCurrentPatient(selected);
     patientIdRef.current = selected.id;
+    localStorage.setItem('sahaaya_active_patient_id', selected.id);
     writeCache(selected.id, 'patient', selected);
     setLoading(true);
     try {
@@ -443,12 +470,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [patients]);
 
+  const refreshPatients = useCallback(async () => {
+    try {
+      const { patients: fetchedPatients } = await api.get<{ patients: PatientProfile[] }>('/patients');
+      setPatients(fetchedPatients);
+      const storedPid = localStorage.getItem('sahaaya_active_patient_id');
+      const active = (storedPid ? fetchedPatients.find(p => p.id === storedPid) : undefined) ?? fetchedPatients[0] ?? null;
+      if (active) {
+        setCurrentPatient(active);
+        patientIdRef.current = active.id;
+        localStorage.setItem('sahaaya_active_patient_id', active.id);
+      } else {
+        setCurrentPatient(null);
+        patientIdRef.current = null;
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const createPatient = useCallback(
     async (input: { name: string; age: number; region: string; language: string; pin: string }) => {
       const result = await api.post<{ patient: PatientProfile; pinHint: string }>('/patients', input);
       setPatients((prev) => [...prev, result.patient]);
       setCurrentPatient(result.patient);
       patientIdRef.current = result.patient.id;
+      localStorage.setItem('sahaaya_active_patient_id', result.patient.id);
       writeCache(result.patient.id, 'patient', result.patient);
       return result;
     },
@@ -498,6 +545,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         currentPatient,
         patients,
         selectPatient,
+        refreshPatients,
         cognitiveProfile, sessions, reminders, memories, alerts, dailyActivities,
         mood, setMood,
         addSession, addReminder, updateReminderStatus, addMemory, updateDailyActivity, resolveAlert,

@@ -1,0 +1,313 @@
+import type { ThemeCategory, ThemePreference } from '../types';
+
+export interface ThemeAsset {
+  id: string;
+  category: ThemeCategory;
+  label: string;
+  emoji: string;
+  primaryColor: string;
+  headerGradient: string;
+  cardGradient: string;
+  borderColor: string;
+  accentColor: string;
+  tagline: string;
+  ambientNote: string;
+}
+
+export const CATEGORY_METADATA: Record<ThemeCategory, { label: string; emoji: string; description: string }> = {
+  food: {
+    label: 'Comfort Food',
+    emoji: '🍲',
+    description: 'Favorite culinary flavors, fragrant aromas, and home recipes.',
+  },
+  festival: {
+    label: 'Festivals & Culture',
+    emoji: '🪔',
+    description: 'Cherished celebrations, music, and traditional memories.',
+  },
+  nature: {
+    label: 'Nature & Scenery',
+    emoji: '🌿',
+    description: 'Peaceful natural landscapes, flowers, rivers, and wildlife.',
+  },
+  hobby: {
+    label: 'Hobbies & Passions',
+    emoji: '🎨',
+    description: 'Lifelong interests, crafts, sports, and creative joyful activities.',
+  },
+};
+
+export const THEME_REGISTRY: Record<string, ThemeAsset> = {
+  // --- FOOD ---
+  'food_biryani': {
+    id: 'food_biryani',
+    category: 'food',
+    label: 'Biryani',
+    emoji: '🍗',
+    primaryColor: '#EA580C',
+    headerGradient: 'linear-gradient(135deg, #C2410C 0%, #EA580C 100%)',
+    cardGradient: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 50%, #FED7AA 100%)',
+    borderColor: '#FDBA74',
+    accentColor: '#C2410C',
+    tagline: 'Fragrant saffron spices & rich culinary celebrations',
+    ambientNote: 'Warm slow-cooked rice aroma and festive joy',
+  },
+  'food_payesh': {
+    id: 'food_payesh',
+    category: 'food',
+    label: 'Payesh / Kheer',
+    emoji: '🍯',
+    primaryColor: '#DB2777',
+    headerGradient: 'linear-gradient(135deg, #BE185D 0%, #DB2777 100%)',
+    cardGradient: 'linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 50%, #FBCFE8 100%)',
+    borderColor: '#F9A8D4',
+    accentColor: '#9D174D',
+    tagline: 'Sweet milk rice, cardamom warmth & festive blessings',
+    ambientNote: 'Comforting sweetness of childhood traditions',
+  },
+  'food_idli': {
+    id: 'food_idli',
+    category: 'food',
+    label: 'Idli & Dosa',
+    emoji: '🥞',
+    primaryColor: '#CA8A04',
+    headerGradient: 'linear-gradient(135deg, #A16207 0%, #CA8A04 100%)',
+    cardGradient: 'linear-gradient(135deg, #FEFCE8 0%, #FEF08A 50%, #FDE047 100%)',
+    borderColor: '#FACC15',
+    accentColor: '#854D0E',
+    tagline: 'Golden griddle crispness, coconut chutney & fresh warmth',
+    ambientNote: 'Piping hot breakfast moments with family',
+  },
+  'food_momos': {
+    id: 'food_momos',
+    category: 'food',
+    label: 'Momos',
+    emoji: '🥟',
+    primaryColor: '#0D9488',
+    headerGradient: 'linear-gradient(135deg, #0F766E 0%, #0D9488 100%)',
+    cardGradient: 'linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 50%, #99F6E4 100%)',
+    borderColor: '#5EEAD4',
+    accentColor: '#115E59',
+    tagline: 'Steaming Himalayan dumplings & fiery spicy chutney',
+    ambientNote: 'Cozy mountain warmth and sharing with friends',
+  },
+  'food_pitha': {
+    id: 'food_pitha',
+    category: 'food',
+    label: 'Assam Pitha',
+    emoji: '🥮',
+    primaryColor: '#D97706',
+    headerGradient: 'linear-gradient(135deg, #B45309 0%, #D97706 100%)',
+    cardGradient: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #FDE68A 100%)',
+    borderColor: '#FCD34D',
+    accentColor: '#92400E',
+    tagline: 'Traditional sesame, coconut & jaggery rice rolls',
+    ambientNote: 'Bihu harvest festival sweetness',
+  },
+  'food_assam_tea': {
+    id: 'food_assam_tea',
+    category: 'food',
+    label: 'Assam Tea',
+    emoji: '🍵',
+    primaryColor: '#16A34A',
+    headerGradient: 'linear-gradient(135deg, #15803D 0%, #16A34A 100%)',
+    cardGradient: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 50%, #BBF7D0 100%)',
+    borderColor: '#86EFAC',
+    accentColor: '#166534',
+    tagline: 'Rich morning brew from the lush tea gardens of Assam',
+    ambientNote: 'Fresh morning breeze and soothing cup of chai',
+  },
+
+  // --- FESTIVALS ---
+  'festival_bihu': {
+    id: 'festival_bihu',
+    category: 'festival',
+    label: 'Rongali Bihu',
+    emoji: '🪘',
+    primaryColor: '#DC2626',
+    headerGradient: 'linear-gradient(135deg, #991B1B 0%, #DC2626 100%)',
+    cardGradient: 'linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 50%, #FECACA 100%)',
+    borderColor: '#FCA5A5',
+    accentColor: '#7F1D1D',
+    tagline: 'Springtime dance, Dhol beats & woven red Gamusa traditions',
+    ambientNote: 'Rhythm of the dhol and joyful Assamese folk song',
+  },
+  'festival_durga_puja': {
+    id: 'festival_durga_puja',
+    category: 'festival',
+    label: 'Durga Puja',
+    emoji: '🪔',
+    primaryColor: '#BE123C',
+    headerGradient: 'linear-gradient(135deg, #9F1239 0%, #BE123C 100%)',
+    cardGradient: 'linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 50%, #FECDD3 100%)',
+    borderColor: '#FDA4AF',
+    accentColor: '#881337',
+    tagline: 'Dhaak drums, sacred incense & grand autumn pandal celebrations',
+    ambientNote: 'Vibrant evening lights and blessings with loved ones',
+  },
+  'festival_diwali': {
+    id: 'festival_diwali',
+    category: 'festival',
+    label: 'Diwali',
+    emoji: '✨',
+    primaryColor: '#B45309',
+    headerGradient: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
+    cardGradient: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #FDE68A 100%)',
+    borderColor: '#FCD34D',
+    accentColor: '#78350F',
+    tagline: 'Golden glowing diyas, rangoli designs & festival of lights',
+    ambientNote: 'Bright clay oil lamps illuminating the peaceful night',
+  },
+  'festival_christmas': {
+    id: 'festival_christmas',
+    category: 'festival',
+    label: 'Christmas',
+    emoji: '🎄',
+    primaryColor: '#15803D',
+    headerGradient: 'linear-gradient(135deg, #14532D 0%, #15803D 100%)',
+    cardGradient: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 50%, #BBF7D0 100%)',
+    borderColor: '#86EFAC',
+    accentColor: '#14532D',
+    tagline: 'Festive evergreen pine, carols & warm family gatherings',
+    ambientNote: 'Winter peace, joyful songs and holiday cake',
+  },
+
+  // --- NATURE ---
+  'nature_flowers': {
+    id: 'nature_flowers',
+    category: 'nature',
+    label: 'Flower Garden',
+    emoji: '🌸',
+    primaryColor: '#E11D48',
+    headerGradient: 'linear-gradient(135deg, #BE123C 0%, #E11D48 100%)',
+    cardGradient: 'linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 50%, #FECDD3 100%)',
+    borderColor: '#FDA4AF',
+    accentColor: '#9F1239',
+    tagline: 'Blooming marigolds, roses, orchids & fragrant garden walks',
+    ambientNote: 'Morning birdsong and delicate floral fragrance',
+  },
+  'nature_birds': {
+    id: 'nature_birds',
+    category: 'nature',
+    label: 'Birds & Wildlife',
+    emoji: '🦜',
+    primaryColor: '#0284C7',
+    headerGradient: 'linear-gradient(135deg, #0369A1 0%, #0284C7 100%)',
+    cardGradient: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #BAE6FD 100%)',
+    borderColor: '#7DD3FC',
+    accentColor: '#075985',
+    tagline: 'Graceful flight of hornbills, kingfishers & singing birds',
+    ambientNote: 'Gentle chirping and peaceful blue open skies',
+  },
+  'nature_mountains': {
+    id: 'nature_mountains',
+    category: 'nature',
+    label: 'Misty Mountains',
+    emoji: '⛰️',
+    primaryColor: '#475569',
+    headerGradient: 'linear-gradient(135deg, #334155 0%, #475569 100%)',
+    cardGradient: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #E2E8F0 100%)',
+    borderColor: '#CBD5E1',
+    accentColor: '#1E293B',
+    tagline: 'Serene mountain ridges, misty pine forests & calm air',
+    ambientNote: 'Crisp mountain breezes and timeless stillness',
+  },
+  'nature_rivers': {
+    id: 'nature_rivers',
+    category: 'nature',
+    label: 'Brahmaputra River',
+    emoji: '🌊',
+    primaryColor: '#0891B2',
+    headerGradient: 'linear-gradient(135deg, #0E7490 0%, #0891B2 100%)',
+    cardGradient: 'linear-gradient(135deg, #ECFEFF 0%, #CFFAFE 50%, #A5F3FC 100%)',
+    borderColor: '#67E8F9',
+    accentColor: '#155E75',
+    tagline: 'Mighty flowing waters, golden sunsets & gentle rippling waves',
+    ambientNote: 'Soothing river current and cooling evening breeze',
+  },
+
+  // --- HOBBIES ---
+  'hobby_music': {
+    id: 'hobby_music',
+    category: 'hobby',
+    label: 'Classical Music',
+    emoji: '🎶',
+    primaryColor: '#7C3AED',
+    headerGradient: 'linear-gradient(135deg, #6D28D9 0%, #7C3AED 100%)',
+    cardGradient: 'linear-gradient(135deg, #FAF5FF 0%, #F3E8FF 50%, #E9D5FF 100%)',
+    borderColor: '#D8B4FE',
+    accentColor: '#5B21B6',
+    tagline: 'Soulful flute melodies, sitar ragas & devotional bhajans',
+    ambientNote: 'Harmonious melodies that soothe the heart and mind',
+  },
+  'hobby_farming': {
+    id: 'hobby_farming',
+    category: 'hobby',
+    label: 'Farming & Agriculture',
+    emoji: '🌾',
+    primaryColor: '#65A30D',
+    headerGradient: 'linear-gradient(135deg, #4D7C0F 0%, #65A30D 100%)',
+    cardGradient: 'linear-gradient(135deg, #F7FEE7 0%, #ECFCCB 50%, #D9F99D 100%)',
+    borderColor: '#BEF264',
+    accentColor: '#365314',
+    tagline: 'Golden paddy fields, fresh harvest earth & agrarian heritage',
+    ambientNote: 'Rich green fields swaying gently in the afternoon sun',
+  },
+  'hobby_weaving': {
+    id: 'hobby_weaving',
+    category: 'hobby',
+    label: 'Weaving & Handloom',
+    emoji: '🧵',
+    primaryColor: '#0F766E',
+    headerGradient: 'linear-gradient(135deg, #115E59 0%, #0F766E 100%)',
+    cardGradient: 'linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 50%, #99F6E4 100%)',
+    borderColor: '#5EEAD4',
+    accentColor: '#134E4A',
+    tagline: 'Traditional wooden loom, Muga silk & intricate artisan motifs',
+    ambientNote: 'Rhythmic tap-tap of the handloom crafting golden silk',
+  },
+  'hobby_cricket': {
+    id: 'hobby_cricket',
+    category: 'hobby',
+    label: 'Cricket & Sports',
+    emoji: '🏏',
+    primaryColor: '#16A34A',
+    headerGradient: 'linear-gradient(135deg, #15803D 0%, #16A34A 100%)',
+    cardGradient: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 50%, #BBF7D0 100%)',
+    borderColor: '#86EFAC',
+    accentColor: '#14532D',
+    tagline: 'Sunny afternoon matches, radio commentary & cheering joy',
+    ambientNote: 'Crack of the willow bat and nostalgic afternoon memories',
+  },
+};
+
+export const NEUTRAL_DEFAULT_THEME: ThemeAsset = {
+  id: 'default',
+  category: 'nature',
+  label: 'Sahaaya Serenity',
+  emoji: '🧠',
+  primaryColor: '#2E7D8B',
+  headerGradient: 'linear-gradient(135deg, #1565C0 0%, #2E7D8B 100%)',
+  cardGradient: 'linear-gradient(135deg, #F0F8FA 0%, #E0F2FE 100%)',
+  borderColor: '#BAE6FD',
+  accentColor: '#0369A1',
+  tagline: 'Calm, clear and supportive cognitive companionship',
+  ambientNote: 'Peaceful clarity for your day',
+};
+
+/** Look up theme asset by themeAssetId, falling back safely to default */
+export function getThemeAsset(themeAssetId?: string): ThemeAsset {
+  if (!themeAssetId) return NEUTRAL_DEFAULT_THEME;
+  return THEME_REGISTRY[themeAssetId] ?? NEUTRAL_DEFAULT_THEME;
+}
+
+/** Resolves the patient's theme preference from their profile */
+export function resolvePatientTheme(themePreference?: ThemePreference): ThemeAsset {
+  if (!themePreference?.themeAssetId) return NEUTRAL_DEFAULT_THEME;
+  return getThemeAsset(themePreference.themeAssetId);
+}
+
+/** Lists themes for a specific category */
+export function getThemesByCategory(category: ThemeCategory): ThemeAsset[] {
+  return Object.values(THEME_REGISTRY).filter((t) => t.category === category);
+}

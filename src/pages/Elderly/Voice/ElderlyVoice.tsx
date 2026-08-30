@@ -3,10 +3,12 @@ import { useApp } from '../../../store/AppContext';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Settings } from 'lucide-react';
-import { isVoiceRecognitionSupported, listenOnce, speak } from '../../../services/voiceService';
+import { ArrowLeft, Settings, Volume2 } from 'lucide-react';
+import { isVoiceRecognitionSupported, listenOnce } from '../../../services/voiceService';
 import { parseIntent, resolveIntent } from '../../../services/voiceIntents';
 import { VoiceOrb, type VoiceOrbState } from '../../../components/design-system/VoiceOrb';
+import { getPersonalization } from '../../../services/personalization';
+import { playPersonalizedPrompt } from '../../../services/voice/personalizedAudio';
 
 const SUGGESTED_PHRASES: { text: string; textAs: string; emoji: string }[] = [
   { text: 'What do I have to do today?', textAs: 'আজি মোৰ কি কৰিবলগীয়া আছে?', emoji: '📋' },
@@ -19,13 +21,16 @@ const SUGGESTED_PHRASES: { text: string; textAs: string; emoji: string }[] = [
 
 export default function ElderlyVoice() {
   const { t, lang } = useTranslation();
-  const { dailyActivities, reminders, memories } = useApp();
+  const { dailyActivities, reminders, memories, currentPatient } = useApp();
   const navigate = useNavigate();
   const [orbState, setOrbState] = useState<VoiceOrbState>('idle');
   const [heard, setHeard] = useState<string | null>(null);
   const [response, setResponse] = useState<string | null>(null);
   const [showResponse, setShowResponse] = useState(false);
   const voiceSupported = isVoiceRecognitionSupported();
+
+  const personalization = getPersonalization(currentPatient);
+  const favoritePerson = personalization.favoritePerson;
 
   const respond = (transcript: string) => {
     setHeard(transcript);
@@ -36,10 +41,35 @@ export default function ElderlyVoice() {
     setTimeout(() => {
       setResponse(text);
       setShowResponse(true);
-      setOrbState('speaking');
-      speak(text, lang, () => setOrbState('idle'));
+
+      // Speak the actual dynamic answer text in the family companion's voice
+      playPersonalizedPrompt({
+        patient: currentPatient,
+        trigger: 'reminder',
+        fallbackText: text,
+        lang,
+        onStart: () => setOrbState('speaking'),
+        onEnd: () => setOrbState('idle'),
+      });
+
       if (navigateTo) setTimeout(() => navigate(navigateTo), 2000);
     }, 400);
+  };
+
+  const handlePlayGreetingClip = () => {
+    setOrbState('speaking');
+    const fallbackText = lang === 'as'
+      ? `মই ${favoritePerson?.name || 'সহায়া'}। মই সদায় তোমাৰ লগত আছোঁ।`
+      : `Hello! This is ${favoritePerson?.name || 'Sahaaya'}. I am always right here with you.`;
+
+    playPersonalizedPrompt({
+      patient: currentPatient,
+      trigger: 'greeting',
+      fallbackText,
+      lang,
+      onStart: () => setOrbState('speaking'),
+      onEnd: () => setOrbState('idle'),
+    });
   };
 
   const handleMicTap = async () => {
@@ -61,25 +91,62 @@ export default function ElderlyVoice() {
   };
 
   return (
-    <div className="elderly-layout" style={{ paddingBottom: 90 }}>
+    <div
+      className="elderly-layout"
+      style={{
+        paddingBottom: 90,
+        ['--color-primary' as string]: personalization.primaryColor,
+      }}
+    >
       <div style={{
-        background: 'linear-gradient(135deg, #1A237E 0%, var(--color-primary) 100%)',
-        padding: '20px 20px 32px', color: 'white',
+        background: personalization.headerGradient,
+        padding: '20px 20px 28px', color: 'white',
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <button onClick={() => navigate('/')} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 99, padding: '8px 12px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          <button onClick={() => navigate('/')} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 99, padding: '8px 14px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700 }}>
             <ArrowLeft size={16} /> Back
           </button>
           <button onClick={() => navigate('/voice-settings')} aria-label="Voice Settings" style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 99, padding: '8px 12px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600 }}>
             <Settings size={16} />
           </button>
         </div>
-        <h1 style={{ fontSize: 28, fontWeight: 800 }}>
-          {lang === 'as' ? t('voice.title') : 'Talk to Sahaaya'}
-        </h1>
-        <p style={{ opacity: 0.85, fontSize: 16, marginTop: 4 }}>
-          Ask me anything about your day
-        </p>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {favoritePerson?.photoUrl ? (
+            <img
+              src={favoritePerson.photoUrl}
+              alt={favoritePerson.name}
+              style={{ width: 48, height: 48, borderRadius: 50, objectFit: 'cover', border: '2px solid white', flexShrink: 0 }}
+            />
+          ) : (
+            <div style={{ width: 48, height: 48, borderRadius: 50, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>
+              ❤️
+            </div>
+          )}
+          <div style={{ flex: 1 }}>
+            <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>
+              {favoritePerson
+                ? `${favoritePerson.name} (${favoritePerson.relationship})`
+                : (lang === 'as' ? t('voice.title') : 'Talk to Sahaaya')}
+            </h1>
+            <p style={{ opacity: 0.9, fontSize: 13, margin: '2px 0 0' }}>
+              {favoritePerson ? 'Speaking in your loved one\'s companion voice' : 'Ask me anything about your day'}
+            </p>
+          </div>
+          {favoritePerson && (
+            <button
+              onClick={handlePlayGreetingClip}
+              title="Hear family greeting"
+              style={{
+                background: 'white', color: '#1E293B', border: 'none',
+                borderRadius: 12, padding: '6px 12px', fontSize: 12, fontWeight: 800,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0,
+              }}
+            >
+              <Volume2 size={14} /> Greeting
+            </button>
+          )}
+        </div>
       </div>
 
       <div style={{ padding: '20px', marginTop: -16 }}>

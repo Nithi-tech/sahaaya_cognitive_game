@@ -39,6 +39,7 @@ export interface PatientProfile {
   caregiverName: string;
   createdAt: string;
   onboardingComplete: boolean;
+  elderAccessId?: string;
 }
 
 export type VoiceSpeed = 'slow' | 'normal' | 'fast';
@@ -48,17 +49,34 @@ export type VoiceSpeed = 'slow' | 'normal' | 'fast';
 // All fields are optional so sections can be saved incrementally.
 // ============================================================
 
+export interface PersonAudioClips {
+  greeting?: string; // e.g. "Good morning Ma, wishing you a lovely day!"
+  reminder?: string; // e.g. "Ma, it's time to take your morning medicine!"
+  reward?: string;   // e.g. "Shabash Ma, you did wonderfully today!"
+}
+
 export interface OnboardingPerson {
   name: string;         // Name as the elder calls them (e.g. "Amma")
   callsBy: string;      // What the elder calls this person
   relationship: string; // e.g. "Daughter", "Son-in-law"
   photoUrl?: string;    // base64 data-URI or null
-  greetingAudioUrl?: string; // base64 data-URI or null
+  greetingAudioUrl?: string; // backwards compatibility
+  audioClips?: PersonAudioClips;
   askedForOften?: boolean; // elder asks for/mentions this person most
+  aiVoiceEnabled?: boolean; // caregiver opted-in to online AI voice synthesis
+  voiceProfileId?: string; // optional remote ID from voice clone provider
 }
 
 export interface OnboardingPeopleSection {
   people: OnboardingPerson[];
+}
+
+export type ThemeCategory = 'food' | 'festival' | 'nature' | 'hobby';
+
+export interface ThemePreference {
+  category: ThemeCategory;
+  subOption: string;
+  themeAssetId: string;
 }
 
 export interface OnboardingFavoritesSection {
@@ -66,6 +84,7 @@ export interface OnboardingFavoritesSection {
   colour?: string;  // hex or CSS color string
   music?: string;
   place?: string;
+  themePreference?: ThemePreference;
 }
 
 export interface OnboardingRoutineSection {
@@ -117,6 +136,7 @@ export interface PatientPreferences {
   voiceSpeed?: VoiceSpeed;
   voiceVolume?: number;
   spokenFeedback?: boolean;
+  aiVoiceEnabled?: boolean; // caregiver master toggle for online voice cloning
   // Onboarding data — caregiver-populated, not directly editable by the elder
   onboarding?: OnboardingData;
 }

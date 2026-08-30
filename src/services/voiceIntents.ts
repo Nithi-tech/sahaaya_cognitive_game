@@ -1,6 +1,7 @@
 import type { DailyActivity, Memory, Reminder } from '../types';
 
 export type VoiceIntent =
+  | 'GREETING'
   | 'GET_NEXT_ACTIVITY'
   | 'GET_MEDICATION'
   | 'GET_MEMORY'
@@ -12,6 +13,7 @@ export type VoiceIntent =
   | 'UNKNOWN';
 
 const KEYWORDS: Record<Exclude<VoiceIntent, 'UNKNOWN' | 'GET_MEMORY'>, string[]> = {
+  GREETING: ['hi', 'hello', 'hey', 'morning', 'afternoon', 'evening', 'নমস্কাৰ', 'হেল্ল', 'কেমন'],
   GET_MEDICATION: ['medicine', 'medication', 'ঔষধ'],
   GET_DAY_SUMMARY: ['this morning', 'today', 'my day', 'আজি', 'ৰাতিপুৱা'],
   GET_NEXT_ACTIVITY: ['next', 'what do i have', 'কি কৰিবলগীয়া'],
@@ -53,6 +55,9 @@ export function resolveIntent(intent: VoiceIntent, entity: string | undefined, c
   const nowMins = new Date().getHours() * 60 + new Date().getMinutes();
 
   switch (intent) {
+    case 'GREETING':
+      return { text: "Hello! It is wonderful to hear from you. I am right here with you." };
+
     case 'GET_NEXT_ACTIVITY': {
       const next = ctx.dailyActivities
         .filter((a) => a.status === 'pending')
