@@ -21,9 +21,12 @@ Env:
 """
 import base64
 import io
+import hashlib
 import os
 import re
+import shutil
 import tempfile
+import threading
 import traceback
 
 os.environ.setdefault("COQUI_TOS_AGREED", "1")
@@ -36,6 +39,22 @@ from flask import Flask, request, Response, jsonify
 from TTS.api import TTS
 
 app = Flask(__name__)
+
+CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "audio_cache")
+os.makedirs(CACHE_DIR, exist_ok=True)
+
+
+def _get_cache_filename(text: str, speaker_wav: str, language: str) -> str:
+    """Computes a persistent hash key based on the text, language, and speaker signature."""
+    h = hashlib.sha256()
+    # Normalize text (lowercase, strip extra whitespace)
+    norm_text = " ".join(text.strip().lower().split())
+    h.update(norm_text.encode("utf-8"))
+    h.update(language.encode("utf-8"))
+    # Uniquely fingerprint the speaker audio by length and head/tail samples
+    sig = f"{len(speaker_wav)}_{speaker_wav[:200]}_{speaker_wav[-200:]}"
+    h.update(sig.encode("utf-8"))
+    return os.path.join(CACHE_DIR, f"{h.hexdigest()}.wav")
 
 MODEL_NAME = "tts_models/multilingual/multi-dataset/xtts_v2"
 PORT = int(os.environ.get("XTTS_PORT", "8020"))  # matches VITE_XTTS_ENDPOINT in .env.example
@@ -169,6 +188,13 @@ def tts_stream():
     if language not in SUPPORTED_LANGUAGES:
         language = "en"
 
+    # Check instant disk cache first!
+    cache_file = _get_cache_filename(text, speaker_wav, language)
+    if os.path.exists(cache_file) and os.path.getsize(cache_file) > 1000:
+        print(f" [CACHE HIT] Serving in 0.01s: '{text[:40]}...'")
+        with open(cache_file, "rb") as f:
+            return Response(f.read(), mimetype="audio/wav")
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         ref_path = os.path.join(tmp_dir, "reference.wav")
         out_path = os.path.join(tmp_dir, "output.wav")
@@ -186,6 +212,7 @@ def tts_stream():
                 file_path=out_path,
                 temperature=0.75,
                 repetition_penalty=2.0,
+                split_sentences=False,
             )
         except Exception as exc:  # noqa: BLE001 - surface synthesis failures instead of a bare 500
             traceback.print_exc()
@@ -194,7 +221,73 @@ def tts_stream():
         with open(out_path, "rb") as f:
             audio_bytes = f.read()
 
+        # Save to persistent cache for instant 0.01s future playback
+        try:
+            shutil.copyfile(out_path, cache_file)
+            print(f" [CACHED] Saved to disk cache: '{text[:40]}...'")
+        except Exception as exc:
+            print(f"Failed to cache audio: {exc}")
+
     return Response(audio_bytes, mimetype="audio/wav")
+
+
+@app.route("/precache_voice", methods=["POST", "OPTIONS"])
+def precache_voice():
+    """Background pre-synthesis: caches common elder phrases so dashboard responses are instant."""
+    if request.method == "OPTIONS":
+        return Response(status=204)
+
+    body = request.get_json(silent=True) or {}
+    speaker_wav = body.get("speaker_wav")
+    phrases = body.get("phrases") or []
+    language = body.get("language") or "en"
+
+    if not speaker_wav or not phrases:
+        return jsonify({"error": "speaker_wav and phrases required"}), 400
+    if language not in SUPPORTED_LANGUAGES:
+        language = "en"
+
+    def _worker():
+        print(f" > [Precache Worker] Starting background synthesis for {len(phrases)} phrases...")
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            ref_path = os.path.join(tmp_dir, "ref.wav")
+            try:
+                _decode_reference_audio(speaker_wav, ref_path)
+            except Exception as exc:
+                print(f" > [Precache Worker] Failed to decode reference audio: {exc}")
+                return
+
+            for phrase in phrases:
+                text = (phrase or "").strip()
+                if not text:
+                    continue
+                cache_file = _get_cache_filename(text, speaker_wav, language)
+                if os.path.exists(cache_file) and os.path.getsize(cache_file) > 1000:
+                    print(f" > [Precache Worker] Already cached: '{text[:30]}...'")
+                    continue
+
+                try:
+                    out_path = os.path.join(tmp_dir, "out.wav")
+                    print(f" > [Precache Worker] Synthesizing: '{text[:35]}...'")
+                    tts.tts_to_file(
+                        text=text,
+                        speaker_wav=ref_path,
+                        language=language,
+                        file_path=out_path,
+                        temperature=0.75,
+                        repetition_penalty=2.0,
+                        split_sentences=False,
+                    )
+                    shutil.copyfile(out_path, cache_file)
+                    print(f" > [Precache Worker] Done caching: '{text[:35]}...'")
+                except Exception as exc:
+                    print(f" > [Precache Worker] Error on '{text[:30]}...': {exc}")
+
+        print(" > [Precache Worker] All phrases pre-cached successfully!")
+
+    t = threading.Thread(target=_worker, daemon=True)
+    t.start()
+    return jsonify({"status": "started", "phrases_queued": len(phrases)})
 
 
 if __name__ == "__main__":

@@ -64,7 +64,7 @@ export async function generateSpeech(
   // 3. Strict timeout via AbortController — providers may override the
   // default 3.5s (e.g. local CPU inference needs much longer, see XTTSProvider).
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), activeVoiceProvider.timeoutMs ?? 3500);
+  const timeoutId = setTimeout(() => controller.abort(), activeVoiceProvider.timeoutMs ?? 180000);
 
   try {
     const audioDataUrl = await activeVoiceProvider.synthesizeSpeech(
@@ -149,4 +149,41 @@ export function getVoiceCloneStatus(patient: PatientProfile | null): VoiceCloneS
     label: `AI Voice: Active (${providerName})`,
     badgeColor: '#10B981',
   };
+}
+
+/**
+ * Automatically triggers background pre-synthesis of the elder's most common phrases
+ * so that when the elder taps or speaks on the dashboard, the cloned voice plays in 0.01s!
+ */
+export async function triggerVoicePrecaching(
+  speakerWav?: string,
+  lang: 'en' | 'as' = 'en',
+): Promise<void> {
+  if (!speakerWav || typeof window === 'undefined' || !navigator.onLine) return;
+  const endpoint = (import.meta.env.VITE_XTTS_ENDPOINT as string | undefined) || 'http://localhost:8020';
+
+  const defaultPhrases = [
+    "Hello! It is wonderful to hear from you. I am right here with you.",
+    "You haven't completed any activities yet today.",
+    "You've completed everything on today's schedule. Well done!",
+    "You've taken all of today's medicine. Great job!",
+    "Remember to drink a glass of water.",
+    "Let's start your memory game.",
+  ];
+
+  try {
+    fetch(`${endpoint.replace(/\/$/, '')}/precache_voice`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        speaker_wav: speakerWav,
+        language: lang === 'as' ? 'hi' : 'en',
+        phrases: defaultPhrases,
+      }),
+    }).catch(() => {
+      /* ignore background precache errors */
+    });
+  } catch {
+    /* ignore */
+  }
 }

@@ -5,7 +5,7 @@ export class XTTSProvider implements VoiceCloneProvider {
 
   // Local CPU inference (no GPU) commonly takes 10-30s+ per line — far past
   // the 3.5s default used for hosted APIs like ElevenLabs.
-  timeoutMs = Number(import.meta.env.VITE_XTTS_TIMEOUT_MS as string | undefined) || 60000;
+  timeoutMs = Number(import.meta.env.VITE_XTTS_TIMEOUT_MS as string | undefined) || 180000;
 
   private endpoint = (import.meta.env.VITE_XTTS_ENDPOINT as string | undefined) || 'http://localhost:8020';
 

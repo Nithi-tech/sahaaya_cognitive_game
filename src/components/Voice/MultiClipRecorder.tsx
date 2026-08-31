@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CheckCircle, Volume2, Sparkles, Bell, Sun } from 'lucide-react';
 import type { PersonAudioClips } from '../../types';
 import { VoiceRecorder } from './VoiceRecorder';
+import { triggerVoicePrecaching } from '../../services/voice/voiceCloneService';
 
 interface Props {
   personName: string;
@@ -56,6 +57,9 @@ export function MultiClipRecorder({
     const updated = { ...clips, [type]: dataUri };
     if (!dataUri) delete updated[type];
     onChange(updated);
+    if (dataUri) {
+      triggerVoicePrecaching(dataUri);
+    }
   };
 
   const recordedCount = [clips.greeting, clips.reminder, clips.reward].filter(Boolean).length;

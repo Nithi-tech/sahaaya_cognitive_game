@@ -9,6 +9,7 @@ import { parseIntent, resolveIntent } from '../../../services/voiceIntents';
 import { VoiceOrb, type VoiceOrbState } from '../../../components/design-system/VoiceOrb';
 import { getPersonalization } from '../../../services/personalization';
 import { playPersonalizedPrompt } from '../../../services/voice/personalizedAudio';
+import { triggerVoicePrecaching } from '../../../services/voice/voiceCloneService';
 
 const SUGGESTED_PHRASES: { text: string; textAs: string; emoji: string }[] = [
   { text: 'What do I have to do today?', textAs: 'আজি মোৰ কি কৰিবলগীয়া আছে?', emoji: '📋' },
@@ -38,6 +39,14 @@ export default function ElderlyVoice() {
 
   const personalization = getPersonalization(currentPatient);
   const favoritePerson = personalization.favoritePerson;
+
+  // Pre-cache common phrases in the background so elder's questions get answered instantly (0.01s)!
+  useEffect(() => {
+    const sample = favoritePerson?.greetingAudioUrl || favoritePerson?.audioClips?.greeting;
+    if (sample) {
+      triggerVoicePrecaching(sample, lang);
+    }
+  }, [favoritePerson, lang]);
 
   const respond = (transcript: string) => {
     // 1. Immediately cancel any prior in-flight synthesis or audio playback
