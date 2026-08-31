@@ -110,7 +110,22 @@ export function playPersonalizedPrompt({
   onStart,
   onEnd,
 }: PromptOptions): { isCustomAudio: boolean; stop: () => void } {
-  const voiceRef = getPatientVoiceReference(patient);
+  let voiceRef = getPatientVoiceReference(patient);
+  if (!voiceRef) {
+    const globalClip = getActivePatientVoiceClip();
+    if (globalClip) {
+      voiceRef = {
+        person: {
+          name: 'Loved One',
+          relationship: 'Family',
+          callsBy: 'Family',
+          photoUrl: null,
+          greetingAudioUrl: globalClip,
+        },
+        sampleUrl: globalClip,
+      };
+    }
+  }
   const personaPitch = getPersonaPitch(voiceRef?.person);
 
   // 1. Play real pre-recorded clip ONLY for greetings
@@ -136,11 +151,10 @@ export function playPersonalizedPrompt({
   let activeAudio: HTMLAudioElement | null = null;
   let cancelled = false;
 
-  // 2. For dynamic text: synthesize the ACTUAL WORDS in the cloned voice!
+  // 2. For dynamic text: ALWAYS synthesize in the loved one's cloned voice when a sample exists!
   const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : false;
-  const isAiVoiceEnabled = patient?.preferences?.aiVoiceEnabled !== false;
 
-  if (isOnline && isAiVoiceEnabled && voiceRef && voiceRef.person.aiVoiceEnabled !== false) {
+  if (isOnline && voiceRef && voiceRef.sampleUrl) {
     console.log(`[personalizedAudio] Triggering AI Voice Cloning for "${fallbackText.slice(0, 30)}..." using sample from ${voiceRef.person.name}`);
     generateSpeech(fallbackText, voiceRef.sampleUrl, voiceRef.person.voiceProfileId, lang)
       .then((generatedAudioUrl) => {

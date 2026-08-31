@@ -180,8 +180,8 @@ export default function ElderlyVoice() {
           <VoiceOrb state={orbState} onTap={handleMicTap} size={120} />
           <p style={{ fontSize: 16, fontWeight: 600, color: orbState === 'idle' ? 'var(--text-secondary)' : 'var(--color-primary)' }}>
             {orbState === 'listening' && (lang === 'as' ? 'শুনিছে...' : 'Listening...')}
-            {orbState === 'thinking' && (lang === 'as' ? 'ভাবি আছোঁ...' : 'Thinking...')}
-            {orbState === 'speaking' && (lang === 'as' ? 'সহায়া কৈ আছে...' : 'Sahaaya is speaking...')}
+            {orbState === 'thinking' && (lang === 'as' ? 'ভাবি আছোঁ...' : (favoritePerson ? `Generating ${favoritePerson.name}'s voice...` : 'Thinking...'))}
+            {orbState === 'speaking' && (lang === 'as' ? 'সহায়া কৈ আছে...' : (favoritePerson ? `${favoritePerson.name} is speaking...` : 'Sahaaya is speaking...'))}
             {orbState === 'error' && (lang === 'as' ? 'শুনা নগ\'ল, আকৌ চেষ্টা কৰক' : "Didn't catch that — try again")}
             {orbState === 'idle' && (lang === 'as' ? 'কথা কবলৈ টেপ কৰক' : 'Tap to speak')}
           </p>
