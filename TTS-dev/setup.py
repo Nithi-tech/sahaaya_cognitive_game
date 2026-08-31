@@ -28,7 +28,11 @@ from packaging.version import Version
 import numpy
 import setuptools.command.build_py
 import setuptools.command.develop
-from Cython.Build import cythonize
+try:
+    from Cython.Build import cythonize
+    _HAVE_CYTHON = True
+except ImportError:
+    _HAVE_CYTHON = False
 from setuptools import Extension, find_packages, setup
 
 python_version = sys.version.split()[0]
@@ -71,12 +75,24 @@ requirements_all = requirements_dev + requirements_notebooks + requirements_ja
 with open("README.md", "r", encoding="utf-8") as readme_file:
     README = readme_file.read()
 
-exts = [
-    Extension(
-        name="TTS.tts.utils.monotonic_align.core",
-        sources=["TTS/tts/utils/monotonic_align/core.pyx"],
-    )
-]
+# Build the Cython extension only when the compiler toolchain is available.
+# On Windows without MSVC the extension is skipped; a pure-Python fallback
+# (TTS/tts/utils/monotonic_align/core.py) is used instead — sufficient for
+# XTTS-v2 inference (the extension is only needed for Glow-TTS training).
+try:
+    if _HAVE_CYTHON:
+        exts = [
+            Extension(
+                name="TTS.tts.utils.monotonic_align.core",
+                sources=["TTS/tts/utils/monotonic_align/core.pyx"],
+            )
+        ]
+        _ext_modules = cythonize(exts, language_level=3)
+    else:
+        _ext_modules = []
+except Exception:
+    _ext_modules = []
+
 setup(
     name="TTS",
     version=version,
@@ -87,9 +103,9 @@ setup(
     long_description=README,
     long_description_content_type="text/markdown",
     license="MPL-2.0",
-    # cython
+    # cython (optional — skipped when compiler not available)
     include_dirs=numpy.get_include(),
-    ext_modules=cythonize(exts, language_level=3),
+    ext_modules=_ext_modules,
     # ext_modules=find_cython_extensions(),
     # package
     include_package_data=True,
