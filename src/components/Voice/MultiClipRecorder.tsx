@@ -72,7 +72,7 @@ export function MultiClipRecorder({
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <Volume2 size={15} style={{ color: 'var(--color-primary)' }} />
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>
-            Record {personName ? `${personName}'s` : "Loved One's"} Voice Prompts
+            Add {personName ? `${personName}'s` : "Loved One's"} Voice Prompts
           </span>
         </div>
         <span style={{
@@ -81,7 +81,7 @@ export function MultiClipRecorder({
           color: recordedCount > 0 ? '#15803D' : '#64748B',
           padding: '2px 8px', borderRadius: 99,
         }}>
-          {recordedCount}/3 clips ready
+          {recordedCount}/3 clips added
         </span>
       </div>
 
