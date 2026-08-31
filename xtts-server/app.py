@@ -55,8 +55,14 @@ print(" > Model loaded. Ready for requests.")
 
 def _decode_reference_audio(speaker_wav: str, out_path: str) -> None:
     """Decodes a data-URI (or raw base64) voice sample into a 16-bit mono WAV file."""
-    match = re.match(r"^data:audio/[^;]+;base64,(.*)$", speaker_wav, re.DOTALL)
-    raw_b64 = match.group(1) if match else speaker_wav
+    if "," in speaker_wav and speaker_wav.startswith("data:"):
+        raw_b64 = speaker_wav.split(",", 1)[1]
+    else:
+        raw_b64 = speaker_wav
+    raw_b64 = raw_b64.strip()
+    missing_padding = len(raw_b64) % 4
+    if missing_padding:
+        raw_b64 += "=" * (4 - missing_padding)
     audio_bytes = base64.b64decode(raw_b64)
 
     container = av.open(io.BytesIO(audio_bytes))
