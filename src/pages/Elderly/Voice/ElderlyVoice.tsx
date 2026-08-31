@@ -3,7 +3,7 @@ import { useApp } from '../../../store/AppContext';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Settings, Volume2 } from 'lucide-react';
+import { ArrowLeft, Settings } from 'lucide-react';
 import { isVoiceRecognitionSupported, listenOnce } from '../../../services/voiceService';
 import { parseIntent, resolveIntent } from '../../../services/voiceIntents';
 import { VoiceOrb, type VoiceOrbState } from '../../../components/design-system/VoiceOrb';
@@ -65,24 +65,6 @@ export default function ElderlyVoice() {
 
       if (navigateTo) setTimeout(() => navigate(navigateTo), 2000);
     }, 400);
-  };
-
-  const handlePlayGreetingClip = () => {
-    activePromptRef.current?.stop();
-    activePromptRef.current = null;
-    setOrbState('speaking');
-    const fallbackText = lang === 'as'
-      ? `মই ${favoritePerson?.name || 'সহায়া'}। মই সদায় তোমাৰ লগত আছোঁ।`
-      : `Hello! This is ${favoritePerson?.name || 'Sahaaya'}. I am always right here with you.`;
-
-    activePromptRef.current = playPersonalizedPrompt({
-      patient: currentPatient,
-      trigger: 'greeting',
-      fallbackText,
-      lang,
-      onStart: () => setOrbState('speaking'),
-      onEnd: () => setOrbState('idle'),
-    });
   };
 
   const handleMicTap = async () => {
@@ -157,19 +139,6 @@ export default function ElderlyVoice() {
               {favoritePerson ? 'Speaking in your loved one\'s companion voice' : 'Ask me anything about your day'}
             </p>
           </div>
-          {favoritePerson && (
-            <button
-              onClick={handlePlayGreetingClip}
-              title="Hear family greeting"
-              style={{
-                background: 'white', color: '#1E293B', border: 'none',
-                borderRadius: 12, padding: '6px 12px', fontSize: 12, fontWeight: 800,
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0,
-              }}
-            >
-              <Volume2 size={14} /> Greeting
-            </button>
-          )}
         </div>
       </div>
 

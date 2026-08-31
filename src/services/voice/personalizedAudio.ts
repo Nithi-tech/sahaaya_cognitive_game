@@ -128,30 +128,10 @@ export function playPersonalizedPrompt({
   }
   const personaPitch = getPersonaPitch(voiceRef?.person);
 
-  // 1. Play real pre-recorded clip ONLY for greetings
-  if (trigger === 'greeting') {
-    const match = getPatientAudioClip(patient, 'greeting');
-    if (match) {
-      onStart?.({ person: match.person, isCustomAudio: true, isAiCloned: false });
-      const audio = playAudioClip(match.clipUrl, onEnd);
-      return {
-        isCustomAudio: true,
-        stop: () => {
-          try {
-            audio.pause();
-            audio.currentTime = 0;
-          } catch {
-            /* ignore */
-          }
-        },
-      };
-    }
-  }
-
   let activeAudio: HTMLAudioElement | null = null;
   let cancelled = false;
 
-  // 2. For dynamic text: ALWAYS synthesize in the loved one's cloned voice when a sample exists!
+  // For all prompts: ALWAYS synthesize the spoken words in the added loved one's cloned voice!
   const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : false;
 
   if (isOnline && voiceRef && voiceRef.sampleUrl) {
