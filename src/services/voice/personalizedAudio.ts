@@ -1,5 +1,5 @@
 import type { PatientProfile, OnboardingPerson } from '../../types';
-import { speak, playAudioClip } from '../voiceService';
+import { speak, playAudioClip, getActivePatientVoiceClip } from '../voiceService';
 import { generateSpeech } from './voiceCloneService';
 import { getPersonaPitch } from '../personalization';
 
@@ -97,14 +97,14 @@ export function getPatientVoiceReference(patient: PatientProfile | null): { pers
 
 /**
  * Personalized audio playback:
- * 1. For GREETINGS: Plays the real recorded greeting clip directly.
- * 2. For DYNAMIC TEXT (responses, reminders, instructions):
- *    Synthesizes the actual text in the family member's voice clone!
- * 3. When offline or fallback: Speaks the actual text with the persona's vocal pitch.
+ * 1. If online and a voice reference sample is available (from onboarding,
+ *    or the globally-synced active clip): synthesizes the actual text in
+ *    that family member's voice clone.
+ * 2. Otherwise (offline, no sample, or synthesis fails): speaks the actual
+ *    text with the persona's vocal pitch via browser TTS.
  */
 export function playPersonalizedPrompt({
   patient,
-  trigger,
   fallbackText,
   lang = 'en',
   onStart,
@@ -119,7 +119,6 @@ export function playPersonalizedPrompt({
           name: 'Loved One',
           relationship: 'Family',
           callsBy: 'Family',
-          photoUrl: null,
           greetingAudioUrl: globalClip,
         },
         sampleUrl: globalClip,
@@ -173,7 +172,7 @@ export function playPersonalizedPrompt({
     };
   }
 
-  console.log(`[personalizedAudio] Not using cloning: isOnline=${isOnline}, isAiVoiceEnabled=${isAiVoiceEnabled}, hasVoiceRef=${!!voiceRef}`);
+  console.log(`[personalizedAudio] Not using cloning: isOnline=${isOnline}, hasVoiceRef=${!!voiceRef}`);
 
   // 3. Fallback when offline or AI voice disabled:
   // Speak the ACTUAL words using the companion's personalized pitch!
