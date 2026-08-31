@@ -91,6 +91,20 @@ def add_cors_headers(resp):
     return resp
 
 
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({
+        "service": "Sahaaya XTTS-v2 Voice Cloning Server",
+        "status": "online",
+        "model": MODEL_NAME,
+        "endpoints": {
+            "GET /": "Server status",
+            "GET /health": "Health check",
+            "POST /tts_stream": "Zero-shot voice cloning API",
+        },
+    })
+
+
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"ok": True, "model": MODEL_NAME})
