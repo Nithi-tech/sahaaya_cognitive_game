@@ -79,7 +79,10 @@ export function evaluateAlerts(patientId: string) {
 
   const reminders = db.prepare('SELECT status, type FROM reminders WHERE patient_id = ?').all(patientId) as ReminderRow[];
   const hydration = reminders.filter((r) => r.type === 'hydration');
-  const hydrationMissed = hydration.filter((r) => r.status === 'skipped' || r.status === 'missed').length;
+  // 'missed' is not a real reminder status (VALID_REMINDER_STATUSES in
+  // mutations.ts is scheduled/completed/skipped/delayed) — only 'skipped'
+  // can ever appear here.
+  const hydrationMissed = hydration.filter((r) => r.status === 'skipped').length;
   if (hydration.length > 0 && hydrationMissed >= 3 && !hasRecentAlert(patientId, 'hydration')) {
     insertAlert(
       patientId,

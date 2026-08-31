@@ -19,13 +19,13 @@ server/*.db-shm
 # XTTS local voice-cloning server (see xtts-server/README.md)
 xtts-server/venv
 xtts-server/__pycache__
-<<<<<<< Updated upstream
 xtts-server/audio_cache
 xtts-server/*.wav
-=======
->>>>>>> Stashed changes
 TTS-dev/**/__pycache__
 TTS-dev/**/*.egg-info
+
+# Build artifacts
+*.tsbuildinfo
 
 # Editor directories and files
 .vscode/*

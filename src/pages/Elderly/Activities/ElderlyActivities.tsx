@@ -12,7 +12,6 @@ import { useGameSession } from '../../../hooks/useGameSession';
 import type { CognitiveGameResult } from '../../../games/types';
 import type { AdaptiveRecommendation } from '../../../types';
 import { ArrowLeft, Volume2, Sparkles } from 'lucide-react';
-import { playPersonalizedPrompt } from '../../../services/voice/personalizedAudio';
 
 type PageScreen = 'today' | 'recommendation';
 
@@ -109,6 +108,10 @@ export default function ElderlyActivities() {
 
   const completedTodayCount = gameResults.length;
 
+  // The reward voice line for the result screen is not fired here —
+  // GameResultScreen (rendered below for that same state) already triggers
+  // it via triggerMomentJoy, along with the chime and coin award.
+
   // ============================================================
   // PLAYING / RESULT — shared across every "play a game" entry point; see
   // useGameSession.ts. Checked before this page's own screens so a game
@@ -133,16 +136,6 @@ export default function ElderlyActivities() {
       </GameShell>
     );
   }
-
-  useEffect(() => {
-    if (session.screen === 'result' && session.lastResult) {
-      playPersonalizedPrompt({
-        patient: currentPatient,
-        trigger: 'reward',
-        fallbackText: 'Well done! Wonderful job completing this brain activity.',
-      });
-    }
-  }, [session.screen, session.lastResult, currentPatient]);
 
   if (session.screen === 'result' && session.lastResult) {
     return (

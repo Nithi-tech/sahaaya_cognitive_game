@@ -31,61 +31,68 @@ export function ElderlyReminderModal({ reminder, onClose, onCompleted }: Props) 
 
   const elderName = currentPatient?.name ? currentPatient.name.split(' ')[0] : '';
 
-  if (!reminder) return null;
+  const isTabletOrMedicine = reminder
+    ? reminder.type === 'medicine' ||
+      reminder.title.toLowerCase().includes('tablet') ||
+      reminder.title.toLowerCase().includes('medicine') ||
+      reminder.title.toLowerCase().includes('pill') ||
+      reminder.title.toLowerCase().includes('dose')
+    : false;
 
-  const isTabletOrMedicine =
-    reminder.type === 'medicine' ||
-    reminder.title.toLowerCase().includes('tablet') ||
-    reminder.title.toLowerCase().includes('medicine') ||
-    reminder.title.toLowerCase().includes('pill') ||
-    reminder.title.toLowerCase().includes('dose');
-
-  const isFoodOrMeal =
-    reminder.type === 'activity' && (
-      reminder.title.toLowerCase().includes('food') ||
-      reminder.title.toLowerCase().includes('meal') ||
-      reminder.title.toLowerCase().includes('lunch') ||
-      reminder.title.toLowerCase().includes('dinner') ||
-      reminder.title.toLowerCase().includes('breakfast') ||
-      reminder.title.toLowerCase().includes('eat') ||
-      reminder.title.toLowerCase().includes('snack')
-    );
+  const isFoodOrMeal = reminder
+    ? reminder.type === 'activity' && (
+        reminder.title.toLowerCase().includes('food') ||
+        reminder.title.toLowerCase().includes('meal') ||
+        reminder.title.toLowerCase().includes('lunch') ||
+        reminder.title.toLowerCase().includes('dinner') ||
+        reminder.title.toLowerCase().includes('breakfast') ||
+        reminder.title.toLowerCase().includes('eat') ||
+        reminder.title.toLowerCase().includes('snack')
+      )
+    : false;
 
   // Generate personalized reminder message
   let message = '';
   let speechText = '';
 
-  if (favoritePerson) {
-    if (isTabletOrMedicine) {
-      message = `${elderName ? elderName + ', ' : ''}please remember to take your ${reminder.title} tablets now. Drink plenty of water with it!`;
-      speechText = lang === 'as'
-        ? `${elderName || ''}, আপোনাৰ ঔষধ খোৱাৰ সময় হৈছে।`
-        : `Hello ${elderName || ''}! ${favoritePerson.name} is reminding you: please take your ${reminder.title} tablets now.`;
-    } else if (isFoodOrMeal) {
-      message = `${elderName ? elderName + ', ' : ''}it is time for your ${reminder.title}! Please enjoy a warm, healthy meal.`;
-      speechText = lang === 'as'
-        ? `${elderName || ''}, আহাৰ খোৱাৰ সময় হৈছে।`
-        : `Hello ${elderName || ''}! Time for your ${reminder.title}! Please enjoy your meal.`;
+  if (reminder) {
+    if (favoritePerson) {
+      if (isTabletOrMedicine) {
+        message = `${elderName ? elderName + ', ' : ''}please remember to take your ${reminder.title} tablets now. Drink plenty of water with it!`;
+        speechText = lang === 'as'
+          ? `${elderName || ''}, আপোনাৰ ঔষধ খোৱাৰ সময় হৈছে।`
+          : `Hello ${elderName || ''}! ${favoritePerson.name} is reminding you: please take your ${reminder.title} tablets now.`;
+      } else if (isFoodOrMeal) {
+        message = `${elderName ? elderName + ', ' : ''}it is time for your ${reminder.title}! Please enjoy a warm, healthy meal.`;
+        speechText = lang === 'as'
+          ? `${elderName || ''}, আহাৰ খোৱাৰ সময় হৈছে।`
+          : `Hello ${elderName || ''}! Time for your ${reminder.title}! Please enjoy your meal.`;
+      } else {
+        message = `${elderName ? elderName + ', ' : ''}here is your gentle reminder for ${reminder.title} at ${reminder.time}.`;
+        speechText = `Hello ${elderName || ''}! ${favoritePerson.name} is reminding you: ${reminder.title}.`;
+      }
+    } else if (themeAsset && (isFoodOrMeal || isTabletOrMedicine)) {
+      if (isFoodOrMeal) {
+        message = `Meal time! Time for your ${reminder.title}. Enjoy your favorite ${themeAsset.label}!`;
+        speechText = `Time for ${reminder.title}! Enjoy your favorite ${themeAsset.label}.`;
+      } else {
+        message = `Time to take your scheduled ${reminder.title} tablets with fresh water.`;
+        speechText = `Time for your ${reminder.title} tablets.`;
+      }
     } else {
-      message = `${elderName ? elderName + ', ' : ''}here is your gentle reminder for ${reminder.title} at ${reminder.time}.`;
-      speechText = `Hello ${elderName || ''}! ${favoritePerson.name} is reminding you: ${reminder.title}.`;
+      // Generic natural message
+      message = `Gentle reminder: It is time for your ${reminder.title} scheduled at ${reminder.time}. ${reminder.description || ''}`.trim();
+      speechText = `Friendly reminder: It is time for ${reminder.title}.`;
     }
-  } else if (themeAsset && (isFoodOrMeal || isTabletOrMedicine)) {
-    if (isFoodOrMeal) {
-      message = `Meal time! Time for your ${reminder.title}. Enjoy your favorite ${themeAsset.label}!`;
-      speechText = `Time for ${reminder.title}! Enjoy your favorite ${themeAsset.label}.`;
-    } else {
-      message = `Time to take your scheduled ${reminder.title} tablets with fresh water.`;
-      speechText = `Time for your ${reminder.title} tablets.`;
-    }
-  } else {
-    // Generic natural message
-    message = `Gentle reminder: It is time for your ${reminder.title} scheduled at ${reminder.time}. ${reminder.description || ''}`.trim();
-    speechText = `Friendly reminder: It is time for ${reminder.title}.`;
   }
 
-  // Speak on mount
+  // Speak on mount — hoisted above the `if (!reminder)` bail-out below so
+  // this hook is always called in the same order (a hook placed after a
+  // conditional early return gets skipped on some renders and not others,
+  // which crashes React's hook-order invariant the moment a reminder
+  // modal opens or closes).
   useEffect(() => {
+    if (!reminder) return;
     setIsPlaying(true);
     const audio = playPersonalizedPrompt({
       patient: currentPatient,
@@ -99,7 +106,9 @@ export function ElderlyReminderModal({ reminder, onClose, onCompleted }: Props) 
     return () => {
       audio?.stop();
     };
-  }, [reminder.id]);
+  }, [reminder?.id]);
+
+  if (!reminder) return null;
 
   const handleReplayVoice = () => {
     setIsPlaying(true);
