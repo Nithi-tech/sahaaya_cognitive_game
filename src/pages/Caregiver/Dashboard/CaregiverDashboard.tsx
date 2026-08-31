@@ -5,7 +5,7 @@ import { useAuth } from '../../../store/AuthContext';
 import { CaregiverSidebar } from '../../../components/Sidebar/Sidebar';
 import { NetworkToggle } from '../../../components/OfflineIndicator/OfflineIndicator';
 import { ScoreRing } from '../../../components/Charts/Charts';
-import { Pill, Droplets, Route, Brain, Bell, ArrowRight, Plus, CheckCircle, Copy, Pencil, X } from 'lucide-react';
+import { Pill, Droplets, Route, Brain, Bell, ArrowRight, Plus, CheckCircle, Copy, Pencil, X, Trash2, AlertTriangle } from 'lucide-react';
 import { getVoiceCloneStatus } from '../../../services/voice/voiceCloneService';
 import { api } from '../../../api/client';
 import type { PatientProfile, Language } from '../../../types';
@@ -19,6 +19,7 @@ export default function CaregiverDashboard() {
     patients,
     selectPatient,
     refreshPatients,
+    deletePatient,
     reminders,
     alerts,
     cognitiveProfile,
@@ -43,6 +44,24 @@ export default function CaregiverDashboard() {
   };
 
   const closeEditDetails = () => setEditingPatient(null);
+
+  const [patientToDelete, setPatientToDelete] = useState<PatientProfile | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const handleDeletePatient = async () => {
+    if (!patientToDelete) return;
+    setIsDeleting(true);
+    setDeleteError('');
+    try {
+      await deletePatient(patientToDelete.id);
+      setPatientToDelete(null);
+    } catch (err) {
+      setDeleteError((err as Error).message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleSaveDetails = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -390,6 +409,17 @@ export default function CaregiverDashboard() {
                             Setup <ArrowRight size={12} />
                           </button>
                         )}
+                        <button
+                          onClick={() => setPatientToDelete(p)}
+                          title="Delete this patient"
+                          style={{
+                            padding: '6px 12px', borderRadius: 8, border: '1px solid #FECACA',
+                            background: '#FEF2F2', color: '#DC2626', fontSize: 12, fontWeight: 700,
+                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                          }}
+                        >
+                          <Trash2 size={12} /> Delete
+                        </button>
                         {!isSelected ? (
                           <button
                             onClick={() => selectPatient(p.id)}
@@ -716,6 +746,96 @@ export default function CaregiverDashboard() {
                 }}
               >
                 Edit People, Favourites, Routine & other preferences <ArrowRight size={14} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const p = editingPatient;
+                  closeEditDetails();
+                  setPatientToDelete(p);
+                }}
+                style={{
+                  width: '100%', marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626',
+                  borderRadius: 12, padding: '11px', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                }}
+              >
+                <Trash2 size={14} /> Delete this patient profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Patient Confirmation Modal */}
+      {patientToDelete && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+          }}
+        >
+          <div
+            style={{
+              background: 'white', borderRadius: 24, width: '100%', maxWidth: 460,
+              boxShadow: '0 24px 48px rgba(0,0,0,0.2)', padding: '28px 24px 24px',
+              textAlign: 'center', position: 'relative',
+            }}
+          >
+            <div
+              style={{
+                width: 56, height: 56, borderRadius: '50%', background: '#FEE2E2',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 16px', color: '#DC2626',
+              }}
+            >
+              <AlertTriangle size={28} />
+            </div>
+
+            <h3 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 800, color: '#0F172A' }}>
+              Delete Patient Profile?
+            </h3>
+
+            <p style={{ margin: '0 0 16px', fontSize: 14, color: '#64748B', lineHeight: 1.5 }}>
+              Are you sure you want to remove <strong style={{ color: '#0F172A' }}>{patientToDelete.name}</strong>?
+              All games, progress reports, voice preferences, and reminders associated with this patient will be permanently deleted.
+            </p>
+
+            {deleteError && (
+              <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', padding: '10px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, marginBottom: 16, textAlign: 'left' }}>
+                {deleteError}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                type="button"
+                onClick={() => { setPatientToDelete(null); setDeleteError(''); }}
+                disabled={isDeleting}
+                style={{
+                  flex: 1, height: 48, borderRadius: 12, border: '1.5px solid #E2E8F0',
+                  background: 'white', color: '#475569', fontSize: 15, fontWeight: 700,
+                  cursor: isDeleting ? 'default' : 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeletePatient}
+                disabled={isDeleting}
+                style={{
+                  flex: 1.3, height: 48, borderRadius: 12, border: 'none',
+                  background: isDeleting ? '#FCA5A5' : '#DC2626', color: 'white',
+                  fontSize: 15, fontWeight: 800, cursor: isDeleting ? 'default' : 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  boxShadow: '0 4px 12px rgba(220, 38, 38, 0.25)',
+                }}
+              >
+                <Trash2 size={16} />
+                {isDeleting ? 'Deleting…' : 'Yes, Delete Patient'}
               </button>
             </div>
           </div>

@@ -182,3 +182,34 @@ patientsRouter.patch('/:patientId/onboarding-complete', requirePatientAccess, re
   res.json({ patient: serialize(row, req.authUser!.role) });
 });
 
+// Delete a patient and their entire history (caregiver-only).
+patientsRouter.delete('/:patientId', requirePatientAccess, requireRole('caregiver'), (req, res) => {
+  const patientId = String(req.params.patientId);
+  const patient = db.prepare('SELECT * FROM patients WHERE id = ?').get(patientId) as PatientRow | undefined;
+  if (!patient) {
+    return res.status(404).json({ error: 'Patient not found' });
+  }
+
+  // Ensure this caregiver owns this patient
+  if (patient.caregiver_id !== req.authUser!.id) {
+    return res.status(403).json({ error: 'Forbidden: you can only delete your own patients' });
+  }
+
+  const deleteTransaction = db.transaction(() => {
+    db.prepare('DELETE FROM cognitive_profiles WHERE patient_id = ?').run(patientId);
+    db.prepare('DELETE FROM cognitive_sessions WHERE patient_id = ?').run(patientId);
+    db.prepare('DELETE FROM reminders WHERE patient_id = ?').run(patientId);
+    db.prepare('DELETE FROM memories WHERE patient_id = ?').run(patientId);
+    db.prepare('DELETE FROM daily_activities WHERE patient_id = ?').run(patientId);
+    db.prepare('DELETE FROM alerts WHERE patient_id = ?').run(patientId);
+    db.prepare('DELETE FROM patients WHERE id = ?').run(patientId);
+    // Delete the elder user account associated with this patient
+    if (patient.user_id) {
+      db.prepare('DELETE FROM users WHERE id = ?').run(patient.user_id);
+    }
+  });
+
+  deleteTransaction();
+  res.json({ ok: true, deletedPatientId: patientId });
+});
+

@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../../store/AppContext';
 import { useAuth } from '../../../store/AuthContext';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
-import { Settings as SettingsIcon, X, Volume2 } from 'lucide-react';
+import { Settings as SettingsIcon, X, Volume2, Bell } from 'lucide-react';
 import { NetworkToggle } from '../../../components/OfflineIndicator/OfflineIndicator';
 import { VoiceOrb } from '../../../components/design-system/VoiceOrb';
 import { getPersonalization } from '../../../services/personalization';
 import { resolvePatientTheme, CATEGORY_METADATA } from '../../../services/themeRegistry';
 import { playPersonalizedPrompt } from '../../../services/voice/personalizedAudio';
-import type { MoodType } from '../../../types';
+import { ElderlyReminderModal } from '../../../components/Elderly/ElderlyReminderModal';
+import type { MoodType, Reminder } from '../../../types';
 
 const MOODS: { type: MoodType; emoji: string; label: string }[] = [
   { type: 'good', emoji: '😊', label: 'Good' },
@@ -37,6 +38,26 @@ export default function ElderlyHome() {
   const navigate = useNavigate();
   const [selectedMood, setSelectedMood] = useState<MoodType | null>(mood);
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+  const [popupReminder, setPopupReminder] = useState<Reminder | null>(null);
+
+  // Automatically trigger reminder pop-up for upcoming/due medication or meal
+  useEffect(() => {
+    if (reminders.length === 0) return;
+    const sessionAlertKey = `sahaaya_reminder_popup_shown_${new Date().getHours()}`;
+    if (sessionStorage.getItem(sessionAlertKey)) return;
+
+    // Look for pending tablet/medicine or meal reminder
+    const due = reminders.find(
+      (r) => r.status !== 'completed' && (r.type === 'medicine' || r.type === 'activity'),
+    );
+    if (due) {
+      sessionStorage.setItem(sessionAlertKey, 'true');
+      const timer = setTimeout(() => {
+        setPopupReminder(due);
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [reminders]);
 
   const personalization = getPersonalization(currentPatient);
   const themeAsset = resolvePatientTheme(
@@ -449,25 +470,75 @@ export default function ElderlyHome() {
               <div
                 key={r.id}
                 className={`reminder-chip ${r.status === 'completed' ? 'reminder-chip--completed' : 'reminder-chip--pending'}`}
-                onClick={() => navigate('/reminders')}
+                onClick={() => setPopupReminder(r)}
+                style={{ cursor: 'pointer' }}
+                title="Tap to view personalized reminder"
               >
                 <span className="reminder-chip__emoji">
                   {REMINDER_EMOJIS[r.type as keyof typeof REMINDER_EMOJIS] || '📌'}
                 </span>
-                <span style={{ fontSize: 14 }}>{r.title}</span>
-                <span style={{ fontSize: 12, opacity: 0.7 }}>
+                <span style={{ fontSize: 14, fontWeight: 600 }}>{r.title}</span>
+                <span style={{ fontSize: 12, opacity: 0.8 }}>
                   {r.status === 'completed' ? '✓ Done' : r.time}
                 </span>
               </div>
             ))}
+            {todayReminders.length === 0 && (
+              <div
+                className="reminder-chip reminder-chip--pending"
+                onClick={() => setPopupReminder({
+                  id: 'sample_pill_1',
+                  patientId: currentPatient?.id || 'sample',
+                  title: 'Afternoon Tablet & Water',
+                  type: 'medicine',
+                  time: '14:00',
+                  status: 'scheduled',
+                  description: 'Take 1 tablet with fresh water.',
+                })}
+                style={{ cursor: 'pointer' }}
+                title="Tap to preview personalized reminder popup"
+              >
+                <span className="reminder-chip__emoji">💊</span>
+                <span style={{ fontSize: 14, fontWeight: 600 }}>Afternoon Tablet</span>
+                <span style={{ fontSize: 12, opacity: 0.8 }}>Tap to Open</span>
+              </div>
+            )}
           </div>
-          <button
-            className="btn btn--outline"
-            onClick={() => navigate('/reminders')}
-            style={{ width: '100%', marginTop: 12, fontSize: 16 }}
-          >
-            View All Reminders
-          </button>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8, marginTop: 12 }}>
+            <button
+              className="btn btn--outline"
+              onClick={() => navigate('/reminders')}
+              style={{ fontSize: 15, padding: '10px 14px' }}
+            >
+              View All Reminders
+            </button>
+            <button
+              className="btn btn--outline"
+              onClick={() => setPopupReminder(todayReminders[0] || {
+                id: 'sample_meal_1',
+                patientId: currentPatient?.id || 'sample',
+                title: 'Lunch & Warm Meal',
+                type: 'activity',
+                time: '13:00',
+                status: 'scheduled',
+                description: 'Time to enjoy a healthy meal.',
+                createdAt: new Date().toISOString(),
+              })}
+              title="Test reminder popup"
+              style={{
+                fontSize: 14,
+                padding: '10px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                borderColor: '#F59E0B',
+                color: '#B45309',
+                background: '#FFFBEB',
+              }}
+            >
+              <Bell size={15} /> Pop Reminder
+            </button>
+          </div>
         </div>
 
         {/* Talk to Sahaaya */}
@@ -537,6 +608,11 @@ export default function ElderlyHome() {
           </button>
         </div>
       </div>
+
+      <ElderlyReminderModal
+        reminder={popupReminder}
+        onClose={() => setPopupReminder(null)}
+      />
 
       <ElderlyNav />
     </div>

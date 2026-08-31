@@ -74,36 +74,76 @@ export default function PatternGame({ difficulty, onComplete }: Props) {
 
   return (
     <div style={{ textAlign: 'center' }}>
-      <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-tertiary)', marginBottom: 20, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-        Question {qIdx + 1} of {questions.length}
-      </p>
+      {/* Progress Bar & Counter Pill */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          background: '#F1F5F9',
+          padding: '4px 14px',
+          borderRadius: 999,
+          fontSize: 13,
+          fontWeight: 700,
+          color: '#475569',
+          marginBottom: 10,
+        }}>
+          <span>Question {qIdx + 1} of {questions.length}</span>
+        </div>
+        <div style={{
+          width: '100%',
+          height: 6,
+          background: '#E2E8F0',
+          borderRadius: 999,
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            width: `${((qIdx + (answered ? 1 : 0)) / questions.length) * 100}%`,
+            height: '100%',
+            background: 'linear-gradient(90deg, #0284C7 0%, #10B981 100%)',
+            borderRadius: 999,
+            transition: 'width 0.3s ease',
+          }} />
+        </div>
+      </div>
 
       <QuestionNarrator text={narratePattern(lang)} speakKey={qIdx}>
-        <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>What comes next?</h2>
-        <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 24 }}>
-          Complete the pattern
+        <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>
+          What comes next?
+        </h2>
+        <p style={{ fontSize: 16, color: '#64748B', marginBottom: 22, fontWeight: 500 }}>
+          Look at the shapes and complete the pattern:
         </p>
 
-        {/* Pattern Sequence */}
+        {/* Pattern Sequence Arena */}
         <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          gap: 12, marginBottom: 32,
-          background: '#F8FAFB', borderRadius: 20, padding: '20px',
-          border: '2px solid var(--border-color)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 12,
+          marginBottom: 28,
+          background: 'radial-gradient(circle at 50% 50%, #F8FAFC 0%, #EFF6FF 100%)',
+          borderRadius: 24,
+          padding: '22px 16px',
+          border: '2px solid #E2E8F0',
+          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
         }}>
           {q.sequence.map((item, i) => (
             <div key={i} style={{
-              width: 52, height: 52,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: item === '?' ? 'var(--color-primary)' : 'white',
-              borderRadius: 12,
-              border: item === '?' ? 'none' : '2px solid var(--border-color)',
-              boxShadow: item === '?' ? 'var(--shadow-md)' : 'none',
+              width: 62,
+              height: 62,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: item === '?' ? 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)' : '#FFFFFF',
+              borderRadius: 18,
+              border: item === '?' ? 'none' : '3px solid #CBD5E1',
+              boxShadow: item === '?' ? '0 6px 18px rgba(2, 132, 199, 0.35)' : '0 4px 10px rgba(0,0,0,0.05)',
             }}>
               {item === '?' ? (
-                <span style={{ color: 'white', fontSize: 22, fontWeight: 800 }}>?</span>
+                <span style={{ color: 'white', fontSize: 26, fontWeight: 900 }}>?</span>
               ) : (
-                <span style={{ fontSize: 28, color: SHAPE_COLORS[item] ?? '#333', fontWeight: 700 }}>{item}</span>
+                <span style={{ fontSize: 32, color: SHAPE_COLORS[item] ?? '#1E293B', fontWeight: 800 }}>{item}</span>
               )}
             </div>
           ))}
@@ -111,48 +151,92 @@ export default function PatternGame({ difficulty, onComplete }: Props) {
       </QuestionNarrator>
 
       {/* Options */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 22 }}>
         {q.options.map((opt) => {
-          let bg = 'white', border = 'var(--border-color)';
+          let bg = '#FFFFFF', border = '#CBD5E1', shadow = '0 4px 10px rgba(0,0,0,0.04)';
           if (answered) {
-            if (opt === q.correct) { bg = 'var(--color-success-light)'; border = 'var(--color-success)'; }
-            else if (opt === selected) { bg = 'var(--color-danger-light)'; border = 'var(--color-danger)'; }
+            if (opt === q.correct) {
+              bg = '#DCFCE7';
+              border = '#16A34A';
+              shadow = '0 4px 14px rgba(22, 163, 74, 0.25)';
+            } else if (opt === selected) {
+              bg = '#FEE2E2';
+              border = '#DC2626';
+            }
           } else if (opt === selected) {
-            bg = 'rgba(46,125,139,0.1)'; border = 'var(--color-primary)';
+            bg = '#F0F9FF';
+            border = '#0284C7';
+            shadow = '0 4px 14px rgba(2, 132, 199, 0.25)';
           }
+
           return (
             <button
               key={opt}
               onClick={() => handleSelect(opt)}
+              disabled={answered}
               style={{
-                background: bg, border: `3px solid ${border}`,
-                borderRadius: 16, padding: '20px 8px',
-                cursor: 'pointer', transition: 'all 0.15s',
-                fontSize: 32, fontWeight: 700,
-                color: SHAPE_COLORS[opt] ?? '#333',
+                background: bg,
+                border: `3px solid ${border}`,
+                borderRadius: 20,
+                padding: '18px 8px',
+                cursor: answered ? 'default' : 'pointer',
+                transition: 'all 0.15s ease',
+                fontSize: 34,
+                fontWeight: 800,
+                color: SHAPE_COLORS[opt] ?? '#1E293B',
+                minHeight: 74,
+                boxShadow: shadow,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              {opt}
+              <span>{opt}</span>
             </button>
           );
         })}
       </div>
 
       {answered && (
-        <div>
+        <div style={{ animation: 'fadeIn 0.2s ease-out' }}>
           <div style={{
-            background: selected === q.correct ? 'var(--color-success-light)' : 'var(--color-danger-light)',
-            borderRadius: 12, padding: '12px 16px', marginBottom: 16,
-            color: selected === q.correct ? '#2E7D32' : '#C62828', fontWeight: 600, fontSize: 16,
+            background: selected === q.correct ? '#DCFCE7' : '#FEF3C7',
+            border: `2px solid ${selected === q.correct ? '#86EFAC' : '#FDE68A'}`,
+            borderRadius: 16,
+            padding: '14px 18px',
+            marginBottom: 16,
+            color: selected === q.correct ? '#15803D' : '#B45309',
+            fontWeight: 700,
+            fontSize: 16,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
           }}>
-            {selected === q.correct ? '✓ Correct!' : `✗ The answer was ${q.correct}`}
+            <span>{selected === q.correct ? '🎉' : '💡'}</span>
+            <span>{selected === q.correct ? 'Brilliant! Correct pattern!' : `Good try! The next shape was ${q.correct}`}</span>
           </div>
+
           <button
-            className="btn btn--primary"
             onClick={handleNext}
-            style={{ width: '100%', height: 56, fontSize: 18, borderRadius: 16 }}
+            style={{
+              width: '100%',
+              height: 56,
+              fontSize: 18,
+              borderRadius: 999,
+              fontWeight: 800,
+              color: 'white',
+              background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 8px 20px rgba(2, 132, 199, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+            }}
           >
-            {qIdx < questions.length - 1 ? 'Next →' : 'See Results'}
+            <span>{qIdx < questions.length - 1 ? 'Next Pattern →' : 'See Results 🏆'}</span>
           </button>
         </div>
       )}

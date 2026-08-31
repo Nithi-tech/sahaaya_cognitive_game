@@ -76,40 +76,62 @@ export default function AttentionGame({ difficulty, onComplete }: Props) {
 
   return (
     <div style={{ textAlign: 'center' }}>
+      {/* Friendly Target Banner */}
       <div style={{
-        display: 'inline-flex', alignItems: 'center', gap: 8,
-        background: '#E8F5F7', borderRadius: 99, padding: '8px 16px',
-        marginBottom: 20,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 10,
+        background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+        border: '2px solid #F59E0B',
+        borderRadius: 999,
+        padding: '8px 22px',
+        marginBottom: 18,
+        boxShadow: '0 4px 14px rgba(245, 158, 11, 0.2)',
       }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-primary)' }}>Find all:</span>
-        <span style={{ fontSize: 28 }}>{target}</span>
-        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary)' }}>Flowers</span>
+        <span style={{ fontSize: 14, fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          Find all:
+        </span>
+        <span style={{ fontSize: 32, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}>{target}</span>
+        <span style={{ fontSize: 16, fontWeight: 800, color: '#92400E' }}>Flowers</span>
       </div>
 
       <QuestionNarrator text={narrateAttentionInstruction(lang)} speakKey="attention-instruction">
-        <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>
+        <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>
           Tap all the Flowers!
         </h2>
-        <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 20 }}>
-          {targetIndices.size} flowers are hidden among other objects
+        <p style={{ fontSize: 15, color: '#64748B', marginBottom: 20, fontWeight: 600 }}>
+          💡 {targetIndices.size} flowers are hidden among other objects
         </p>
       </QuestionNarrator>
 
+      {/* Grid of Items */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${cols}, 1fr)`,
-        gap: 10, marginBottom: 20,
+        gap: 12,
+        marginBottom: 20,
       }}>
         {grid.map((emoji, i) => {
           const isSelected = selected.has(i);
           const isTarget = targetIndices.has(i);
-          let bg = 'white', border = '#E2E8F0';
+          let bg = '#FFFFFF', border = '#CBD5E1', shadow = '0 4px 10px rgba(0,0,0,0.04)';
+
           if (submitted) {
-            if (isTarget && isSelected) { bg = 'var(--color-success-light)'; border = 'var(--color-success)'; }
-            else if (!isTarget && isSelected) { bg = 'var(--color-danger-light)'; border = 'var(--color-danger)'; }
-            else if (isTarget && !isSelected) { bg = '#FFF3E0'; border = 'var(--color-warning)'; }
+            if (isTarget && isSelected) {
+              bg = '#DCFCE7';
+              border = '#16A34A';
+              shadow = '0 4px 14px rgba(22, 163, 74, 0.25)';
+            } else if (!isTarget && isSelected) {
+              bg = '#FEE2E2';
+              border = '#DC2626';
+            } else if (isTarget && !isSelected) {
+              bg = '#FEF3C7';
+              border = '#D97706';
+            }
           } else if (isSelected) {
-            bg = 'rgba(46,125,139,0.1)'; border = 'var(--color-primary)';
+            bg = '#F0F9FF';
+            border = '#0284C7';
+            shadow = '0 4px 14px rgba(2, 132, 199, 0.25)';
           }
 
           const mark = submitted
@@ -120,19 +142,55 @@ export default function AttentionGame({ difficulty, onComplete }: Props) {
             <button
               key={i}
               onClick={() => toggle(i)}
+              disabled={submitted}
               style={{
                 position: 'relative',
-                background: bg, border: `3px solid ${border}`,
-                borderRadius: 16, padding: '16px 8px',
-                fontSize: 40, cursor: 'pointer', transition: 'all 0.15s',
-                transform: isSelected ? 'scale(0.95)' : 'scale(1)',
+                background: bg,
+                border: `3px solid ${border}`,
+                borderRadius: 22,
+                padding: '18px 8px',
+                fontSize: 48,
+                cursor: submitted ? 'default' : 'pointer',
+                transition: 'all 0.15s ease',
+                transform: isSelected ? 'scale(0.96)' : 'scale(1)',
+                boxShadow: shadow,
+                minHeight: 78,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              {emoji}
+              <span>{emoji}</span>
+
+              {/* Selected blue indicator */}
+              {!submitted && isSelected && (
+                <span style={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  width: 22,
+                  height: 22,
+                  borderRadius: '50%',
+                  background: '#0284C7',
+                  color: 'white',
+                  fontSize: 12,
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  ✓
+                </span>
+              )}
+
               {mark && (
                 <span style={{
-                  position: 'absolute', top: 4, right: 6, fontSize: 15, fontWeight: 800,
-                  color: mark === '✓' ? 'var(--color-success)' : mark === '✗' ? 'var(--color-danger)' : 'var(--color-warning)',
+                  position: 'absolute',
+                  top: 6,
+                  right: 8,
+                  fontSize: 18,
+                  fontWeight: 800,
+                  color: mark === '✓' ? '#16A34A' : mark === '✗' ? '#DC2626' : '#D97706',
                 }}>
                   {mark}
                 </span>
@@ -142,28 +200,65 @@ export default function AttentionGame({ difficulty, onComplete }: Props) {
         })}
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, fontSize: 14 }}>
-        <span style={{ color: 'var(--text-tertiary)' }}>Selected: {selected.size}</span>
-        <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>
-          Target: {targetIndices.size} flowers
+      {/* Selected vs Target Counter */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        background: '#F8FAFC',
+        border: '1.5px solid #E2E8F0',
+        borderRadius: 14,
+        padding: '10px 16px',
+        marginBottom: 18,
+        fontSize: 14,
+      }}>
+        <span style={{ color: '#64748B', fontWeight: 600 }}>
+          Selected: <strong style={{ color: '#0F172A', fontSize: 16 }}>{selected.size}</strong>
+        </span>
+        <span style={{ color: '#0369A1', fontWeight: 700 }}>
+          Goal: {targetIndices.size} flowers
         </span>
       </div>
 
       {!submitted ? (
         <button
-          className="btn btn--primary"
           onClick={handleSubmit}
           disabled={selected.size === 0}
-          style={{ width: '100%', height: 60, fontSize: 18, borderRadius: 16 }}
+          style={{
+            width: '100%',
+            height: 56,
+            fontSize: 18,
+            borderRadius: 999,
+            fontWeight: 800,
+            color: 'white',
+            background: selected.size === 0 ? '#94A3B8' : 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+            border: 'none',
+            cursor: selected.size === 0 ? 'default' : 'pointer',
+            boxShadow: selected.size === 0 ? 'none' : '0 8px 20px rgba(2, 132, 199, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            transition: 'all 0.2s ease',
+          }}
         >
-          Submit
+          <span>✓ Submit Selection</span>
         </button>
       ) : (
         <div style={{
-          background: 'var(--color-success-light)', borderRadius: 12, padding: '12px 16px',
-          color: '#2E7D32', fontWeight: 600, fontSize: 15,
+          background: '#DCFCE7',
+          border: '2px solid #86EFAC',
+          borderRadius: 16,
+          padding: '14px',
+          color: '#15803D',
+          fontWeight: 700,
+          fontSize: 16,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
         }}>
-          ✓ Checking answers...
+          <span>🎉 Checking your answers... ✓</span>
         </div>
       )}
     </div>

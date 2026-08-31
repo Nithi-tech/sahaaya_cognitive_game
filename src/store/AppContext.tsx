@@ -37,6 +37,8 @@ interface AppContextType {
   createPatient: (input: { name: string; age: number; region: string; language: string; pin: string }) => Promise<{ patient: PatientProfile; pinHint: string }>;
   /** Updates an elder's basic profile details (name, age, region, language). Caregiver-only. */
   updatePatientProfile: (patientId: string, input: { name: string; age: number; region: string; language: string }) => Promise<void>;
+  /** Deletes a patient and their entire history. Caregiver-only. */
+  deletePatient: (patientId: string) => Promise<void>;
   /** Saves a single onboarding section for the current patient. */
   saveOnboardingSection: (section: keyof OnboardingData, data: OnboardingData[keyof OnboardingData]) => Promise<void>;
   /** Marks the onboarding wizard as complete for the current patient. */
@@ -549,6 +551,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     writeCache(patientId, 'patient', patient);
   }, []);
 
+  const deletePatient = useCallback(
+    async (patientId: string) => {
+      await api.delete<{ ok: boolean }>(`/patients/${patientId}`);
+      setPatients((prev) => {
+        const remaining = prev.filter((p) => p.id !== patientId);
+        if (currentPatient?.id === patientId) {
+          const next = remaining[0] ?? null;
+          setCurrentPatient(next);
+          patientIdRef.current = next?.id ?? null;
+          if (next) {
+            localStorage.setItem('sahaaya_active_patient_id', next.id);
+          } else {
+            localStorage.removeItem('sahaaya_active_patient_id');
+          }
+        }
+        return remaining;
+      });
+      await refreshPatients();
+    },
+    [currentPatient, refreshPatients],
+  );
+
   return (
     <AppContext.Provider
       value={{
@@ -562,7 +586,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         mood, setMood,
         addSession, addReminder, updateReminderStatus, addMemory, updateDailyActivity, resolveAlert,
         updatePreferences,
-        createPatient, updatePatientProfile, saveOnboardingSection, markOnboardingComplete,
+        createPatient, updatePatientProfile, deletePatient, saveOnboardingSection, markOnboardingComplete,
       }}
     >
       {children}

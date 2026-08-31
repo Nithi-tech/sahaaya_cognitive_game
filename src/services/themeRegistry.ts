@@ -504,6 +504,12 @@ export function resolvePatientTheme(
   if (food.includes('pitha') || food.includes('laru') || food.includes('til')) {
     return THEME_REGISTRY['food_pitha'];
   }
+  if (food.includes('mango') || place.includes('mango') || music.includes('mango')) {
+    return THEME_REGISTRY['fruit_mango'];
+  }
+  if (food.includes('banana') || place.includes('banana')) {
+    return THEME_REGISTRY['fruit_banana'];
+  }
   if (food.includes('tea') || food.includes('chai') || food.includes('kahwa')) {
     return THEME_REGISTRY['food_assam_tea'];
   }

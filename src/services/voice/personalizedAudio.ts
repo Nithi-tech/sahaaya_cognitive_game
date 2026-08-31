@@ -1,5 +1,5 @@
 import type { PatientProfile, OnboardingPerson } from '../../types';
-import { speak, playAudioClip } from '../voiceService';
+import { speak, playAudioClip, getActivePatientVoiceClip } from '../voiceService';
 import { generateSpeech } from './voiceCloneService';
 import { getPersonaPitch } from '../personalization';
 
@@ -104,88 +104,101 @@ export function getPatientVoiceReference(patient: PatientProfile | null): { pers
  */
 export function playPersonalizedPrompt({
   patient,
-  trigger,
+  trigger: _trigger,
   fallbackText,
   lang = 'en',
   onStart,
   onEnd,
 }: PromptOptions): { isCustomAudio: boolean; stop: () => void } {
-  let voiceRef = getPatientVoiceReference(patient);
-  if (!voiceRef) {
-    const globalClip = getActivePatientVoiceClip();
-    if (globalClip) {
-      voiceRef = {
-        person: {
-          name: 'Loved One',
-          relationship: 'Family',
-          callsBy: 'Family',
-          photoUrl: null,
-          greetingAudioUrl: globalClip,
-        },
-        sampleUrl: globalClip,
-      };
+  try {
+    let voiceRef = getPatientVoiceReference(patient);
+    if (!voiceRef) {
+      const globalClip = getActivePatientVoiceClip();
+      if (globalClip) {
+        voiceRef = {
+          person: {
+            name: 'Loved One',
+            relationship: 'Family',
+            callsBy: 'Family',
+            photoUrl: undefined,
+            greetingAudioUrl: globalClip,
+          },
+          sampleUrl: globalClip,
+        };
+      }
     }
-  }
-  const personaPitch = getPersonaPitch(voiceRef?.person);
+    const personaPitch = getPersonaPitch(voiceRef?.person);
 
-  let activeAudio: HTMLAudioElement | null = null;
-  let cancelled = false;
+    let activeAudio: HTMLAudioElement | null = null;
+    let cancelled = false;
 
-  // For all prompts: ALWAYS synthesize the spoken words in the added loved one's cloned voice!
-  const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : false;
+    // For all prompts: ALWAYS synthesize the spoken words in the added loved one's cloned voice!
+    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : false;
 
-  if (isOnline && voiceRef && voiceRef.sampleUrl) {
-    console.log(`[personalizedAudio] Triggering AI Voice Cloning for "${fallbackText.slice(0, 30)}..." using sample from ${voiceRef.person.name}`);
-    generateSpeech(fallbackText, voiceRef.sampleUrl, voiceRef.person.voiceProfileId, lang)
-      .then((generatedAudioUrl) => {
-        if (cancelled) return;
-        if (generatedAudioUrl) {
-          console.log(`[personalizedAudio] Cloned audio generated successfully! Playing now.`);
-          onStart?.({ person: voiceRef.person, isCustomAudio: true, isAiCloned: true });
-          activeAudio = playAudioClip(generatedAudioUrl, onEnd);
-        } else {
-          console.warn('[personalizedAudio] Cloned audio generation returned null, falling back to browser TTS');
-          // Speak the ACTUAL fallbackText with the companion's personalized pitch/tone!
+    if (isOnline && voiceRef && voiceRef.sampleUrl) {
+      console.log(`[personalizedAudio] Triggering AI Voice Cloning for "${fallbackText.slice(0, 30)}..." using sample from ${voiceRef.person.name}`);
+      generateSpeech(fallbackText, voiceRef.sampleUrl, voiceRef.person.voiceProfileId, lang)
+        .then((generatedAudioUrl) => {
+          if (cancelled) return;
+          if (generatedAudioUrl) {
+            console.log(`[personalizedAudio] Cloned audio generated successfully! Playing now.`);
+            onStart?.({ person: voiceRef?.person, isCustomAudio: true, isAiCloned: true });
+            activeAudio = playAudioClip(generatedAudioUrl, onEnd);
+          } else {
+            console.warn('[personalizedAudio] Cloned audio generation returned null, falling back to browser TTS');
+            // Speak the ACTUAL fallbackText with the companion's personalized pitch/tone!
+            onStart?.({ isCustomAudio: false, isAiCloned: false });
+            speak(fallbackText, lang, { pitch: personaPitch, onEnd });
+          }
+        })
+        .catch((err) => {
+          if (cancelled) return;
+          console.error('[personalizedAudio] Error in generateSpeech:', err);
           onStart?.({ isCustomAudio: false, isAiCloned: false });
           speak(fallbackText, lang, { pitch: personaPitch, onEnd });
-        }
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        console.error('[personalizedAudio] Error in generateSpeech:', err);
-        onStart?.({ isCustomAudio: false, isAiCloned: false });
-        speak(fallbackText, lang, { pitch: personaPitch, onEnd });
-      });
+        });
+
+      return {
+        isCustomAudio: true,
+        stop: () => {
+          cancelled = true;
+          if (activeAudio) {
+            try {
+              activeAudio.pause();
+              activeAudio.currentTime = 0;
+            } catch {
+              /* ignore */
+            }
+          }
+        },
+      };
+    }
+
+    const isAiVoiceEnabled = patient?.preferences?.aiVoiceEnabled !== false;
+    console.log(`[personalizedAudio] Not using cloning: isOnline=${isOnline}, isAiVoiceEnabled=${isAiVoiceEnabled}, hasVoiceRef=${!!voiceRef}`);
+
+    // 3. Fallback when offline or no voice sample available:
+    // Speak the ACTUAL words using the companion's personalized pitch!
+    onStart?.({ isCustomAudio: false, isAiCloned: false });
+    speak(fallbackText, lang, { pitch: personaPitch, onEnd });
 
     return {
-      isCustomAudio: true,
+      isCustomAudio: false,
       stop: () => {
-        cancelled = true;
-        if (activeAudio) {
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
           try {
-            activeAudio.pause();
-            activeAudio.currentTime = 0;
+            window.speechSynthesis.cancel();
           } catch {
             /* ignore */
           }
         }
       },
     };
+  } catch (err) {
+    console.error('[personalizedAudio] Error in playPersonalizedPrompt:', err);
+    return {
+      isCustomAudio: false,
+      stop: () => {},
+    };
   }
-
-  console.log(`[personalizedAudio] Not using cloning: isOnline=${isOnline}, isAiVoiceEnabled=${isAiVoiceEnabled}, hasVoiceRef=${!!voiceRef}`);
-
-  // 3. Fallback when offline or AI voice disabled:
-  // Speak the ACTUAL words using the companion's personalized pitch!
-  onStart?.({ isCustomAudio: false, isAiCloned: false });
-  speak(fallbackText, lang, { pitch: personaPitch, onEnd });
-
-  return {
-    isCustomAudio: false,
-    stop: () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-    },
-  };
 }

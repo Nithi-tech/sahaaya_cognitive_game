@@ -119,75 +119,112 @@ export default function RoutineRecallGame({ difficulty, onComplete }: Props) {
   return (
     <div>
       <QuestionNarrator text={narrateRoutineInstruction(lang)} speakKey="routine-instruction">
-        <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6, textAlign: 'center' }}>
-          Morning Routine
+        <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', marginBottom: 6, textAlign: 'center' }}>
+          Daily Routine Order
         </h2>
-        <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 20, textAlign: 'center' }}>
-          Arrange these activities in the correct order
+        <p style={{ fontSize: 16, color: '#64748B', marginBottom: 24, textAlign: 'center', fontWeight: 500 }}>
+          Arrange these activities from morning to night using the arrows:
         </p>
       </QuestionNarrator>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
         {items.map((item, idx) => {
           const isCorrect = item.correctOrder === idx;
-          let bg = 'white', border = 'var(--border-color)';
+          let bg = '#FFFFFF', border = '#E2E8F0', shadow = '0 4px 12px rgba(0,0,0,0.04)';
           if (submitted) {
-            bg = isCorrect ? 'var(--color-success-light)' : 'var(--color-danger-light)';
-            border = isCorrect ? 'var(--color-success)' : 'var(--color-danger)';
+            bg = isCorrect ? '#DCFCE7' : '#FEE2E2';
+            border = isCorrect ? '#16A34A' : '#DC2626';
+            shadow = isCorrect ? '0 4px 14px rgba(22, 163, 74, 0.2)' : 'none';
           }
           return (
             <div
               key={item.label}
               style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                background: bg, border: `2px solid ${border}`,
-                borderRadius: 16, padding: '14px 16px',
-                transition: 'all 0.2s',
-                boxShadow: 'var(--shadow-sm)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                background: bg,
+                border: `3px solid ${border}`,
+                borderRadius: 20,
+                padding: '16px 18px',
+                transition: 'all 0.2s ease',
+                boxShadow: shadow,
+                minHeight: 74,
               }}
             >
               <span style={{
-                width: 32, height: 32, borderRadius: 99,
-                background: 'var(--border-color)', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)',
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: '#F1F5F9',
+                border: '2px solid #CBD5E1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 16,
+                fontWeight: 800,
+                color: '#0F172A',
                 flexShrink: 0,
               }}>
                 {idx + 1}
               </span>
-              <span style={{ fontSize: 32 }}>{item.emoji}</span>
-              <span style={{ fontSize: 17, fontWeight: 600, flex: 1 }}>{item.label}</span>
+              <span style={{ fontSize: 36 }}>{item.emoji}</span>
+              <span style={{ fontSize: 18, fontWeight: 700, flex: 1, color: '#1E293B' }}>{item.label}</span>
               <SpeakableLabel text={item.label} />
+
               {!submitted && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', gap: 6 }}>
                   <button
                     onClick={() => moveUp(idx)}
                     disabled={idx === 0}
                     aria-label={`Move ${item.label} earlier`}
                     style={{
-                      width: 40, height: 36,
-                      background: idx === 0 ? '#F5F5F5' : 'var(--color-primary)',
-                      color: idx === 0 ? '#CCC' : 'white',
-                      border: 'none', borderRadius: 8,
-                      cursor: idx === 0 ? 'default' : 'pointer', fontSize: 16, fontWeight: 700,
+                      width: 44,
+                      height: 44,
+                      background: idx === 0 ? '#F1F5F9' : '#0284C7',
+                      color: idx === 0 ? '#94A3B8' : 'white',
+                      border: 'none',
+                      borderRadius: 12,
+                      cursor: idx === 0 ? 'default' : 'pointer',
+                      fontSize: 18,
+                      fontWeight: 800,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.15s ease',
                     }}
-                  >↑</button>
+                  >
+                    ▲
+                  </button>
                   <button
                     onClick={() => moveDown(idx)}
                     disabled={idx === items.length - 1}
                     aria-label={`Move ${item.label} later`}
                     style={{
-                      width: 40, height: 36,
-                      background: idx === items.length - 1 ? '#F5F5F5' : 'var(--color-primary)',
-                      color: idx === items.length - 1 ? '#CCC' : 'white',
-                      border: 'none', borderRadius: 8,
-                      cursor: idx === items.length - 1 ? 'default' : 'pointer', fontSize: 16, fontWeight: 700,
+                      width: 44,
+                      height: 44,
+                      background: idx === items.length - 1 ? '#F1F5F9' : '#0284C7',
+                      color: idx === items.length - 1 ? '#94A3B8' : 'white',
+                      border: 'none',
+                      borderRadius: 12,
+                      cursor: idx === items.length - 1 ? 'default' : 'pointer',
+                      fontSize: 18,
+                      fontWeight: 800,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.15s ease',
                     }}
-                  >↓</button>
+                  >
+                    ▼
+                  </button>
                 </div>
               )}
+
               {submitted && (
-                <span style={{ fontSize: 24 }}>{isCorrect ? '✓' : '✗'}</span>
+                <span style={{ fontSize: 26, fontWeight: 800, color: isCorrect ? '#16A34A' : '#DC2626' }}>
+                  {isCorrect ? '✓' : '✗'}
+                </span>
               )}
             </div>
           );
@@ -196,18 +233,38 @@ export default function RoutineRecallGame({ difficulty, onComplete }: Props) {
 
       {!submitted ? (
         <button
-          className="btn btn--primary"
           onClick={handleSubmit}
-          style={{ width: '100%', height: 60, fontSize: 18, borderRadius: 16, fontWeight: 700 }}
+          style={{
+            width: '100%',
+            height: 56,
+            fontSize: 18,
+            borderRadius: 999,
+            fontWeight: 800,
+            color: 'white',
+            background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 8px 20px rgba(2, 132, 199, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+          }}
         >
-          Submit Order
+          <span>✓ Submit Routine Order</span>
         </button>
       ) : (
         <div style={{
-          background: 'var(--color-success-light)', borderRadius: 12, padding: '12px 16px',
-          color: '#2E7D32', fontWeight: 600, fontSize: 15, textAlign: 'center',
+          background: '#DCFCE7',
+          border: '2px solid #86EFAC',
+          borderRadius: 16,
+          padding: '16px',
+          color: '#15803D',
+          fontWeight: 700,
+          fontSize: 16,
+          textAlign: 'center',
         }}>
-          ✓ Evaluating your routine order...
+          <span>🎉 Evaluating your routine order... ✓</span>
         </div>
       )}
     </div>

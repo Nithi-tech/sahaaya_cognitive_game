@@ -204,7 +204,14 @@ export function applyPatientPreferencesUpdate(patientId: string, preferences: Re
       existingPrefs = {};
     }
   }
-  const merged = { ...existingPrefs, ...preferences };
+  const merged = {
+    ...existingPrefs,
+    ...preferences,
+    onboarding: {
+      ...((existingPrefs.onboarding as Record<string, unknown>) || {}),
+      ...((preferences.onboarding as Record<string, unknown>) || {}),
+    },
+  };
   db.prepare('UPDATE patients SET preferences_json = ? WHERE id = ?').run(JSON.stringify(merged), patientId);
   return db.prepare('SELECT * FROM patients WHERE id = ?').get(patientId);
 }

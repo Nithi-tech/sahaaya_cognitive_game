@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './store/AuthContext';
 import { AppProvider, useApp } from './store/AppContext';
 import { OfflineProvider } from './store/OfflineContext';
 import { OfflineIndicator } from './components/OfflineIndicator/OfflineIndicator';
+import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import LandingPage from './pages/Landing/LandingPage';
 import OnboardingFlow from './pages/Onboarding/OnboardingFlow';
 import ElderPinLogin from './pages/Onboarding/ElderPinLogin';
@@ -104,8 +105,10 @@ export default function App() {
               path="*"
               element={
                 <AppProvider>
-                  <OfflineIndicator />
-                  <AppRoutes />
+                  <ErrorBoundary>
+                    <OfflineIndicator />
+                    <AppRoutes />
+                  </ErrorBoundary>
                 </AppProvider>
               }
             />

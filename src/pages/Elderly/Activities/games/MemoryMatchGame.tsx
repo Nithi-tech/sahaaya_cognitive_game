@@ -91,42 +91,50 @@ export default function MemoryMatchGame({ difficulty, onComplete }: Props) {
   if (phase === 'memorize') {
     return (
       <QuestionNarrator text={narrateMemoryLook(lang)} speakKey="memorize">
-        <div style={{ textAlign: 'center', padding: '20px 0' }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-primary)', marginBottom: 8 }}>
-            Remember these objects!
-          </div>
+        <div style={{ textAlign: 'center', padding: '10px 0' }}>
+          {/* Calming, clear countdown badge */}
           <div style={{
-            background: 'var(--color-primary)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
             color: 'white',
-            borderRadius: 99,
-            display: 'inline-block',
-            padding: '6px 20px',
-            fontSize: 28,
+            borderRadius: 999,
+            padding: '8px 24px',
+            fontSize: 20,
             fontWeight: 800,
-            marginBottom: 28,
-            minWidth: 56,
+            marginBottom: 24,
+            boxShadow: '0 6px 18px rgba(2, 132, 199, 0.25)',
           }}>
-            {timeLeft}
+            <span>⏱️ Remember these items:</span>
+            <span style={{ fontSize: 24, minWidth: 28 }}>{timeLeft}s</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(items.length, 4)}, 1fr)`, gap: 12 }}>
+
+          {/* Cards to remember */}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(items.length, 4)}, 1fr)`, gap: 14 }}>
             {items.map((emoji) => (
               <div key={emoji} style={{
-                background: 'white', borderRadius: 20, padding: '20px 12px',
-                border: '2px solid var(--border-color)', textAlign: 'center',
-                boxShadow: 'var(--shadow-sm)', position: 'relative',
+                background: '#FFFFFF',
+                borderRadius: 24,
+                padding: '22px 12px',
+                border: '3px solid #E2E8F0',
+                textAlign: 'center',
+                boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
+                position: 'relative',
               }}>
                 <div style={{ position: 'absolute', top: 8, right: 8 }}>
                   <SpeakableLabel text={ITEM_LABELS[emoji]} />
                 </div>
-                <div style={{ fontSize: 48 }}>{emoji}</div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginTop: 8, color: 'var(--text-secondary)' }}>
+                <div style={{ fontSize: 52, filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.12))' }}>{emoji}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, marginTop: 10, color: '#1E293B' }}>
                   {ITEM_LABELS[emoji]}
                 </div>
               </div>
             ))}
           </div>
-          <p style={{ marginTop: 20, color: 'var(--text-tertiary)', fontSize: 14 }}>
-            Look carefully — they will disappear!
+
+          <p style={{ marginTop: 22, color: '#64748B', fontSize: 15, fontWeight: 600 }}>
+            👀 Look carefully — they will hide in a moment!
           </p>
         </div>
       </QuestionNarrator>
@@ -136,31 +144,43 @@ export default function MemoryMatchGame({ difficulty, onComplete }: Props) {
   return (
     <div style={{ textAlign: 'center' }}>
       <QuestionNarrator text={narrateMemoryRecall(lang)} speakKey="recall">
-        <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>
+        <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>
           Which objects did you see?
         </h2>
-        <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 20 }}>
-          Tap all the ones you remember
+        <p style={{ fontSize: 16, color: '#475569', marginBottom: 22, fontWeight: 500 }}>
+          Tap all the items you remember:
         </p>
       </QuestionNarrator>
 
       <div style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${difficulty === 'easy' ? 2 : 3}, 1fr)`,
-        gap: 10, marginBottom: 24,
+        gap: 12,
+        marginBottom: 24,
       }}>
         {optionsList.map((emoji) => {
           const isSelected = selected.has(emoji);
           const isCorrect = items.includes(emoji);
-          let bgColor = 'white';
-          let borderColor = 'var(--border-color)';
+          let bgColor = '#FFFFFF';
+          let borderColor = '#CBD5E1';
+          let shadow = '0 3px 8px rgba(0,0,0,0.04)';
+
           if (submitted) {
-            if (isCorrect && isSelected) { bgColor = 'var(--color-success-light)'; borderColor = 'var(--color-success)'; }
-            else if (!isCorrect && isSelected) { bgColor = 'var(--color-danger-light)'; borderColor = 'var(--color-danger)'; }
-            else if (isCorrect && !isSelected) { bgColor = '#FFF3E0'; borderColor = 'var(--color-warning)'; }
+            if (isCorrect && isSelected) {
+              bgColor = '#DCFCE7';
+              borderColor = '#16A34A';
+              shadow = '0 4px 14px rgba(22, 163, 74, 0.25)';
+            } else if (!isCorrect && isSelected) {
+              bgColor = '#FEE2E2';
+              borderColor = '#DC2626';
+            } else if (isCorrect && !isSelected) {
+              bgColor = '#FEF3C7';
+              borderColor = '#D97706';
+            }
           } else if (isSelected) {
-            bgColor = 'rgba(46,125,139,0.08)';
-            borderColor = 'var(--color-primary)';
+            bgColor = '#F0F9FF';
+            borderColor = '#0284C7';
+            shadow = '0 4px 14px rgba(2, 132, 199, 0.2)';
           }
 
           const mark = submitted
@@ -171,30 +191,56 @@ export default function MemoryMatchGame({ difficulty, onComplete }: Props) {
             <button
               key={emoji}
               onClick={() => toggleSelect(emoji)}
+              disabled={submitted}
               style={{
                 position: 'relative',
                 background: bgColor,
                 border: `3px solid ${borderColor}`,
-                borderRadius: 16,
-                padding: '16px 8px',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
+                borderRadius: 22,
+                padding: '18px 10px',
+                cursor: submitted ? 'default' : 'pointer',
+                transition: 'all 0.15s ease',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: 6,
+                gap: 8,
+                boxShadow: shadow,
               }}
             >
+              {/* Selected indicator badge */}
+              {!submitted && isSelected && (
+                <span style={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  width: 24,
+                  height: 24,
+                  borderRadius: '50%',
+                  background: '#0284C7',
+                  color: 'white',
+                  fontSize: 13,
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  ✓
+                </span>
+              )}
               {mark && (
                 <span style={{
-                  position: 'absolute', top: 6, right: 8, fontSize: 15, fontWeight: 800,
-                  color: mark === '✓' ? 'var(--color-success)' : mark === '✗' ? 'var(--color-danger)' : 'var(--color-warning)',
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  fontSize: 18,
+                  fontWeight: 800,
+                  color: mark === '✓' ? '#16A34A' : mark === '✗' ? '#DC2626' : '#D97706',
                 }}>
                   {mark}
                 </span>
               )}
-              <span style={{ fontSize: 36 }}>{emoji}</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>
+              <span style={{ fontSize: 44 }}>{emoji}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>
                 {ITEM_LABELS[emoji]}
               </span>
             </button>
@@ -204,22 +250,45 @@ export default function MemoryMatchGame({ difficulty, onComplete }: Props) {
 
       {!submitted && (
         <button
-          className="btn btn--primary"
           onClick={handleSubmit}
           disabled={selected.size === 0}
-          style={{ width: '100%', height: 60, fontSize: 18, borderRadius: 16, fontWeight: 700 }}
+          style={{
+            width: '100%',
+            height: 56,
+            fontSize: 18,
+            borderRadius: 999,
+            fontWeight: 800,
+            color: 'white',
+            background: selected.size === 0 ? '#94A3B8' : 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+            border: 'none',
+            cursor: selected.size === 0 ? 'default' : 'pointer',
+            boxShadow: selected.size === 0 ? 'none' : '0 8px 20px rgba(2, 132, 199, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            transition: 'all 0.2s ease',
+          }}
         >
-          Submit Answers
+          <span>✓ Submit Answers ({selected.size} selected)</span>
         </button>
       )}
 
       {submitted && (
         <div style={{
-          background: 'var(--color-success-light)',
-          borderRadius: 16, padding: '16px',
-          fontSize: 15, color: '#2E7D32', fontWeight: 600,
+          background: '#DCFCE7',
+          border: '2px solid #86EFAC',
+          borderRadius: 16,
+          padding: '16px',
+          fontSize: 16,
+          color: '#15803D',
+          fontWeight: 700,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
         }}>
-          Checking your answers... ✓
+          <span>🎉 Checking your memory answers... ✓</span>
         </div>
       )}
     </div>

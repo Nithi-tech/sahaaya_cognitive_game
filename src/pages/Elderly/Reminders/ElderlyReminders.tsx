@@ -5,6 +5,7 @@ import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Volume2 } from 'lucide-react';
 import { playPersonalizedPrompt } from '../../../services/voice/personalizedAudio';
+import { ElderlyReminderModal } from '../../../components/Elderly/ElderlyReminderModal';
 import type { Reminder } from '../../../types';
 
 const REMINDER_CONFIG = {
@@ -19,7 +20,7 @@ export default function ElderlyReminders() {
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const [justDone, setJustDone] = useState<string | null>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [activeModalReminder, setActiveModalReminder] = useState<Reminder | null>(null);
 
   const handleDone = (id: string) => {
     updateReminderStatus(id, 'completed');
@@ -37,14 +38,7 @@ export default function ElderlyReminders() {
   };
 
   const handleHearReminder = (reminder: Reminder) => {
-    setPlayingId(reminder.id);
-    playPersonalizedPrompt({
-      patient: currentPatient,
-      trigger: 'reminder',
-      fallbackText: `${reminder.title}. ${reminder.description || ''}`,
-      lang,
-      onEnd: () => setPlayingId(null),
-    });
+    setActiveModalReminder(reminder);
   };
 
   const handleLater = (id: string) => {
@@ -101,7 +95,7 @@ export default function ElderlyReminders() {
                     reminder={r}
                     config={conf}
                     justDone={justDone === r.id}
-                    isPlaying={playingId === r.id}
+                    isPlaying={activeModalReminder?.id === r.id}
                     onHear={() => handleHearReminder(r)}
                     onDone={() => handleDone(r.id)}
                     onLater={() => handleLater(r.id)}
@@ -112,6 +106,12 @@ export default function ElderlyReminders() {
           );
         })}
       </div>
+
+      <ElderlyReminderModal
+        reminder={activeModalReminder}
+        onClose={() => setActiveModalReminder(null)}
+      />
+
       <ElderlyNav />
     </div>
   );

@@ -83,7 +83,7 @@ export default function ElderlyGames() {
       <GameResultScreen
         result={session.lastResult}
         difficultyReason={session.difficultyReason}
-        primaryAction={{ label: '🎮 Play Another', onClick: session.exit }}
+        primaryAction={{ label: '🎮 Continue to Next Game', onClick: session.exit }}
         secondaryAction={{ label: 'Back to Home', onClick: () => navigate('/') }}
       />
     );

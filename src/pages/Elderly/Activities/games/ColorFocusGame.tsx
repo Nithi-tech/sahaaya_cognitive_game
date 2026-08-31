@@ -83,28 +83,83 @@ export default function ColorFocusGame({ difficulty, onComplete }: Props) {
 
   return (
     <div style={{ textAlign: 'center' }}>
-      <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-tertiary)', marginBottom: 20, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-        Question {idx + 1} of {trials.length}
-      </p>
+      {/* Progress Bar & Counter Pill */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          background: '#F1F5F9',
+          padding: '4px 14px',
+          borderRadius: 999,
+          fontSize: 13,
+          fontWeight: 700,
+          color: '#475569',
+          marginBottom: 10,
+        }}>
+          <span>Question {idx + 1} of {trials.length}</span>
+        </div>
+        <div style={{
+          width: '100%',
+          height: 6,
+          background: '#E2E8F0',
+          borderRadius: 999,
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            width: `${((idx + (answered ? 1 : 0)) / trials.length) * 100}%`,
+            height: '100%',
+            background: 'linear-gradient(90deg, #0284C7 0%, #10B981 100%)',
+            borderRadius: 999,
+            transition: 'width 0.3s ease',
+          }} />
+        </div>
+      </div>
 
       <QuestionNarrator text={narrateColorFocus(lang)} speakKey="color-focus-instruction">
-        <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>What color is the ink?</h2>
-        <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 24 }}>Not the word — the color it's printed in</p>
+        <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>
+          What color is the ink?
+        </h2>
+        <p style={{ fontSize: 16, color: '#64748B', marginBottom: 22, fontWeight: 600 }}>
+          💡 Ignore the word — look only at the ink color!
+        </p>
 
+        {/* Word Card */}
         <div style={{
-          background: '#F8FAFB', borderRadius: 20, padding: '32px 20px', marginBottom: 28,
-          border: '2px solid var(--border-color)',
+          background: 'radial-gradient(circle at 50% 50%, #FFFFFF 0%, #F8FAFC 100%)',
+          borderRadius: 26,
+          padding: '30px 20px',
+          marginBottom: 26,
+          border: '3px solid #E2E8F0',
+          boxShadow: '0 10px 28px rgba(15, 23, 42, 0.06)',
         }}>
-          <span style={{ fontSize: 48, fontWeight: 800, color: trial.inkHex }}>{trial.word}</span>
+          <span style={{
+            fontSize: 54,
+            fontWeight: 900,
+            color: trial.inkHex,
+            letterSpacing: '0.02em',
+            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.12))',
+          }}>
+            {trial.word}
+          </span>
         </div>
       </QuestionNarrator>
 
+      {/* Options Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 20 }}>
         {COLORS.map((c) => {
-          let border = 'var(--border-color)', bg = 'white';
+          let border = '#CBD5E1', bg = '#FFFFFF', shadow = '0 4px 10px rgba(0,0,0,0.04)', textColor = '#1E293B';
           if (answered) {
-            if (c.name === trial.correctName) { bg = 'var(--color-success-light)'; border = 'var(--color-success)'; }
-            else if (c.name === selected) { bg = 'var(--color-danger-light)'; border = 'var(--color-danger)'; }
+            if (c.name === trial.correctName) {
+              bg = '#DCFCE7';
+              border = '#16A34A';
+              textColor = '#15803D';
+              shadow = '0 4px 14px rgba(22, 163, 74, 0.25)';
+            } else if (c.name === selected) {
+              bg = '#FEE2E2';
+              border = '#DC2626';
+              textColor = '#B91C1C';
+            }
           }
           return (
             <button
@@ -112,13 +167,30 @@ export default function ColorFocusGame({ difficulty, onComplete }: Props) {
               onClick={() => handlePick(c.name)}
               disabled={answered}
               style={{
-                background: bg, border: `3px solid ${border}`, borderRadius: 16,
-                padding: '18px 12px', display: 'flex', alignItems: 'center', gap: 10,
-                cursor: answered ? 'default' : 'pointer', minHeight: 64,
+                background: bg,
+                border: `3px solid ${border}`,
+                borderRadius: 20,
+                padding: '18px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 12,
+                cursor: answered ? 'default' : 'pointer',
+                minHeight: 68,
+                boxShadow: shadow,
+                transition: 'all 0.15s ease',
               }}
             >
-              <span style={{ width: 28, height: 28, borderRadius: 8, background: c.hex, flexShrink: 0 }} />
-              <span style={{ fontSize: 16, fontWeight: 700 }}>{c.name}</span>
+              <span style={{
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                background: c.hex,
+                flexShrink: 0,
+                border: '2px solid rgba(0,0,0,0.15)',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+              }} />
+              <span style={{ fontSize: 18, fontWeight: 800, color: textColor }}>{c.name}</span>
             </button>
           );
         })}
@@ -126,11 +198,21 @@ export default function ColorFocusGame({ difficulty, onComplete }: Props) {
 
       {answered && (
         <div style={{
-          background: selected === trial.correctName ? 'var(--color-success-light)' : 'var(--color-danger-light)',
-          borderRadius: 12, padding: '12px 16px',
-          color: selected === trial.correctName ? '#2E7D32' : '#C62828', fontWeight: 600, fontSize: 16,
+          background: selected === trial.correctName ? '#DCFCE7' : '#FEF3C7',
+          border: `2px solid ${selected === trial.correctName ? '#86EFAC' : '#FDE68A'}`,
+          borderRadius: 16,
+          padding: '14px 18px',
+          color: selected === trial.correctName ? '#15803D' : '#B45309',
+          fontWeight: 700,
+          fontSize: 16,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          animation: 'fadeIn 0.2s ease-out',
         }}>
-          {selected === trial.correctName ? '✓ Well done!' : `Good try — it was ${trial.correctName}.`}
+          <span>{selected === trial.correctName ? '🎉' : '💡'}</span>
+          <span>{selected === trial.correctName ? 'Wonderful! That was the ink color!' : `Good try! The ink color was ${trial.correctName}.`}</span>
         </div>
       )}
     </div>
