@@ -25,7 +25,7 @@ export default function LandingPage() {
   const { login, register, authError } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<'closed' | 'login' | 'register'>('closed');
+  const [mode, setMode] = useState<'closed' | 'login' | 'register' | 'healthcare' | 'register-healthcare'>('closed');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [regName, setRegName] = useState('');
@@ -38,6 +38,9 @@ export default function LandingPage() {
     setSubmitting(true);
     try {
       await login(email, password);
+      // Role (elderly/caregiver/healthcare) comes back from the server with
+      // the account, so this one form signs any role in — AppRoutes then
+      // renders the right portal for whichever role logged in.
     } catch {
       /* authError is shown */
     } finally {
@@ -45,12 +48,13 @@ export default function LandingPage() {
     }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent, role: 'caregiver' | 'healthcare') => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await register({ email: regEmail, password: regPassword, name: regName, role: 'caregiver' });
-      // After registration, the AppRoutes will auto-redirect to /onboarding
+      await register({ email: regEmail, password: regPassword, name: regName, role });
+      // After registration, AppRoutes redirects caregivers to /onboarding;
+      // a healthcare account lands straight on the patient roster.
     } catch {
       /* authError is shown */
     } finally {
@@ -103,6 +107,20 @@ export default function LandingPage() {
               </div>
             </button>
 
+            {/* Healthcare Professional */}
+            <button
+              className="landing-role-btn"
+              onClick={() => setMode('healthcare')}
+              disabled={submitting}
+              style={{ width: '100%', justifyContent: 'center', fontSize: 15 }}
+            >
+              <span style={{ fontSize: 26 }}>🩺</span>
+              <div style={{ textAlign: 'left' }}>
+                <div>Healthcare Professional</div>
+                <div style={{ fontSize: 12, opacity: 0.85, fontWeight: 400, marginTop: 2 }}>Sign in to review patient activity &amp; trends</div>
+              </div>
+            </button>
+
             {authError && <p className="landing-error">{authError}</p>}
 
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 14, marginTop: 6, textAlign: 'center' }}>
@@ -116,7 +134,7 @@ export default function LandingPage() {
             </div>
           </div>
         ) : mode === 'register' ? (
-          <form onSubmit={handleRegister} className="landing-login-form">
+          <form onSubmit={(e) => handleRegister(e, 'caregiver')} className="landing-login-form">
             <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800, textAlign: 'center' }}>Create Caregiver Account</h3>
             <input
               type="text"
@@ -148,6 +166,68 @@ export default function LandingPage() {
               {submitting ? 'Creating account…' : 'Create Account & Set Up Elder →'}
             </button>
             <button type="button" className="landing-link-btn" onClick={() => setMode('closed')}>
+              ← Back
+            </button>
+          </form>
+        ) : mode === 'healthcare' ? (
+          <div className="landing-login-form">
+            <h3 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800, textAlign: 'center' }}>Healthcare Professional</h3>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 8 }}>
+              Sign in to review the patients assigned to you, or create a new account.
+            </p>
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={() => setMode('login')}
+              style={{ height: 52, fontSize: 16, borderRadius: 14 }}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              className="btn btn--outline"
+              onClick={() => setMode('register-healthcare')}
+              style={{ height: 52, fontSize: 16, borderRadius: 14 }}
+            >
+              Create Healthcare Account
+            </button>
+            <button type="button" className="landing-link-btn" onClick={() => setMode('closed')}>
+              ← Back
+            </button>
+          </div>
+        ) : mode === 'register-healthcare' ? (
+          <form onSubmit={(e) => handleRegister(e, 'healthcare')} className="landing-login-form">
+            <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800, textAlign: 'center' }}>Create Healthcare Account</h3>
+            <input
+              type="text"
+              required
+              placeholder="Your full name"
+              value={regName}
+              onChange={(e) => setRegName(e.target.value)}
+              className="landing-input"
+            />
+            <input
+              type="email"
+              required
+              placeholder="Work email address"
+              value={regEmail}
+              onChange={(e) => setRegEmail(e.target.value)}
+              className="landing-input"
+            />
+            <input
+              type="password"
+              required
+              minLength={8}
+              placeholder="Password (min 8 characters)"
+              value={regPassword}
+              onChange={(e) => setRegPassword(e.target.value)}
+              className="landing-input"
+            />
+            {authError && <p className="landing-error">{authError}</p>}
+            <button type="submit" className="btn btn--primary" disabled={submitting} style={{ height: 52, fontSize: 16, borderRadius: 14 }}>
+              {submitting ? 'Creating account…' : 'Create Account →'}
+            </button>
+            <button type="button" className="landing-link-btn" onClick={() => setMode('healthcare')}>
               ← Back
             </button>
           </form>

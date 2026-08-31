@@ -157,6 +157,37 @@ patientsRouter.post('/', requireRole('caregiver'), async (req, res) => {
   });
 });
 
+// Link an existing patient to the calling healthcare professional's account,
+// using the patient's Elder Access ID as a lightweight pairing credential —
+// the same code already shown to the caregiver and used for Elder Login,
+// reused here instead of building a separate invite system. Re-linking
+// (e.g. to a different healthcare professional) simply reassigns it, since
+// the schema only supports one healthcare worker per patient today.
+patientsRouter.post('/link', requireRole('healthcare'), (req, res) => {
+  const raw = req.body?.accessId;
+  if (!raw || typeof raw !== 'string' || !raw.trim()) {
+    return res.status(400).json({ error: "Please enter the patient's Access ID" });
+  }
+
+  const cleaned = raw.trim().toUpperCase();
+  const altCleaned = cleaned.startsWith('SAH-') ? cleaned.replace('SAH-', '') : `SAH-${cleaned}`;
+
+  const elderUser = db
+    .prepare(`SELECT id FROM users WHERE (UPPER(elder_access_id) = ? OR UPPER(elder_access_id) = ?) AND role = 'elderly'`)
+    .get(cleaned, altCleaned) as { id: string } | undefined;
+  const patient = elderUser
+    ? (db.prepare('SELECT * FROM patients WHERE user_id = ?').get(elderUser.id) as PatientRow | undefined)
+    : undefined;
+
+  if (!patient) {
+    return res.status(404).json({ error: "No patient found with that Access ID. Double-check it with the patient's caregiver." });
+  }
+
+  db.prepare('UPDATE patients SET healthcare_worker_id = ? WHERE id = ?').run(req.authUser!.id, patient.id);
+  const row = db.prepare('SELECT * FROM patients WHERE id = ?').get(patient.id) as PatientRow;
+  res.status(200).json({ patient: serialize(row, req.authUser!.role) });
+});
+
 patientsRouter.patch('/:patientId', requirePatientAccess, (req, res) => {
   try {
     const { preferences, name, age, region, language } = req.body ?? {};

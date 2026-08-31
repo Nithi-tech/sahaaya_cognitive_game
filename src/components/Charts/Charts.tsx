@@ -10,10 +10,22 @@ interface TrendChartProps {
 
 import {
   XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend, Area, AreaChart
+  ResponsiveContainer, Legend, Area, AreaChart, Brush,
+  RadarChart as ReRadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from 'recharts';
 
-export function TrendChart({ data, lines, xKey, title, height = 220 }: TrendChartProps) {
+export function TrendChart({ data, lines, xKey, title, height = 220 }: TrendChartProps & { emptyMessage?: string }) {
+  if (data.length === 0) {
+    return (
+      <div className="chart-container">
+        {title && <div className="chart-title">{title}</div>}
+        <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-tertiary)', fontSize: 13 }}>
+          No activity data available for this period.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="chart-container">
       {title && <div className="chart-title">{title}</div>}
@@ -60,7 +72,44 @@ export function TrendChart({ data, lines, xKey, title, height = 220 }: TrendChar
               activeDot={{ r: 5 }}
             />
           ))}
+          {data.length > 21 && (
+            <Brush dataKey={xKey} height={22} stroke="var(--color-primary)" tickFormatter={(v) => String(v).slice(5)} travellerWidth={8} />
+          )}
         </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+interface RadarChartProps {
+  data: { domain: string; score: number; fullMark?: number }[];
+  color?: string;
+  height?: number;
+  title?: string;
+}
+
+export function DomainRadarChart({ data, color = 'var(--color-primary)', height = 280, title }: RadarChartProps) {
+  if (data.length < 3) {
+    return (
+      <div className="chart-container">
+        {title && <div className="chart-title">{title}</div>}
+        <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-tertiary)', fontSize: 13 }}>
+          Not enough domains with data yet.
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="chart-container">
+      {title && <div className="chart-title">{title}</div>}
+      <ResponsiveContainer width="100%" height={height}>
+        <ReRadarChart data={data} outerRadius="70%">
+          <PolarGrid stroke="#E2E8F0" />
+          <PolarAngleAxis dataKey="domain" tick={{ fontSize: 12, fill: '#4A5568' }} />
+          <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 10, fill: '#A0AEC0' }} />
+          <Radar name="Score" dataKey="score" stroke={color} fill={color} fillOpacity={0.25} strokeWidth={2} />
+          <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #E2E8F0', fontSize: 13 }} />
+        </ReRadarChart>
       </ResponsiveContainer>
     </div>
   );
