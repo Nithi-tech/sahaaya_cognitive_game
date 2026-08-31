@@ -4,8 +4,13 @@ import { useTranslation } from '../i18n/useTranslation';
 import { computeNextDifficulty } from '../engines/adaptiveDifficulty';
 import { playFeedbackForAccuracy } from '../services/soundService';
 import { toSessionPayload } from '../games/resultMapping';
+import { api } from '../api/client';
 import type { CognitiveGameResult, GameDefinition } from '../games/types';
 import type { AdaptiveRecommendation, CognitiveDomain, Difficulty } from '../types';
+
+interface AiRecommendation extends AdaptiveRecommendation {
+  source: 'ai' | 'rule-based';
+}
 
 export type SessionScreen = 'idle' | 'playing' | 'result';
 
@@ -20,7 +25,7 @@ export type SessionScreen = 'idle' | 'playing' | 'result';
  * points.
  */
 export function useGameSession(onResult?: (result: CognitiveGameResult) => void) {
-  const { cognitiveProfile, addSession, memories } = useApp();
+  const { cognitiveProfile, addSession, memories, currentPatient } = useApp();
   const { t: translate } = useTranslation();
 
   const [screen, setScreen] = useState<SessionScreen>('idle');
@@ -94,11 +99,26 @@ export function useGameSession(onResult?: (result: CognitiveGameResult) => void)
 
     addSession(toSessionPayload(result))
       .then((rec) => { if (rec) setLatestServerRecommendation(rec); })
+      .then(() => {
+        // Soft, non-blocking upgrade: try Groq for a better-reasoned "AI
+        // Adjustment" message. Never awaited, never shown loading — the
+        // canned reason set above already covers the instant case, and
+        // this silently replaces it in place if it resolves in time
+        // (typically well within how long a user reads the result screen).
+        // Zero-config (no Groq key) or offline: this simply never resolves
+        // with source 'ai', so nothing changes.
+        if (!currentPatient) return;
+        api.post<AiRecommendation>(`/ai/recommend/${currentPatient.id}`)
+          .then((aiRec) => {
+            if (aiRec.source === 'ai') setDifficultyReason(aiRec.reason);
+          })
+          .catch(() => { /* offline or AI unavailable — canned reason stands */ });
+      })
       .catch(() => { /* addSession's own offline fallback already applied locally */ });
 
     setCurrentDifficulty(nextDiff);
     setScreen('result');
-  }, [activeGame, currentDifficulty, gameStartedAt, restartKey, recentDomains, addSession, translate, onResult]);
+  }, [activeGame, currentDifficulty, gameStartedAt, restartKey, recentDomains, addSession, translate, onResult, currentPatient]);
 
   return {
     screen,

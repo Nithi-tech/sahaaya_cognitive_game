@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { ElderlyNav } from '../ElderlyNav/ElderlyNav';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useApp } from '../../store/AppContext';
+import { DOMAIN_META } from '../../games/categoryMeta';
 import type { CognitiveGameResult } from '../../games/types';
 
 interface Action {
@@ -17,6 +18,9 @@ interface Props {
   secondaryAction?: Action;
 }
 
+const CONFETTI_GREAT = ['🎉', '⭐', '🎊', '✨', '🌟', '🎈'];
+const CONFETTI_GOOD = ['✨', '🌟', '👍'];
+
 /**
  * The stats + AI-adjustment result card every "play a game" entry point
  * shows after a session — shared so the copy/behavior can't drift between
@@ -25,42 +29,53 @@ interface Props {
 export function GameResultScreen({ result, difficultyReason, primaryAction, secondaryAction }: Props) {
   const { t } = useTranslation();
   const { currentPatient } = useApp();
-  const improved = result.accuracy >= 80;
-  const maintained = result.accuracy >= 50;
+  // Three-way celebration tier — everyone leaves with some positive motion,
+  // not just the top scorers.
+  const tier: 'great' | 'good' | 'keep-practicing' =
+    result.accuracy >= 80 ? 'great' : result.accuracy >= 50 ? 'good' : 'keep-practicing';
   const favoriteColour = currentPatient?.preferences?.onboarding?.favorites?.colour;
+  const domainMeta = DOMAIN_META[result.domain];
+  const confettiEmojis = tier === 'great' ? CONFETTI_GREAT : tier === 'good' ? CONFETTI_GOOD : [];
 
   return (
     <div className="elderly-layout" style={{ padding: '40px 20px 90px' }}>
       <div style={{ maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
         <div style={{ position: 'relative', display: 'inline-block' }}>
-          {improved && (
+          {confettiEmojis.length > 0 && (
             <div className="confetti-burst">
-              {['🎉', '⭐', '🎊', '✨', '🌟', '🎈'].map((e, i) => (
+              {confettiEmojis.map((e, i) => (
                 <span key={i} className="confetti-piece" style={{ ['--i' as string]: i }}>{e}</span>
               ))}
             </div>
           )}
           <div style={{ fontSize: 80, marginBottom: 16, animation: 'bounce-in 0.5s ease' }}>
-            {improved ? '🌟' : maintained ? '👍' : '💪'}
+            {tier === 'great' ? '🌟' : tier === 'good' ? '👍' : '💪'}
           </div>
         </div>
-        <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 8 }}>{t('game.great_work')}</h2>
+        <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 4 }}>{t('game.great_work')}</h2>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 16,
+          background: `${domainMeta.color}18`, color: domainMeta.color,
+          borderRadius: 99, padding: '4px 12px', fontSize: 13, fontWeight: 700,
+        }}>
+          {domainMeta.icon} {domainMeta.label}
+        </div>
 
         <div className="card" style={{ borderRadius: 20, marginBottom: 20, padding: '24px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: favoriteColour || 'var(--color-primary)' }}>{result.accuracy}%</div>
-              <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>ACCURACY</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 16 }}>
+            <div className="result-stat-tile" style={{ background: `${favoriteColour || '#2E7D8B'}14` }}>
+              <div style={{ fontSize: 26, fontWeight: 800, color: favoriteColour || 'var(--color-primary)' }}>{result.accuracy}%</div>
+              <div className="result-stat-tile__label">ACCURACY</div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--color-accent)' }}>{result.mistakes}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>MISTAKES</div>
+            <div className="result-stat-tile" style={{ background: 'rgba(232,166,58,0.12)' }}>
+              <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-accent)' }}>{result.mistakes}</div>
+              <div className="result-stat-tile__label">MISTAKES</div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--color-success)' }}>
+            <div className="result-stat-tile" style={{ background: 'var(--color-success-light)' }}>
+              <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--color-success)' }}>
                 {Math.round(result.responseTime)}s
               </div>
-              <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600 }}>TIME</div>
+              <div className="result-stat-tile__label">TIME</div>
             </div>
           </div>
 

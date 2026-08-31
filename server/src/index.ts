@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import './db.js';
@@ -10,6 +11,7 @@ import { dailyActivitiesRouter } from './routes/dailyActivities.js';
 import { alertsRouter } from './routes/alerts.js';
 import { syncRouter } from './routes/sync.js';
 import { onboardingRouter } from './routes/onboarding.js';
+import { aiRouter } from './routes/ai.js';
 
 export const app = express();
 app.use(cors());
@@ -27,6 +29,7 @@ app.use('/api/daily-activities', dailyActivitiesRouter);
 app.use('/api/alerts', alertsRouter);
 app.use('/api/sync', syncRouter);
 app.use('/api/onboarding', onboardingRouter);
+app.use('/api/ai', aiRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error & { status?: number; statusCode?: number }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
@@ -47,6 +50,12 @@ if (process.env.NODE_ENV !== 'test') {
     console.warn(
       '\n⚠️  SAHAAYA_JWT_SECRET is not set — using an insecure, publicly-known default.\n' +
       '    Anyone can forge a valid login token. Set SAHAAYA_JWT_SECRET before deploying for real use.\n',
+    );
+  }
+  if (!process.env.SAHAAYA_GROQ_API_KEY) {
+    console.warn(
+      '\n⚠️  SAHAAYA_GROQ_API_KEY not set — AI-generated recommendations/insights will use the\n' +
+      '    rule-based fallback engine only. Set it in server/.env to enable real Groq responses.\n',
     );
   }
   // Idempotent — a fresh deploy (empty DB) seeds the demo accounts automatically;

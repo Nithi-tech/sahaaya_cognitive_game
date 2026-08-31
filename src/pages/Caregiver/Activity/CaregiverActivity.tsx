@@ -1,16 +1,38 @@
 import { useState } from 'react';
+import { Sparkles, Loader2 } from 'lucide-react';
 import { useApp } from '../../../store/AppContext';
 import { CaregiverSidebar } from '../../../components/Sidebar/Sidebar';
 import { TrendChart, ScoreRing } from '../../../components/Charts/Charts';
 import { buildTrendData } from '../../../utils/trends';
 import { generateInsights } from '../../../engines/adaptiveDifficulty';
 import { getGameDefinition } from '../../../games/registry';
+import { api } from '../../../api/client';
+import type { InsightItem } from '../../../types';
 
 type Period = 'daily' | 'weekly' | 'monthly';
+
+const TYPE_STYLE: Record<InsightItem['type'], { bg: string; border: string; emoji: string }> = {
+  attention: { bg: 'var(--color-warning-light)', border: '#FFE0B2', emoji: '🟡' },
+  positive: { bg: 'var(--color-success-light)', border: '#C8E6C9', emoji: '🟢' },
+  neutral: { bg: '#F0F8FA', border: '#D4EDF2', emoji: '🔵' },
+};
 
 export default function CaregiverActivity() {
   const { currentPatient, cognitiveProfile, sessions } = useApp();
   const [period, setPeriod] = useState<Period>('weekly');
+  const [aiInsights, setAiInsights] = useState<InsightItem[] | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(false);
+
+  const fetchAiInsights = () => {
+    if (!currentPatient) return;
+    setAiLoading(true);
+    setAiError(false);
+    api.post<{ insights: InsightItem[]; source: 'ai' | 'rule-based' }>(`/ai/analyze/${currentPatient.id}`)
+      .then((res) => setAiInsights(res.insights))
+      .catch(() => setAiError(true))
+      .finally(() => setAiLoading(false));
+  };
 
   const periodDays = period === 'daily' ? 7 : period === 'weekly' ? 14 : 30;
   const chartData = buildTrendData(sessions, periodDays, cognitiveProfile.overallEngagement);
@@ -115,8 +137,41 @@ export default function CaregiverActivity() {
           </div>
 
           <div className="card" style={{ borderRadius: 20 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>Sahaaya Insights</h3>
-            {insights.length > 0 ? insights.map((insight, i) => (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, gap: 8, flexWrap: 'wrap' }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700 }}>
+                Sahaaya Insights {aiInsights && <span style={{ fontSize: 11, color: 'var(--color-primary)', fontWeight: 700 }}>· AI-Powered</span>}
+              </h3>
+              <button
+                className="btn btn--outline btn--sm"
+                onClick={fetchAiInsights}
+                disabled={aiLoading}
+                style={{ gap: 6, flexShrink: 0 }}
+              >
+                {aiLoading ? <Loader2 size={14} className="spin" /> : <Sparkles size={14} />}
+                {aiLoading ? 'Thinking…' : aiInsights ? 'Refresh AI Insights' : 'Get AI-Powered Insights'}
+              </button>
+            </div>
+
+            {aiError && (
+              <p style={{ color: 'var(--color-danger)', fontSize: 12, marginBottom: 8 }}>
+                Couldn't reach the AI engine — showing the standard insights below.
+              </p>
+            )}
+
+            {(aiInsights ?? []).length > 0 ? (aiInsights as InsightItem[]).map((item) => {
+              const style = TYPE_STYLE[item.type];
+              return (
+                <div key={item.id} style={{
+                  padding: '12px 14px', borderRadius: 12, marginBottom: 10,
+                  background: style.bg, border: `1px solid ${style.border}`,
+                  fontSize: 13, lineHeight: 1.5,
+                }}>
+                  <div style={{ fontWeight: 700, marginBottom: 2 }}>{style.emoji} {item.title}</div>
+                  <div style={{ fontWeight: 500 }}>{item.insight}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 4 }}>💡 {item.action}</div>
+                </div>
+              );
+            }) : insights.length > 0 ? insights.map((insight, i) => (
               <div key={i} style={{
                 padding: '12px 14px', borderRadius: 12, marginBottom: 10,
                 background: insight.includes('decreased') || insight.includes('missed') ? 'var(--color-warning-light)' :

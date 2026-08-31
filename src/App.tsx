@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './store/AuthContext';
 import { AppProvider, useApp } from './store/AppContext';
 import { OfflineProvider } from './store/OfflineContext';
+import { useIdleAlert } from './hooks/useIdleAlert';
 import { OfflineIndicator } from './components/OfflineIndicator/OfflineIndicator';
 import LandingPage from './pages/Landing/LandingPage';
 import OnboardingFlow from './pages/Onboarding/OnboardingFlow';
@@ -35,6 +36,9 @@ import './index.css';
 function AppRoutes() {
   const { user, isRestoring } = useAuth();
   const { loading } = useApp();
+  // Mounted unconditionally (before any early return) so it stays active
+  // across every route the elder navigates to — see useIdleAlert.ts.
+  useIdleAlert();
 
   if (isRestoring) return null;
   if (!user) return <LandingPage />;

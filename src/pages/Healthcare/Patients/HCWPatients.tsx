@@ -21,7 +21,8 @@ export default function HCWPatients() {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+
+    const load = async () => {
       setLoadError(false);
       try {
         const { patients } = await api.get<{ patients: PatientProfile[] }>('/patients');
@@ -44,9 +45,16 @@ export default function HCWPatients() {
       } catch {
         if (!cancelled) setLoadError(true);
       }
-    })();
+    };
+
+    load();
+    // Otherwise a new alert (e.g. the elder's idle-detector firing) only
+    // ever shows up after a manual reload — see the matching comment on
+    // AppContext's caregiver/healthcare alert-polling effect.
+    const interval = setInterval(load, 60000);
     return () => {
       cancelled = true;
+      clearInterval(interval);
     };
   }, []);
 

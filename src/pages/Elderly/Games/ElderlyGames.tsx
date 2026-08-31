@@ -4,10 +4,10 @@ import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
 import { GameShell } from '../../../components/GameShell/GameShell';
 import { GameResultScreen } from '../../../components/GameShell/GameResultScreen';
-import { useApp } from '../../../store/AppContext';
 import { useTranslation } from '../../../i18n/useTranslation';
-import { GAME_REGISTRY } from '../../../games/registry';
+import { useAvailableGames } from '../../../hooks/useAvailableGames';
 import { useGameSession } from '../../../hooks/useGameSession';
+import { CATEGORY_ORDER, CATEGORY_META } from '../../../games/categoryMeta';
 import type { GameCategory } from '../../../games/types';
 
 // The dedicated "browse everything" hub — a second entry point onto the
@@ -16,38 +16,15 @@ import type { GameCategory } from '../../../games/types';
 // for a user who'd rather pick for themselves. Every game shown here is a
 // real GAME_REGISTRY entry, so "playable" is structural, not a claim: there
 // is no such thing as a card in this list that doesn't launch a working game.
-const CATEGORY_ORDER: GameCategory[] = ['MEMORY', 'FOCUS', 'REACTION', 'PATTERN', 'CULTURAL', 'ROUTINE', 'GENTLE', 'ADVANCED'];
-
-const CATEGORY_META: Record<GameCategory, { labelKey: string; color: string; icon: string }> = {
-  MEMORY: { labelKey: 'game.category.memory', color: '#E91E63', icon: '🧠' },
-  FOCUS: { labelKey: 'game.category.focus', color: '#2E7D8B', icon: '🎯' },
-  REACTION: { labelKey: 'game.category.reaction', color: '#E8A63A', icon: '⚡' },
-  PATTERN: { labelKey: 'game.category.pattern', color: '#9C27B0', icon: '🔷' },
-  CULTURAL: { labelKey: 'game.category.cultural', color: '#FF7043', icon: '🎨' },
-  ROUTINE: { labelKey: 'game.category.routine', color: '#4CAF50', icon: '📅' },
-  GENTLE: { labelKey: 'game.category.gentle', color: '#26A69A', icon: '🟢' },
-  ADVANCED: { labelKey: 'game.category.advanced', color: '#5C6BC0', icon: '🚀' },
-};
 
 export default function ElderlyGames() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { memories, currentPatient } = useApp();
-  const [playedIds, setPlayedIds] = useState<Set<string>>(new Set());
+  const { availableGames } = useAvailableGames();
+  // Maps gameId -> last accuracy played, so the "Played" badge can show a
+  // score instead of just a checkmark. Local-only, nothing persisted here.
+  const [playedIds, setPlayedIds] = useState<Map<string, number>>(new Map());
   const [activeCategory, setActiveCategory] = useState<GameCategory | null>(null);
-
-  // Counts both the legacy Memory[] store and the newer onboarding.people
-  // section — a caregiver who only did the guided interview still unlocks
-  // the game, not just one who used "My Memories".
-  const familyMemoryCount = useMemo(() => {
-    const legacy = memories.filter((m) => m.category === 'family' && m.relationship).length;
-    const onboarding = currentPatient?.preferences?.onboarding?.people?.people?.length ?? 0;
-    return legacy + onboarding;
-  }, [memories, currentPatient]);
-  const availableGames = useMemo(
-    () => GAME_REGISTRY.filter((g) => g.id !== 'family_faces' || familyMemoryCount >= 2),
-    [familyMemoryCount],
-  );
 
   const categorized = useMemo(() => {
     const groups = new Map<GameCategory, typeof availableGames>();
@@ -56,7 +33,9 @@ export default function ElderlyGames() {
     return CATEGORY_ORDER.map((cat) => ({ cat, games: groups.get(cat) ?? [] })).filter((g) => g.games.length > 0);
   }, [availableGames]);
 
-  const session = useGameSession((result) => setPlayedIds((prev) => new Set(prev).add(result.gameId)));
+  const session = useGameSession((result) =>
+    setPlayedIds((prev) => new Map(prev).set(result.gameId, result.accuracy)),
+  );
 
   if (session.screen === 'playing' && session.activeGame) {
     const Component = session.activeGame.component;
@@ -64,6 +43,7 @@ export default function ElderlyGames() {
       <GameShell
         gameDefinition={session.activeGame}
         difficultyLabel={session.currentDifficulty.charAt(0).toUpperCase() + session.currentDifficulty.slice(1)}
+        difficulty={session.currentDifficulty}
         progressLabel={`Game ${playedIds.size + 1} today`}
         onExit={session.exit}
         onRestart={session.restart}
@@ -155,7 +135,11 @@ export default function ElderlyGames() {
           const meta = CATEGORY_META[cat];
           return (
             <div key={cat} style={{ marginBottom: 28 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12,
+                background: `linear-gradient(90deg, ${meta.color}14 0%, transparent 100%)`,
+                borderRadius: 12, padding: '8px 10px', marginLeft: -10,
+              }}>
                 <span style={{
                   width: 36, height: 36, borderRadius: 12, background: `${meta.color}1A`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 19, flexShrink: 0,
@@ -168,16 +152,18 @@ export default function ElderlyGames() {
 
               <div className="game-card-grid">
                 {games.map((g) => {
-                  const played = playedIds.has(g.id);
+                  const lastAccuracy = playedIds.get(g.id);
                   return (
                     <button key={g.id} className="game-card" onClick={() => session.start(g)}>
-                      {played && (
+                      {lastAccuracy !== undefined ? (
                         <span className="game-card__played-badge">
-                          <CheckCircle2 size={14} /> Played
+                          <CheckCircle2 size={14} /> {lastAccuracy}%
                         </span>
-                      )}
+                      ) : g.isNew ? (
+                        <span className="game-card__new-badge">✨ New</span>
+                      ) : null}
                       <span
-                        className="game-card__emoji"
+                        className="game-card__emoji game-card__emoji--lg"
                         style={{ background: `${meta.color}1A` }}
                       >
                         {g.emoji}

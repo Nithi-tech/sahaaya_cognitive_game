@@ -183,6 +183,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isAuthenticated, user?.id]);
 
+  // Caregiver/healthcare dashboards otherwise only ever see alerts as of
+  // login or the last patient switch — nothing else in the app polls. That
+  // silently missed new alerts (e.g. the elder's idle-detector firing mid-
+  // session) until a manual reload, which defeats the point of an alert
+  // meant to be noticed soon. Elderly sessions never poll this — they don't
+  // read alerts.
+  useEffect(() => {
+    if (!currentPatient || (user?.role !== 'caregiver' && user?.role !== 'healthcare')) return;
+    const patientId = currentPatient.id;
+    const interval = setInterval(() => {
+      api.get<{ alerts: Alert[] }>(`/alerts/${patientId}`)
+        .then(({ alerts: fetched }) => {
+          setAlerts(fetched);
+          writeCache(patientId, 'alerts', fetched);
+        })
+        .catch(() => { /* offline or transient — next tick retries */ });
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [currentPatient, user?.role]);
+
   // Synchronize the active patient's added family voice clip globally across all speech output
   useEffect(() => {
     if (currentPatient) {

@@ -40,6 +40,8 @@ export interface GameDefinition {
   /** One short, plain-language sentence — what the caregiver/HCW sees, and the basis for voice instruction. */
   description: string;
   component: ComponentType<GameComponentProps>;
+  /** Shows a "✨ New" badge on the browse-all grid until the elder has played it once. */
+  isNew?: boolean;
 }
 
 /** The rich result the shell assembles around every game's onComplete call. */

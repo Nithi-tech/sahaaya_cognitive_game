@@ -32,6 +32,95 @@ export interface AdaptiveRecommendation {
   insight: string;
 }
 
+export interface InsightItem {
+  id: string;
+  domain?: CognitiveDomain;
+  title: string;
+  insight: string;
+  reason: string;
+  action: string;
+  type: 'positive' | 'neutral' | 'attention';
+}
+
+/**
+ * Ported from src/engines/adaptiveDifficulty.ts's generateInsights, but
+ * emitting the richer InsightItem shape (src/types/index.ts) instead of a
+ * plain string[] — this is the fallback path for POST /api/ai/analyze when
+ * no Groq key is configured or the call fails, so the caregiver UI only
+ * ever has to render one shape regardless of source.
+ */
+export function generateInsightItems(
+  domainScores: DomainScores,
+  trendData: { memory: number; attention: number }[],
+): InsightItem[] {
+  const insights: InsightItem[] = [];
+
+  if (domainScores.memory < 70) {
+    insights.push({
+      id: 'memory-low',
+      domain: 'memory',
+      title: 'Memory Practice',
+      insight: 'Memory activity performance could benefit from more practice sessions.',
+      reason: `Memory score is currently ${domainScores.memory}%.`,
+      action: 'Try a memory-focused activity tomorrow.',
+      type: 'attention',
+    });
+  }
+  if (domainScores.attention >= 80) {
+    insights.push({
+      id: 'attention-strong',
+      domain: 'attention',
+      title: 'Strong Attention',
+      insight: 'Attention activities are being completed consistently with good performance.',
+      reason: `Attention score is currently ${domainScores.attention}%.`,
+      action: 'Keep the current routine going.',
+      type: 'positive',
+    });
+  }
+  if (domainScores.pattern < 70) {
+    insights.push({
+      id: 'pattern-low',
+      domain: 'pattern',
+      title: 'Pattern Recognition',
+      insight: 'Pattern recognition activities show room for improvement.',
+      reason: `Pattern score is currently ${domainScores.pattern}%.`,
+      action: 'Try Pattern Recognition or Odd One Out this week.',
+      type: 'attention',
+    });
+  }
+
+  if (trendData.length >= 5) {
+    const recent = trendData.slice(-5).map((d) => d.memory);
+    const older = trendData.slice(-10, -5).map((d) => d.memory);
+    const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
+    const olderAvg = older.reduce((a, b) => a + b, 0) / older.length;
+    if (recentAvg < olderAvg - 3) {
+      insights.push({
+        id: 'memory-decreasing',
+        domain: 'memory',
+        title: 'Recent Dip',
+        insight: 'Memory activity performance has decreased over the last 5 sessions.',
+        reason: `Recent average ${Math.round(recentAvg)}% vs. earlier average ${Math.round(olderAvg)}%.`,
+        action: 'Check in about recent changes in routine, sleep, or mood.',
+        type: 'attention',
+      });
+    }
+  }
+
+  if (insights.length === 0) {
+    insights.push({
+      id: 'stable',
+      title: 'Steady Progress',
+      insight: 'Performance across all cognitive domains is stable.',
+      reason: 'No domain is currently below the practice threshold.',
+      action: 'No action needed — keep up the current activity mix.',
+      type: 'neutral',
+    });
+  }
+
+  return insights;
+}
+
 export function generateRecommendation(
   domainScores: DomainScores,
   recentDomains: CognitiveDomain[],

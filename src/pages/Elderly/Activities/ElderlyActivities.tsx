@@ -8,6 +8,8 @@ import { useTranslation } from '../../../i18n/useTranslation';
 import { generateRecommendation } from '../../../engines/adaptiveDifficulty';
 import { GAME_REGISTRY } from '../../../games/registry';
 import { pickTodaysGame } from '../../../games/recommend';
+import { DOMAIN_META } from '../../../games/categoryMeta';
+import { useAvailableGames } from '../../../hooks/useAvailableGames';
 import { useGameSession } from '../../../hooks/useGameSession';
 import type { CognitiveGameResult } from '../../../games/types';
 import type { AdaptiveRecommendation } from '../../../types';
@@ -19,20 +21,8 @@ type PageScreen = 'today' | 'recommendation';
 export default function ElderlyActivities() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { cognitiveProfile, memories, sessions, currentPatient } = useApp();
-
-  // Counts both the legacy Memory[] store and the newer onboarding.people
-  // section — a caregiver who only did the guided interview (the common
-  // path now) still unlocks the game, not just one who used "My Memories".
-  const familyMemoryCount = useMemo(() => {
-    const legacy = memories.filter((m) => m.category === 'family' && m.relationship).length;
-    const onboarding = currentPatient?.preferences?.onboarding?.people?.people?.length ?? 0;
-    return legacy + onboarding;
-  }, [memories, currentPatient]);
-  const availableGames = useMemo(
-    () => GAME_REGISTRY.filter((g) => g.id !== 'family_faces' || familyMemoryCount >= 2),
-    [familyMemoryCount],
-  );
+  const { cognitiveProfile, sessions, currentPatient } = useApp();
+  const { availableGames } = useAvailableGames();
 
   const [pageScreen, setPageScreen] = useState<PageScreen>('today');
   const [gameResults, setGameResults] = useState<CognitiveGameResult[]>([]);
@@ -109,6 +99,45 @@ export default function ElderlyActivities() {
 
   const completedTodayCount = gameResults.length;
 
+  // Consecutive most-recent results at ≥70% accuracy — a small motivational
+  // "streak" chip in the session header, not stored anywhere.
+  const currentStreak = useMemo(() => {
+    let streak = 0;
+    for (let i = gameResults.length - 1; i >= 0; i--) {
+      if (gameResults[i].accuracy >= 70) streak++;
+      else break;
+    }
+    return streak;
+  }, [gameResults]);
+
+  // 7-dot weekly activity strip (today rightmost) — purely derived from
+  // sessions already in scope, no new fetches.
+  const weeklyActivity = useMemo(() => {
+    const days: { date: string; played: boolean }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      days.push({ date: dateStr, played: sessions.some((s) => s.timestamp.startsWith(dateStr)) });
+    }
+    return days;
+  }, [sessions]);
+
+  // Every hook must run on every render regardless of which screen is
+  // showing — this was previously placed after the "playing" early return
+  // below, so it silently stopped being called the moment a game actually
+  // started, throwing "Rendered fewer hooks than expected" and crashing the
+  // whole page. Hooks always go before any conditional return.
+  useEffect(() => {
+    if (session.screen === 'result' && session.lastResult) {
+      playPersonalizedPrompt({
+        patient: currentPatient,
+        trigger: 'reward',
+        fallbackText: 'Well done! Wonderful job completing this brain activity.',
+      });
+    }
+  }, [session.screen, session.lastResult, currentPatient]);
+
   // ============================================================
   // PLAYING / RESULT — shared across every "play a game" entry point; see
   // useGameSession.ts. Checked before this page's own screens so a game
@@ -120,7 +149,9 @@ export default function ElderlyActivities() {
       <GameShell
         gameDefinition={session.activeGame}
         difficultyLabel={session.currentDifficulty.charAt(0).toUpperCase() + session.currentDifficulty.slice(1)}
+        difficulty={session.currentDifficulty}
         progressLabel={`Activity ${completedTodayCount + 1} today`}
+        streakCount={currentStreak}
         onExit={session.exit}
         onRestart={session.restart}
       >
@@ -133,16 +164,6 @@ export default function ElderlyActivities() {
       </GameShell>
     );
   }
-
-  useEffect(() => {
-    if (session.screen === 'result' && session.lastResult) {
-      playPersonalizedPrompt({
-        patient: currentPatient,
-        trigger: 'reward',
-        fallbackText: 'Well done! Wonderful job completing this brain activity.',
-      });
-    }
-  }, [session.screen, session.lastResult, currentPatient]);
 
   if (session.screen === 'result' && session.lastResult) {
     return (
@@ -181,15 +202,32 @@ export default function ElderlyActivities() {
             {t('game.today_pick')}
           </h1>
           {completedTodayCount > 0 && (
-            <p style={{ fontSize: 15, color: 'var(--text-secondary)' }}>
+            <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 12 }}>
               {completedTodayCount} {completedTodayCount === 1 ? 'activity' : 'activities'} completed today · nice work
             </p>
           )}
+
+          {/* Weekly activity strip — 7 dots, today rightmost, filled if a session exists that day. */}
+          <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+            {weeklyActivity.map((d, i) => (
+              <span
+                key={d.date}
+                title={d.date}
+                style={{
+                  width: 10, height: 10, borderRadius: '50%',
+                  background: d.played ? 'var(--color-primary)' : 'var(--border-color)',
+                  opacity: i === weeklyActivity.length - 1 ? 1 : 0.85,
+                }}
+              />
+            ))}
+          </div>
         </div>
 
         <div style={{ padding: '0 20px 20px' }}>
           <div className="todays-activity-card">
-            <div style={{ fontSize: 56, marginBottom: 8 }}>{todaysPick.emoji}</div>
+            <div className="theme-sticker" style={{ fontSize: 56, marginBottom: 8, display: 'inline-block' }}>
+              {todaysPick.emoji}
+            </div>
             <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>{todaysPick.name}</h2>
             <p style={{ opacity: 0.9, fontSize: 15, marginBottom: 20 }}>~{todaysPick.estimatedDuration} minutes</p>
             <button
@@ -202,6 +240,17 @@ export default function ElderlyActivities() {
             >
               {completedTodayCount === 0 ? '🚀 Start' : '▶️ Continue'}
             </button>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: `${DOMAIN_META[todaysRecommendation.nextDomain].color}18`,
+              color: DOMAIN_META[todaysRecommendation.nextDomain].color,
+              borderRadius: 99, padding: '4px 12px', fontSize: 12, fontWeight: 700,
+            }}>
+              {DOMAIN_META[todaysRecommendation.nextDomain].icon} {DOMAIN_META[todaysRecommendation.nextDomain].label} focus
+            </span>
           </div>
 
           <div style={{

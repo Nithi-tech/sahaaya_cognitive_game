@@ -23,6 +23,10 @@ import FindTheChangeGame from '../pages/Elderly/Activities/games/FindTheChangeGa
 import PeripheralAwarenessGame from '../pages/Elderly/Activities/games/PeripheralAwarenessGame';
 import MemorySpanGame from '../pages/Elderly/Activities/games/MemorySpanGame';
 import CulturalMemoryGame from '../pages/Elderly/Activities/games/CulturalMemoryGame';
+import DailySequenceGame from '../pages/Elderly/Activities/games/DailySequenceGame';
+import FaceNameMatchGame from '../pages/Elderly/Activities/games/FaceNameMatchGame';
+import SoundMatchGame from '../pages/Elderly/Activities/games/SoundMatchGame';
+import OddOneOutGame from '../pages/Elderly/Activities/games/OddOneOutGame';
 
 export const GAME_REGISTRY: GameDefinition[] = [
   {
@@ -264,6 +268,70 @@ export const GAME_REGISTRY: GameDefinition[] = [
     emoji: '🎊',
     description: 'Recognize festivals and traditional items',
     component: CulturalMemoryGame,
+  },
+  {
+    id: 'daily_sequence',
+    name: 'Daily Sequence',
+    category: 'ROUTINE',
+    cognitiveDomains: ['routine'],
+    difficultyLevels: ['easy', 'medium', 'challenging'],
+    estimatedDuration: 3,
+    elderlyFriendly: true,
+    voiceSupported: true,
+    offlineSupported: true,
+    culturalContentSupported: false,
+    emoji: '🗓️',
+    description: 'Tap your daily routine, in order',
+    component: DailySequenceGame,
+    isNew: true,
+  },
+  {
+    id: 'face_name_match',
+    name: 'Face & Name Match',
+    category: 'MEMORY',
+    cognitiveDomains: ['recognition'],
+    difficultyLevels: ['easy', 'medium', 'challenging'],
+    estimatedDuration: 3,
+    elderlyFriendly: true,
+    voiceSupported: true,
+    offlineSupported: true,
+    culturalContentSupported: false,
+    emoji: '🖼️',
+    description: 'See a name, tap the matching face',
+    component: FaceNameMatchGame,
+    isNew: true,
+  },
+  {
+    id: 'sound_match',
+    name: 'Sound Match',
+    category: 'GENTLE',
+    cognitiveDomains: ['recognition'],
+    difficultyLevels: ['easy', 'medium', 'challenging'],
+    estimatedDuration: 2,
+    elderlyFriendly: true,
+    voiceSupported: true,
+    offlineSupported: true,
+    culturalContentSupported: false,
+    emoji: '🔔',
+    description: 'Listen, then tap the matching picture',
+    component: SoundMatchGame,
+    isNew: true,
+  },
+  {
+    id: 'odd_one_out',
+    name: 'Odd One Out',
+    category: 'PATTERN',
+    cognitiveDomains: ['pattern'],
+    difficultyLevels: ['easy', 'medium', 'challenging'],
+    estimatedDuration: 2,
+    elderlyFriendly: true,
+    voiceSupported: true,
+    offlineSupported: true,
+    culturalContentSupported: false,
+    emoji: '🔎',
+    description: 'Spot the one that does not belong',
+    component: OddOneOutGame,
+    isNew: true,
   },
 ];
 

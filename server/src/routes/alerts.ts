@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { db } from '../db.js';
-import { requireAuth, requirePatientAccess } from '../auth.js';
+import { requireAuth, requirePatientAccess, requireRole } from '../auth.js';
 import { applyAlertResolve } from '../mutations.js';
+import { applyIdleAlert } from '../alertsEngine.js';
 
 export const alertsRouter = Router();
 alertsRouter.use(requireAuth);
@@ -43,4 +44,14 @@ alertsRouter.patch('/:patientId/:alertId/resolve', requirePatientAccess, (req, r
   const row = applyAlertResolve(String(req.params.patientId), String(req.params.alertId)) as AlertRow | undefined;
   if (!row) return res.status(404).json({ error: 'Alert not found' });
   res.json({ alert: serialize(row) });
+});
+
+// Only the elder's own logged-in session can report its own idleness —
+// a caregiver/HCW account has no business claiming a patient went idle.
+alertsRouter.post('/:patientId/idle', requirePatientAccess, requireRole('elderly'), (req, res) => {
+  const patientId = String(req.params.patientId);
+  const patient = db.prepare('SELECT name FROM patients WHERE id = ?').get(patientId) as { name: string } | undefined;
+  if (!patient) return res.status(404).json({ error: 'Patient not found' });
+  const created = applyIdleAlert(patientId, patient.name);
+  res.status(created ? 201 : 200).json({ created: !!created });
 });

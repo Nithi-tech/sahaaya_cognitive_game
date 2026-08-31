@@ -124,6 +124,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'voice.routine.instruction': 'Please arrange these activities in the order you usually do them.',
     'voice.family_faces.ask': 'Who is your {relationship}?',
     'voice.cultural_memory.ask': 'Which one of these is familiar to you?',
+    'voice.daily_sequence.instruction': 'Tap the steps of your daily routine, in the order you do them.',
+    'voice.face_name_match.instruction': 'Here is a name. Tap the matching photo.',
+    'voice.sound_match.instruction': 'Listen carefully, then tap the picture that matches what you heard.',
+    'voice.odd_one_out.instruction': 'Look at these carefully. Tap the one that does not belong.',
 
     'voice.feedback.correct': 'Well done!',
     'voice.feedback.incorrect': "Good try. Let's continue.",
@@ -406,6 +410,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'voice.routine.instruction': 'আপুনি সচাৰাচৰ কৰা ক্ৰম অনুসৰি এই কাৰ্যকলাপবোৰ সজাওক।',
     'voice.family_faces.ask': 'আপোনাৰ {relationship} কোন?',
     'voice.cultural_memory.ask': 'এইবোৰৰ কোনটো আপোনাৰ চিনাকি?',
+    'voice.daily_sequence.instruction': 'আপুনি প্ৰতিদিনে কৰা ক্ৰম অনুসৰি পদক্ষেপবোৰত টেপ কৰক।',
+    'voice.face_name_match.instruction': 'ইয়াত এটা নাম আছে। মিল থকা ফটোখনত টেপ কৰক।',
+    'voice.sound_match.instruction': 'মনোযোগ সহকাৰে শুনক, তাৰপিছত আপুনি শুনা ছবিখনত টেপ কৰক।',
+    'voice.odd_one_out.instruction': 'এইবোৰ সাৱধানে চাওক। যিটো নাখাপ খায় তাত টেপ কৰক।',
 
     'voice.feedback.correct': 'বহুত ভাল!',
     'voice.feedback.incorrect': 'ভাল প্ৰচেষ্টা। আহক আগবাঢ়ি যাওঁ।',

@@ -85,3 +85,19 @@ export function narrateBreathing(lang: Language): string {
 export function narrateCulturalMemoryAsk(lang: Language): string {
   return t('voice.cultural_memory.ask', lang);
 }
+
+export function narrateDailySequence(lang: Language): string {
+  return t('voice.daily_sequence.instruction', lang);
+}
+
+export function narrateFaceNameMatch(lang: Language): string {
+  return t('voice.face_name_match.instruction', lang);
+}
+
+export function narrateSoundMatch(lang: Language): string {
+  return t('voice.sound_match.instruction', lang);
+}
+
+export function narrateOddOneOut(lang: Language): string {
+  return t('voice.odd_one_out.instruction', lang);
+}

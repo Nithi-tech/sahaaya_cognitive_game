@@ -33,6 +33,28 @@ function insertAlert(
 }
 
 /**
+ * Client-reported, not computed from stored data — the elderly app itself
+ * detects 5 minutes of no touch/click/scroll/key activity (see
+ * src/hooks/useIdleAlert.ts) and calls this once per idle stretch. The
+ * 25-minute dedup window (vs. the 20h default elsewhere) is short on
+ * purpose: this is meant to catch "opened the app then walked away" on
+ * roughly the same day, not to permanently silence idle alerts after the
+ * first one.
+ */
+export function applyIdleAlert(patientId: string, patientName: string) {
+  if (hasRecentAlert(patientId, 'idle', 25 / 60)) return null;
+  insertAlert(
+    patientId,
+    'idle',
+    'medium',
+    `${patientName} hasn't interacted with the app for 5 minutes.`,
+    'The app is open but no taps, clicks, or scrolling were detected.',
+    'Consider checking in — they may have stepped away, fallen asleep, or need help.',
+  );
+  return true;
+}
+
+/**
  * Real, non-clinical caregiver alerts computed from actual stored activity —
  * not a static list. Runs after any session/reminder write so the caregiver
  * dashboard reflects what actually happened.

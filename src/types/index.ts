@@ -7,7 +7,8 @@ export type Language = 'en' | 'as';
 export type GameType =
   | 'memory_match' | 'object_recognition' | 'attention' | 'pattern' | 'routine_recall' | 'family_faces'
   | 'color_focus' | 'quick_response' | 'number_focus' | 'block_memory' | 'dual_memory' | 'go_no_go' | 'find_the_change'
-  | 'peripheral_awareness' | 'memory_span' | 'cultural_memory';
+  | 'peripheral_awareness' | 'memory_span' | 'cultural_memory'
+  | 'daily_sequence' | 'face_name_match' | 'sound_match' | 'odd_one_out';
 export type Difficulty = 'easy' | 'medium' | 'challenging';
 export type CognitiveDomain = 'memory' | 'attention' | 'recognition' | 'pattern' | 'routine';
 export type ReminderType = 'medicine' | 'hydration' | 'activity' | 'appointment';
