@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useApp } from '../../../store/AppContext';
+import { useOffline } from '../../../store/OfflineContext';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Volume2 } from 'lucide-react';
-import { playPersonalizedPrompt } from '../../../services/voice/personalizedAudio';
+import { triggerMomentJoy } from '../../../services/momentJoy/momentJoyService';
 import { ElderlyReminderModal } from '../../../components/Elderly/ElderlyReminderModal';
-import type { Reminder } from '../../../types';
+import type { Reminder, MomentJoyActionType } from '../../../types';
 
 const REMINDER_CONFIG = {
   medicine: { emoji: '💊', color: '#E91E63', bg: '#FCE4EC', title: 'Medicine' },
@@ -17,6 +18,7 @@ const REMINDER_CONFIG = {
 
 export default function ElderlyReminders() {
   const { reminders, updateReminderStatus, currentPatient } = useApp();
+  const { isOnline, addToQueue } = useOffline();
   const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const [justDone, setJustDone] = useState<string | null>(null);
@@ -26,12 +28,18 @@ export default function ElderlyReminders() {
     updateReminderStatus(id, 'completed');
     setJustDone(id);
 
-    // Play reward clip
-    playPersonalizedPrompt({
+    const rem = reminders.find((r) => r.id === id);
+    const actionType: MomentJoyActionType = rem?.type === 'hydration' ? 'hydration' : 'medicine';
+
+    triggerMomentJoy({
       patient: currentPatient,
-      trigger: 'reward',
-      fallbackText: lang === 'as' ? 'বৰ ভাল কাম! আপুনি সম্পূৰ্ণ কৰিলে।' : 'Wonderful job! Marked done.',
+      actionType,
+      title: rem?.title || (rem?.type === 'hydration' ? 'Hydration Water' : 'Medicine'),
+      detail: rem?.description,
       lang,
+      isOnline,
+      addToSyncQueue: addToQueue,
+      metadata: { reminderId: id, reminderType: rem?.type },
     });
 
     setTimeout(() => setJustDone(null), 2000);

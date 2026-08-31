@@ -1,9 +1,10 @@
 import { useEffect, type ReactNode } from 'react';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useApp } from '../../store/AppContext';
+import { useOffline } from '../../store/OfflineContext';
 import { getPersonalization } from '../../services/personalization';
 import { resolvePatientTheme } from '../../services/themeRegistry';
-import { playPersonalizedPrompt } from '../../services/voice/personalizedAudio';
+import { triggerMomentJoy } from '../../services/momentJoy/momentJoyService';
 import type { CognitiveGameResult } from '../../games/types';
 import { Heart, Trophy } from 'lucide-react';
 
@@ -182,27 +183,29 @@ export function GameResultScreen({ result, difficultyReason, primaryAction, seco
     }
   }
 
-  // Speak celebratory reward in the loved one's companion voice on completion
+  const { isOnline, addToQueue } = useOffline();
+
+  // Trigger MomentJoy: Layer 1 (instant praise & chime) + Layer 2 (caregiver notification & sync queue)
   useEffect(() => {
     try {
-      const audioPrompt = playPersonalizedPrompt({
+      triggerMomentJoy({
         patient: currentPatient,
-        trigger: 'reward',
-        fallbackText: visuals.praiseText,
+        actionType: 'game',
+        title: 'Cognitive Brain Game',
+        praiseText: visuals.praiseText,
         lang,
+        isOnline,
+        addToSyncQueue: addToQueue,
+        metadata: {
+          accuracy: result.accuracy,
+          mistakes: result.mistakes,
+          responseTime: result.responseTime,
+        },
       });
-
-      return () => {
-        try {
-          audioPrompt?.stop();
-        } catch {
-          /* ignore */
-        }
-      };
     } catch (err) {
-      console.error('[GameResultScreen] Error playing praise audio:', err);
+      console.warn('[GameResultScreen] MomentJoy trigger error:', err);
     }
-  }, [currentPatient, visuals.praiseText, lang]);
+  }, [currentPatient, visuals.praiseText, lang, isOnline, addToQueue, result]);
 
   return (
     <div
@@ -356,20 +359,44 @@ export function GameResultScreen({ result, difficultyReason, primaryAction, seco
           {visuals.headline}
         </h2>
 
-        {/* Green pill tag */}
+        {/* Badges: Completed Pill + Coin Reward */}
         <div style={{
-          display: 'inline-flex',
+          display: 'flex',
           alignItems: 'center',
-          gap: 5,
-          background: '#DCFCE7',
-          color: '#15803D',
-          padding: '3px 12px',
-          borderRadius: 999,
-          fontSize: 12,
-          fontWeight: 700,
+          justifyContent: 'center',
+          gap: 6,
+          flexWrap: 'wrap',
           marginBottom: 10,
         }}>
-          <Trophy size={13} /> Completed Successfully!
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
+            background: '#DCFCE7',
+            color: '#15803D',
+            padding: '3px 12px',
+            borderRadius: 999,
+            fontSize: 12,
+            fontWeight: 700,
+          }}>
+            <Trophy size={13} /> Completed Successfully!
+          </div>
+
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            background: 'linear-gradient(135deg, #FEF08A 0%, #FDE047 100%)',
+            color: '#78350F',
+            border: '1px solid #FCD34D',
+            padding: '3px 10px',
+            borderRadius: 999,
+            fontSize: 12,
+            fontWeight: 800,
+            boxShadow: '0 2px 6px rgba(245, 158, 11, 0.2)',
+          }}>
+            <span>🪙</span> +10 Coins
+          </div>
         </div>
 
         {/* Personalized Encouragement Quote Card */}

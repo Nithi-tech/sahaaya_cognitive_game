@@ -141,6 +141,83 @@ export interface PatientPreferences {
   onboarding?: OnboardingData;
 }
 
+// ============================================================
+// MomentJoy — Temporally Adaptive Reinforcement Architecture Types
+// ============================================================
+
+export type MomentJoyActionType = 'game' | 'medicine' | 'hydration' | 'routine';
+
+export interface MomentJoyEvent {
+  id: string;
+  patientId: string;
+  patientName?: string;
+  actionType: MomentJoyActionType;
+  title: string;
+  description?: string;
+  timestamp: string;
+  rewardVoiceUsed?: boolean;
+  coinsAwarded?: number;
+  synced?: boolean;
+  metadata?: Record<string, unknown>;
+}
+
+export interface ActivityNotification {
+  id: string;
+  patientId: string;
+  patientName: string;
+  actionType: MomentJoyActionType;
+  title: string;
+  message: string;
+  timestamp: string;
+  status: 'synced' | 'queued_offline';
+  iconEmoji: string;
+}
+
+export interface CircadianPeakInfo {
+  timeOfDay: 'Morning' | 'Afternoon' | 'Evening' | 'Night';
+  timeRange: string;
+  description: string;
+  confidence: 'high' | 'moderate' | 'initial';
+}
+
+export interface WeeklyCoinRedemptionRecord {
+  id: string;
+  patientId: string;
+  weekStart: string;
+  weekEnd: string;
+  coinsEarned: number;
+  redeemedAt: string;
+  rewardNote: string;
+}
+
+export interface PatientCoinState {
+  patientId: string;
+  currentWeekCoins: number;
+  totalAllTimeCoins: number;
+  lastRedemptionDate?: string;
+  history: WeeklyCoinRedemptionRecord[];
+}
+
+export interface WeeklyNarrativeSummary {
+  patientId: string;
+  patientName: string;
+  periodStart: string;
+  periodEnd: string;
+  totalActivitiesCompleted: number;
+  gameSessionsCount: number;
+  averageAccuracy: number;
+  medicineAdherencePercent: number;
+  hydrationAdherencePercent: number;
+  routineCompletionPercent: number;
+  circadianPeak: CircadianPeakInfo;
+  coinsEarnedThisWeek: number;
+  totalAllTimeCoins: number;
+  coinRedemptionHistory: WeeklyCoinRedemptionRecord[];
+  engagementHighlights: string[];
+  narrativeText: string;
+  generatedAt: string;
+}
+
 export interface CognitiveSession {
   id: string;
   patientId: string;

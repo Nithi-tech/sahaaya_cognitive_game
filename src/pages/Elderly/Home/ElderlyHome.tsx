@@ -10,6 +10,7 @@ import { VoiceOrb } from '../../../components/design-system/VoiceOrb';
 import { getPersonalization } from '../../../services/personalization';
 import { resolvePatientTheme, CATEGORY_METADATA } from '../../../services/themeRegistry';
 import { playPersonalizedPrompt } from '../../../services/voice/personalizedAudio';
+import { getPatientCoinState } from '../../../services/momentJoy/momentJoyService';
 import { ElderlyReminderModal } from '../../../components/Elderly/ElderlyReminderModal';
 import type { MoodType, Reminder } from '../../../types';
 
@@ -110,6 +111,29 @@ export default function ElderlyHome() {
     });
   };
 
+  const [coins, setCoins] = useState(() => {
+    const pId = currentPatient?.id || 'default_patient';
+    return getPatientCoinState(pId).currentWeekCoins;
+  });
+
+  useEffect(() => {
+    const pId = currentPatient?.id || 'default_patient';
+    setCoins(getPatientCoinState(pId).currentWeekCoins);
+  }, [currentPatient]);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      const pId = currentPatient?.id || 'default_patient';
+      setCoins(getPatientCoinState(pId).currentWeekCoins);
+    };
+    window.addEventListener('sahaaya:momentjoy:event', handleUpdate);
+    window.addEventListener('sahaaya:momentjoy:coins_redeemed', handleUpdate);
+    return () => {
+      window.removeEventListener('sahaaya:momentjoy:event', handleUpdate);
+      window.removeEventListener('sahaaya:momentjoy:coins_redeemed', handleUpdate);
+    };
+  }, [currentPatient]);
+
   const todayReminders = reminders.slice(0, 4);
   const completedToday = reminders.filter(r => r.status === 'completed').length;
 
@@ -137,18 +161,42 @@ export default function ElderlyHome() {
           overflow: 'hidden',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div className="mascot-avatar">🧠</div>
-          <div>
-            <p style={{ opacity: 0.9, fontSize: 16, marginBottom: 4 }}>
-              {lang === 'as' ? greetingAs : greeting},
-            </p>
-            <h1 className="elderly-greeting">{elderName} 👋</h1>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div className="mascot-avatar">🧠</div>
+            <div>
+              <p style={{ opacity: 0.9, fontSize: 16, marginBottom: 4 }}>
+                {lang === 'as' ? greetingAs : greeting},
+              </p>
+              <h1 className="elderly-greeting">{elderName} 👋</h1>
+            </div>
+          </div>
+
+          {/* Golden Coin Counter Badge */}
+          <div
+            title="Your Joy Coins"
+            style={{
+              background: 'rgba(255, 255, 255, 0.22)',
+              backdropFilter: 'blur(8px)',
+              border: '1.5px solid rgba(255, 255, 255, 0.45)',
+              borderRadius: 999,
+              padding: '6px 14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              color: '#FFFFFF',
+              fontWeight: 800,
+              fontSize: 16,
+              boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
+            }}
+          >
+            <span style={{ fontSize: 18, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🪙</span>
+            <span>{coins}</span>
           </div>
         </div>
 
         {streak >= 2 && (
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 14 }}>
             <span className="streak-badge">🔥 {streak}-day streak</span>
           </div>
         )}

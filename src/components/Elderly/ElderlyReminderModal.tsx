@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../../store/AppContext';
+import { useOffline } from '../../store/OfflineContext';
 import { useTranslation } from '../../i18n/useTranslation';
 import { getPersonalization } from '../../services/personalization';
 import { resolvePatientTheme } from '../../services/themeRegistry';
 import { playPersonalizedPrompt } from '../../services/voice/personalizedAudio';
-import type { Reminder } from '../../types';
+import { triggerMomentJoy } from '../../services/momentJoy/momentJoyService';
+import type { Reminder, MomentJoyActionType } from '../../types';
 import { X, Volume2, CheckCircle2, Clock, Heart, Sparkles, Pill, Utensils } from 'lucide-react';
 
 interface Props {
@@ -16,6 +18,7 @@ interface Props {
 export function ElderlyReminderModal({ reminder, onClose, onCompleted }: Props) {
   const { currentPatient, updateReminderStatus } = useApp();
   const { lang } = useTranslation();
+  const { isOnline, addToQueue } = useOffline();
   const [isPlaying, setIsPlaying] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
 
@@ -115,14 +118,19 @@ export function ElderlyReminderModal({ reminder, onClose, onCompleted }: Props) 
     setJustCompleted(true);
     onCompleted?.(reminder.id);
 
-    // Speak reward
-    playPersonalizedPrompt({
+    const actionType: MomentJoyActionType = reminder.type === 'hydration' ? 'hydration' : 'medicine';
+    triggerMomentJoy({
       patient: currentPatient,
-      trigger: 'reward',
-      fallbackText: favoritePerson
+      actionType,
+      title: reminder.title,
+      detail: reminder.description,
+      praiseText: favoritePerson
         ? `Great job ${elderName || ''}! ${favoritePerson.name} is so happy you took care of this.`
-        : 'Wonderful! Marked done.',
+        : (lang === 'as' ? 'বৰ ভাল কাম! আপুনি সম্পূৰ্ণ কৰিলে।' : 'Wonderful! Marked done.'),
       lang,
+      isOnline,
+      addToSyncQueue: addToQueue,
+      metadata: { reminderId: reminder.id, reminderType: reminder.type },
     });
 
     setTimeout(() => {

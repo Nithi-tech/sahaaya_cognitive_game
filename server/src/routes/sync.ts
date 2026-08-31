@@ -17,7 +17,8 @@ interface SyncItem {
     | 'addMemory'
     | 'setDailyActivityStatus'
     | 'resolveAlert'
-    | 'updatePatientPreferences';
+    | 'updatePatientPreferences'
+    | 'addActivityNotification';
   payload: Record<string, unknown>;
 }
 
@@ -94,6 +95,9 @@ syncRouter.post('/', (req, res) => {
           break;
         case 'updatePatientPreferences':
           data = applyPatientPreferencesUpdate(item.patientId, item.payload);
+          break;
+        case 'addActivityNotification':
+          data = { received: true, id: item.id, ...item.payload };
           break;
         default:
           throw new Error(`Unknown actionType: ${item.actionType}`);

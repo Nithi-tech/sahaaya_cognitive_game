@@ -5,10 +5,14 @@ import { useAuth } from '../../../store/AuthContext';
 import { CaregiverSidebar } from '../../../components/Sidebar/Sidebar';
 import { NetworkToggle } from '../../../components/OfflineIndicator/OfflineIndicator';
 import { ScoreRing } from '../../../components/Charts/Charts';
-import { Pill, Droplets, Route, Brain, Bell, ArrowRight, Plus, CheckCircle, Copy, Pencil, X, Trash2, AlertTriangle } from 'lucide-react';
+import { Pill, Droplets, Route, Brain, Bell, ArrowRight, Plus, CheckCircle, Copy, Pencil, X, Trash2, AlertTriangle, FileText } from 'lucide-react';
 import { getVoiceCloneStatus } from '../../../services/voice/voiceCloneService';
 import { api } from '../../../api/client';
-import type { PatientProfile, Language } from '../../../types';
+import { CaregiverActivityFeed } from '../../../components/Caregiver/CaregiverActivityFeed';
+import { WeeklyNarrativeReportModal } from '../../../components/Caregiver/WeeklyNarrativeReportModal';
+import { generateWeeklyNarrativeSummary } from '../../../services/momentJoy/weeklyNarrativeEngine';
+import { getPatientCoinState } from '../../../services/momentJoy/momentJoyService';
+import type { PatientProfile, Language, WeeklyNarrativeSummary } from '../../../types';
 
 const REGIONS = ['Assam', 'Meghalaya', 'Manipur', 'Nagaland', 'Arunachal Pradesh', 'Mizoram', 'Tripura', 'Sikkim', 'Other'];
 
@@ -30,6 +34,19 @@ export default function CaregiverDashboard() {
   } = useApp();
   const navigate = useNavigate();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [weeklySummary, setWeeklySummary] = useState<WeeklyNarrativeSummary | null>(null);
+  const [showWeeklyModal, setShowWeeklyModal] = useState(false);
+
+  const handleOpenWeeklyReport = () => {
+    const summary = generateWeeklyNarrativeSummary({
+      patient: currentPatient,
+      sessions,
+      reminders,
+      dailyActivities,
+    });
+    setWeeklySummary(summary);
+    setShowWeeklyModal(true);
+  };
   const [editingPatient, setEditingPatient] = useState<PatientProfile | null>(null);
   const [editForm, setEditForm] = useState({ name: '', age: '', region: 'Assam', language: 'en' as Language });
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
@@ -109,6 +126,30 @@ export default function CaregiverDashboard() {
     refreshPatients();
   }, [refreshPatients]);
 
+  const [patientCoinState, setPatientCoinState] = useState(() =>
+    currentPatient ? getPatientCoinState(currentPatient.id) : { currentWeekCoins: 0, totalAllTimeCoins: 0, history: [] }
+  );
+
+  useEffect(() => {
+    if (currentPatient) {
+      setPatientCoinState(getPatientCoinState(currentPatient.id));
+    }
+  }, [currentPatient]);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      if (currentPatient) {
+        setPatientCoinState(getPatientCoinState(currentPatient.id));
+      }
+    };
+    window.addEventListener('sahaaya:momentjoy:event', handleUpdate);
+    window.addEventListener('sahaaya:momentjoy:coins_redeemed', handleUpdate);
+    return () => {
+      window.removeEventListener('sahaaya:momentjoy:event', handleUpdate);
+      window.removeEventListener('sahaaya:momentjoy:coins_redeemed', handleUpdate);
+    };
+  }, [currentPatient]);
+
   const handleCopyId = (id: string) => {
     navigator.clipboard.writeText(id).then(() => {
       setCopiedId(id);
@@ -175,6 +216,19 @@ export default function CaregiverDashboard() {
               <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em' }}>{user?.name}</h1>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <button
+                onClick={handleOpenWeeklyReport}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  borderRadius: 12, height: 42, padding: '0 16px', fontSize: 14, fontWeight: 700,
+                  background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+                  color: 'white', border: 'none', cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(2,132,199,0.25)',
+                }}
+                title="Generate local 7-day MomentJoy family narrative summary and export PDF"
+              >
+                <FileText size={16} /> Weekly Summary
+              </button>
               <button
                 onClick={() => navigate('/onboarding?new=true')}
                 className="btn btn--primary"
@@ -500,10 +554,27 @@ export default function CaregiverDashboard() {
               color: 'var(--color-success)',
               bg: 'var(--color-success-light)',
             },
+            {
+              icon: <span style={{ fontSize: 20 }}>🪙</span>, label: 'Joy Coins (This Week)',
+              value: `${patientCoinState.currentWeekCoins} Coins`,
+              sub: patientCoinState.currentWeekCoins > 0 ? '🎁 Tap to view & redeem' : 'Accumulates on activity',
+              color: '#D97706',
+              bg: '#FEF3C7',
+              onClick: handleOpenWeeklyReport,
+            },
           ].map((card) => (
-            <div key={card.label} className="card" style={{ borderRadius: 18 }}>
+            <div
+              key={card.label}
+              className="card"
+              onClick={card.onClick}
+              style={{
+                borderRadius: 18,
+                cursor: card.onClick ? 'pointer' : 'default',
+                transition: 'transform 0.15s, box-shadow 0.15s',
+              }}
+            >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                <div style={{ background: card.bg, color: card.color, padding: 10, borderRadius: 12 }}>
+                <div style={{ background: card.bg, color: card.color, padding: 10, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {card.icon}
                 </div>
               </div>
@@ -553,6 +624,20 @@ export default function CaregiverDashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div className="card" style={{ borderRadius: 20 }}>
               <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 14 }}>Quick Actions</h3>
+              <button
+                onClick={handleOpenWeeklyReport}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '10px 14px', borderRadius: 12,
+                  background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
+                  border: '1px solid #BAE6FD',
+                  cursor: 'pointer', marginBottom: 8, fontSize: 14, fontWeight: 700,
+                  color: '#0369A1', transition: 'all 0.15s',
+                }}
+              >
+                <span>📜</span> Weekly Family Summary
+                <ArrowRight size={14} color="#0369A1" style={{ marginLeft: 'auto' }} />
+              </button>
               {[
                 { label: 'View Analytics', to: '/activity', emoji: '📊' },
                 { label: 'Manage Reminders', to: '/reminders', emoji: '🔔' },
@@ -594,6 +679,14 @@ export default function CaregiverDashboard() {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* MomentJoy Layer 2: Live Activity & Micro-Notification Feed */}
+        <div style={{ marginTop: 24 }}>
+          <CaregiverActivityFeed
+            patientId={currentPatient?.id}
+            patientName={currentPatient?.name}
+          />
         </div>
       </main>
 
@@ -841,6 +934,12 @@ export default function CaregiverDashboard() {
           </div>
         </div>
       )}
+      {/* Weekly Narrative Report Modal */}
+      <WeeklyNarrativeReportModal
+        summary={weeklySummary}
+        isOpen={showWeeklyModal}
+        onClose={() => setShowWeeklyModal(false)}
+      />
     </div>
   );
 }

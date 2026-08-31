@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './store/AuthContext';
 import { AppProvider, useApp } from './store/AppContext';
 import { OfflineProvider } from './store/OfflineContext';
 import { OfflineIndicator } from './components/OfflineIndicator/OfflineIndicator';
+import { CoinRewardToast } from './components/Elderly/CoinRewardToast';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import LandingPage from './pages/Landing/LandingPage';
 import OnboardingFlow from './pages/Onboarding/OnboardingFlow';
@@ -107,6 +108,7 @@ export default function App() {
                 <AppProvider>
                   <ErrorBoundary>
                     <OfflineIndicator />
+                    <CoinRewardToast />
                     <AppRoutes />
                   </ErrorBoundary>
                 </AppProvider>
