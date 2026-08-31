@@ -81,19 +81,43 @@ def _decode_reference_audio(speaker_wav: str, out_path: str) -> None:
 
     pcm = np.concatenate(frames, axis=1).reshape(-1).astype(np.float32) / 32768.0
 
-    # Clean reference audio: trim leading/trailing silence so XTTS latents focus on clear speech
+    # 1. Silence Trimming: Trim leading and trailing background room noise
     frame_len = 480
     if len(pcm) > frame_len * 4:
         energy = np.array([np.sqrt(np.mean(pcm[i:i+frame_len]**2)) for i in range(0, len(pcm) - frame_len, frame_len)])
-        threshold = max(0.008, np.mean(energy) * 0.25)
+        threshold = max(0.008, float(np.mean(energy)) * 0.25)
         voiced = np.where(energy > threshold)[0]
         if len(voiced) > 0:
             start_idx = max(0, (voiced[0] - 2) * frame_len)
             end_idx = min(len(pcm), (voiced[-1] + 3) * frame_len)
             pcm = pcm[start_idx:end_idx]
 
-    # Peak normalize to 0.92 to prevent clipping and enhance speech harmonics
-    max_amp = np.max(np.abs(pcm))
+    # 2. Optimal Window Selection: XTTS-v2's Perceiver encoder is specifically designed
+    # and trained for 3-10 seconds of speech. If a user uploads a long file (e.g. 30s-60s),
+    # passing the entire clip smears the speaker latents across multiple sentences and pauses.
+    # We automatically select the cleanest, highest-energy 8-second speech window.
+    sr = 24000
+    target_sec = 8.0
+    target_len = int(sr * target_sec)
+    if len(pcm) > target_len + int(sr * 1.0):
+        step = int(sr * 0.25)
+        frame_len_win = int(sr * 0.05)
+        best_start = 0
+        best_score = -1.0
+        for start in range(0, len(pcm) - target_len, step):
+            chunk = pcm[start : start + target_len]
+            sub_frames = [np.sqrt(np.mean(chunk[i:i+frame_len_win]**2)) for i in range(0, len(chunk) - frame_len_win, frame_len_win)]
+            avg_energy = float(np.mean(sub_frames))
+            active_ratio = float(np.sum(np.array(sub_frames) > 0.02) / max(1, len(sub_frames)))
+            score = avg_energy * (active_ratio ** 2)
+            if score > best_score:
+                best_score = score
+                best_start = start
+        pcm = pcm[best_start : best_start + target_len]
+        print(f" > Extracted optimal 8s speech window for XTTS (offset: {round(best_start/sr, 2)}s)")
+
+    # 3. Peak normalize to 0.92 (-0.7 dB) to maximize signal clarity without clipping
+    max_amp = float(np.max(np.abs(pcm)))
     if max_amp > 1e-4:
         pcm = (pcm / max_amp) * 0.92
 
@@ -160,8 +184,8 @@ def tts_stream():
                 speaker_wav=ref_path,
                 language=language,
                 file_path=out_path,
-                temperature=0.65,
-                repetition_penalty=5.0,
+                temperature=0.75,
+                repetition_penalty=2.0,
             )
         except Exception as exc:  # noqa: BLE001 - surface synthesis failures instead of a bare 500
             traceback.print_exc()
