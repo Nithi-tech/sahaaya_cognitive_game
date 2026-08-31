@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../../store/AppContext';
 import { useTranslation } from '../../../i18n/useTranslation';
 import { ElderlyNav } from '../../../components/ElderlyNav/ElderlyNav';
@@ -28,11 +28,22 @@ export default function ElderlyVoice() {
   const [response, setResponse] = useState<string | null>(null);
   const [showResponse, setShowResponse] = useState(false);
   const voiceSupported = isVoiceRecognitionSupported();
+  const activePromptRef = useRef<{ stop: () => void } | null>(null);
+
+  useEffect(() => {
+    return () => {
+      activePromptRef.current?.stop();
+    };
+  }, []);
 
   const personalization = getPersonalization(currentPatient);
   const favoritePerson = personalization.favoritePerson;
 
   const respond = (transcript: string) => {
+    // 1. Immediately cancel any prior in-flight synthesis or audio playback
+    activePromptRef.current?.stop();
+    activePromptRef.current = null;
+
     setHeard(transcript);
     setShowResponse(false);
     setOrbState('thinking');
@@ -43,7 +54,7 @@ export default function ElderlyVoice() {
       setShowResponse(true);
 
       // Speak the actual dynamic answer text in the family companion's voice
-      playPersonalizedPrompt({
+      activePromptRef.current = playPersonalizedPrompt({
         patient: currentPatient,
         trigger: 'reminder',
         fallbackText: text,
@@ -57,12 +68,14 @@ export default function ElderlyVoice() {
   };
 
   const handlePlayGreetingClip = () => {
+    activePromptRef.current?.stop();
+    activePromptRef.current = null;
     setOrbState('speaking');
     const fallbackText = lang === 'as'
       ? `মই ${favoritePerson?.name || 'সহায়া'}। মই সদায় তোমাৰ লগত আছোঁ।`
       : `Hello! This is ${favoritePerson?.name || 'Sahaaya'}. I am always right here with you.`;
 
-    playPersonalizedPrompt({
+    activePromptRef.current = playPersonalizedPrompt({
       patient: currentPatient,
       trigger: 'greeting',
       fallbackText,
@@ -73,7 +86,18 @@ export default function ElderlyVoice() {
   };
 
   const handleMicTap = async () => {
+    // If currently speaking, tapping stops speech
+    if (orbState === 'speaking') {
+      activePromptRef.current?.stop();
+      activePromptRef.current = null;
+      setOrbState('idle');
+      return;
+    }
     if (orbState !== 'idle' && orbState !== 'error') return;
+
+    activePromptRef.current?.stop();
+    activePromptRef.current = null;
+
     if (!voiceSupported) {
       respond(SUGGESTED_PHRASES[0].text);
       return;

@@ -79,8 +79,26 @@ def _decode_reference_audio(speaker_wav: str, out_path: str) -> None:
     if not frames:
         raise ValueError("Reference clip had no decodable audio")
 
-    pcm = np.concatenate(frames, axis=1).reshape(-1).astype(np.int16)
-    sf.write(out_path, pcm, samplerate=24000, subtype="PCM_16")
+    pcm = np.concatenate(frames, axis=1).reshape(-1).astype(np.float32) / 32768.0
+
+    # Clean reference audio: trim leading/trailing silence so XTTS latents focus on clear speech
+    frame_len = 480
+    if len(pcm) > frame_len * 4:
+        energy = np.array([np.sqrt(np.mean(pcm[i:i+frame_len]**2)) for i in range(0, len(pcm) - frame_len, frame_len)])
+        threshold = max(0.008, np.mean(energy) * 0.25)
+        voiced = np.where(energy > threshold)[0]
+        if len(voiced) > 0:
+            start_idx = max(0, (voiced[0] - 2) * frame_len)
+            end_idx = min(len(pcm), (voiced[-1] + 3) * frame_len)
+            pcm = pcm[start_idx:end_idx]
+
+    # Peak normalize to 0.92 to prevent clipping and enhance speech harmonics
+    max_amp = np.max(np.abs(pcm))
+    if max_amp > 1e-4:
+        pcm = (pcm / max_amp) * 0.92
+
+    clean_pcm = (pcm * 32767.0).astype(np.int16)
+    sf.write(out_path, clean_pcm, samplerate=24000, subtype="PCM_16")
 
 
 @app.after_request
@@ -137,7 +155,14 @@ def tts_stream():
             return jsonify({"error": f"Could not decode reference audio: {exc}"}), 400
 
         try:
-            tts.tts_to_file(text=text, speaker_wav=ref_path, language=language, file_path=out_path)
+            tts.tts_to_file(
+                text=text,
+                speaker_wav=ref_path,
+                language=language,
+                file_path=out_path,
+                temperature=0.65,
+                repetition_penalty=5.0,
+            )
         except Exception as exc:  # noqa: BLE001 - surface synthesis failures instead of a bare 500
             traceback.print_exc()
             return jsonify({"error": f"Synthesis failed: {exc}"}), 500

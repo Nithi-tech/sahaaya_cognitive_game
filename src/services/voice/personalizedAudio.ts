@@ -141,20 +141,24 @@ export function playPersonalizedPrompt({
   const isAiVoiceEnabled = patient?.preferences?.aiVoiceEnabled !== false;
 
   if (isOnline && isAiVoiceEnabled && voiceRef && voiceRef.person.aiVoiceEnabled !== false) {
+    console.log(`[personalizedAudio] Triggering AI Voice Cloning for "${fallbackText.slice(0, 30)}..." using sample from ${voiceRef.person.name}`);
     generateSpeech(fallbackText, voiceRef.sampleUrl, voiceRef.person.voiceProfileId, lang)
       .then((generatedAudioUrl) => {
         if (cancelled) return;
         if (generatedAudioUrl) {
+          console.log(`[personalizedAudio] Cloned audio generated successfully! Playing now.`);
           onStart?.({ person: voiceRef.person, isCustomAudio: true, isAiCloned: true });
           activeAudio = playAudioClip(generatedAudioUrl, onEnd);
         } else {
+          console.warn('[personalizedAudio] Cloned audio generation returned null, falling back to browser TTS');
           // Speak the ACTUAL fallbackText with the companion's personalized pitch/tone!
           onStart?.({ isCustomAudio: false, isAiCloned: false });
           speak(fallbackText, lang, { pitch: personaPitch, onEnd });
         }
       })
-      .catch(() => {
+      .catch((err) => {
         if (cancelled) return;
+        console.error('[personalizedAudio] Error in generateSpeech:', err);
         onStart?.({ isCustomAudio: false, isAiCloned: false });
         speak(fallbackText, lang, { pitch: personaPitch, onEnd });
       });
@@ -174,6 +178,8 @@ export function playPersonalizedPrompt({
       },
     };
   }
+
+  console.log(`[personalizedAudio] Not using cloning: isOnline=${isOnline}, isAiVoiceEnabled=${isAiVoiceEnabled}, hasVoiceRef=${!!voiceRef}`);
 
   // 3. Fallback when offline or AI voice disabled:
   // Speak the ACTUAL words using the companion's personalized pitch!

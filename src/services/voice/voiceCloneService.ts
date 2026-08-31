@@ -4,7 +4,7 @@ import { ElevenLabsProvider } from './providers/ElevenLabsProvider';
 import { XTTSProvider } from './providers/XTTSProvider';
 import { MockCloneProvider } from './providers/MockCloneProvider';
 
-const configuredProviderType = (import.meta.env.VITE_VOICE_CLONE_PROVIDER as string | undefined) || 'simulator';
+const configuredProviderType = (import.meta.env.VITE_VOICE_CLONE_PROVIDER as string | undefined) || 'xtts';
 
 function resolveProvider(): VoiceCloneProvider {
   switch (configuredProviderType.toLowerCase()) {
